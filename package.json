@@ -1,0 +1,38 @@
+{
+  "name": "electron-bondage-club",
+  "version": "1.88.2",
+  "description": "An electron wrapped bondge-club",
+  "main": "./build/main.js",
+  "author": "dynilath <dynilath@qq.com>",
+  "license": "MIT",
+  "scripts": {
+    "rip": "replace-in-file --configFile=replace.js",
+    "compile": "npm run rip && tsc",
+    "dev": "npm run compile && npm run compile && electron .",
+    "build": "npm run compile && electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^22.0.1",
+    "electron-builder": "^23.6.0",
+    "eslint": "^8.31.0",
+    "replace-in-file": "^6.3.5",
+    "typescript": "^4.9.4"
+  },
+  "build": {
+    "appId": "bondage-club.electron-app",
+    "extends": null,
+    "icon": "./Logo.ico",
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false
+    },
+    "files": [
+      "BondageClub/**",
+      "build/**"
+    ]
+  },
+  "dependencies": {
+    "electron-settings": "^4.0.2",
+    "sweetalert2": "^11.7.0"
+  }
+}

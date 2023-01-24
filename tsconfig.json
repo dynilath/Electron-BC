@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "module": "CommonJS",
+      "strict": true,
+      "sourceMap": true,
+      "esModuleInterop": true,
+      "noImplicitAny": true,
+      "outDir": "build",
+      "baseUrl": ".",
+      "paths": {
+        "*": ["node_modules/*"]
+      }
+    },
+    "include": [
+      "src/**/*"
+    ]
+}

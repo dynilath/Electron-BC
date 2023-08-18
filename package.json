@@ -1,6 +1,6 @@
 {
   "name": "electron-bondage-club",
-  "version": "1.93.0",
+  "version": "1.95.0",
   "description": "An electron wrapped bondge-club",
   "main": "./build/main.js",
   "author": "dynilath <dynilath@qq.com>",

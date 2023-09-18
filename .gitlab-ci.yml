@@ -1,0 +1,82 @@
+# This file is a template, and might need editing before it works on your project.
+# This is a sample GitLab CI/CD configuration file that should run without any modifications.
+# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
+# it uses echo commands to simulate the pipeline execution.
+#
+# A pipeline is composed of independent jobs that run scripts, grouped into stages.
+# Stages run in sequential order, but jobs within stages run in parallel.
+#
+# For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
+#
+# You can copy and paste this template into a new `.gitlab-ci.yml` file.
+# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
+#
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
+
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  - upload
+  - release
+
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  image: electronuserland/builder:wine  
+  before_script:
+    - npm install
+  script:
+    - export VERSION=$(node -e "console.log(require('./package.json').version)")
+    - echo "VERSION=$VERSION" >> variables.env
+    - export APPNAME=$(node -e "console.log(require('./package.json').productName)")
+    - echo "APPNAME=$APPNAME" >> variables.env
+    - npm run build
+  artifacts:
+    reports:
+      dotenv: variables.env
+    name: $CI_COMMIT_REF_SLUG
+    paths:
+      - $CI_PROJECT_DIR/dist/*.*
+    when: on_success
+  only:
+    - master
+
+variables:
+  WIN_BINARY: '${APPNAME} Setup ${VERSION}.exe'
+  PACKAGE_REGISTRY_URL: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${APPNAME}/${VERSION}'
+  PACKAGE_REGISTRY_URL_YML: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${APPNAME}'
+
+upload:
+  stage: upload
+  needs:
+    - job: build
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never # Do not run this job when a tag is created manually
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run this job when when commits are pushed to the default branch
+  script:
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "./dist/${WIN_BINARY}" "${PACKAGE_REGISTRY_URL}/${WIN_BINARY}"'
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "./dist/latest.yml" "${PACKAGE_REGISTRY_URL_YML}/latest.yml"'
+    - echo "${PACKAGE_REGISTRY_URL_YML}/latest.yml"
+
+auto-release-main:
+  image: registry.gitlab.com/gitlab-org/release-cli
+  needs:
+    - job: build
+      artifacts: true
+    - job: upload
+      artifacts: true
+  stage: release
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never # Do not run this job when a tag is created manually
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run this job when when commits are pushed to the default branch
+  script:
+    - echo "Release $VERSION"
+    - |
+      release-cli create --name "Release $VERSION" --tag-name v$VERSION \
+      --description 'Created using the release-cli. $CI_COMMIT_TITLE' --ref $CI_COMMIT_SHA \
+      --assets-link "{\"name\":\"${APPNAME}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${WIN_BINARY}\"}" \
+      --assets-link "{\"name\":\"${APPNAME} Latest\",\"url\":\"${PACKAGE_REGISTRY_URL_YML}/latest.yml\"}"

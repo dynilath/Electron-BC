@@ -3,7 +3,10 @@ name: Build/release
 on:
   push:
     branches:
-      - master
+      - release
+
+env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
 jobs:
   release:
@@ -28,17 +31,8 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: install
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Run compile
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: compile
 
       - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
+        uses: borales/actions-yarn@v4
         with:
-          args: --windows nsis:x64
-          github_token: ${{ secrets.github_token }}
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          cmd: dist

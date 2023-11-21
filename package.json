@@ -9,7 +9,8 @@
     "rip": "replace-in-file --configFile=replace.js",
     "compile": "npm run rip && tsc",
     "dev": "npm run compile && npm run compile && electron .",
-    "build": "npm run compile && electron-builder --windows nsis:x64",
+    "build": "npm run compile && electron-builder",
+    "dist": "npm run compile && electron-builder --windows nsis:x64 --publish always",
     "create-zip": "node zip_target.js",
     "ci-build": "npm run compile && electron-builder --windows nsis:x64 && npm run create-zip"
   },
@@ -24,6 +25,7 @@
     "appId": "bondage-club.electron-app",
     "extends": null,
     "icon": "./Logo.ico",
+    "publish": "github",
     "nsis": {
       "allowToChangeInstallationDirectory": true,
       "oneClick": false

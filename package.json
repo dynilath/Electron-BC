@@ -10,9 +10,7 @@
     "compile": "npm run rip && tsc",
     "dev": "npm run compile && npm run compile && electron .",
     "build": "npm run compile && electron-builder",
-    "dist": "npm run compile && electron-builder --windows nsis:x64 --publish always",
-    "create-zip": "node zip_target.js",
-    "ci-build": "npm run compile && electron-builder --windows nsis:x64 && npm run create-zip"
+    "dist": "npm run compile && electron-builder --windows nsis:x64 --publish always"
   },
   "devDependencies": {
     "electron": "^22.0.1",
@@ -26,6 +24,7 @@
     "extends": null,
     "icon": "./Logo.ico",
     "publish": "github",
+    "releaseType": "release",
     "nsis": {
       "allowToChangeInstallationDirectory": true,
       "oneClick": false

@@ -39,7 +39,7 @@ build-job: # This job runs in the build stage, which runs first.
       dotenv: variables.env
     name: $CI_COMMIT_REF_SLUG
     paths:
-      - $CI_PROJECT_DIR/dist/*.*
+      - $CI_PROJECT_DIR/dist/*.exe
     when: on_success
   only:
     - master

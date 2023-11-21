@@ -28,18 +28,20 @@ build-job: # This job runs in the build stage, which runs first.
   image: electronuserland/builder:wine
   before_script:
     - npm install
+    - apt-get update -qy
+    - apt-get install p7zip-full -qy
   script:
     - export VERSION=$(node -e "console.log(require('./package.json').version)")
     - echo "VERSION=$VERSION" >> variables.env
     - export APPNAME=$(node -e "console.log(require('./package.json').productName)")
     - echo "APPNAME=$APPNAME" >> variables.env
-    - npm run build
+    - npm run ci-build
   artifacts:
     reports:
       dotenv: variables.env
     name: $CI_COMMIT_REF_SLUG
     paths:
-      - $CI_PROJECT_DIR/dist/*.exe
+      - $CI_PROJECT_DIR/dist/*.zip.*
     when: on_success
   only:
     - master

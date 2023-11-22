@@ -1,10 +1,3 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// No Node.js APIs are available in this process unless
-// nodeIntegration is set to true in webPreferences.
-// Use preload.js to selectively enable features
-// needed in the renderer process.
-
 import { ipcRenderer } from "electron";
 import Swal from "sweetalert2";
 import { ScriptItem } from "./SimpleScriptManager/ScriptItem";
@@ -12,7 +5,6 @@ import { ScriptItem } from "./SimpleScriptManager/ScriptItem";
 declare var CommonGetServer: () => string;
 
 CommonGetServer = () => "https://bondage-club-server.herokuapp.com/";
-
 
 function ShowLoadURLPrompt(event: any, args: { title: string, confirm: string, cancel: string, please: string }) {
     Swal.fire({
@@ -78,5 +70,4 @@ document.addEventListener('DOMContentLoaded', () => {
         _TranslationNextLanguage();
         emitLang();
     };
-})
-
+});

@@ -42,8 +42,6 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, "../BondageClub/BondageClub/index.html"));
 
-  //mainWindow.webContents.executeJavaScript('CommonGetServer=()=>\'https://bondage-club-server.herokuapp.com/\';');
-
   SetMainWindow(mainWindow);
 
   ipcMain.on('reload-menu', () => {
@@ -65,17 +63,11 @@ app.whenReady().then(() => {
   });
 });
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
 });
-
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.
 
 ipcMain.on('load-script-url', (event, arg) => {
   const value = arg as string;

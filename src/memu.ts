@@ -2,15 +2,16 @@ import { dialog, ipcMain, Menu } from "electron";
 import renderer from "./handler";
 import { GetMainWindow } from "./MWContainer";
 import { OpenScriptFolder, ScriptManager } from "./SimpleScriptManager";
+import { i18n } from "./i18n";
 
 async function GetMenu() {
     const scripts = await ScriptManager.LoadDataFolder();
     return Menu.buildFromTemplate(
         [{
-            label: 'Tools',
+            label: i18n('MenuItem::Tools'),
             submenu: [
                 {
-                    label: 'Open Dev Tools',
+                    label: i18n('MenuItem::Tools::Open Dev Tools'),
                     type: 'normal',
                     click: () => {
                         const mw = GetMainWindow();
@@ -21,27 +22,32 @@ async function GetMenu() {
                 }]
         },
         {
-            label: 'Script',
+            label: i18n('MenuItem::Script'),
             submenu: [
                 {
-                    label: 'Load From URL',
+                    label: i18n('MenuItem::Script::Load From URL'),
                     type: 'normal',
                     click: () => {
                         const r = renderer();
                         if (r) {
-                            r.send('show-prompt-loadurl');
+                            r.send('show-prompt-loadurl', {
+                                title: i18n('Alert::LoadUrl::Input script URL'),
+                                confirm: i18n('Alert::LoadUrl::Confirm'),
+                                cancel: i18n('Alert::LoadUrl::Cancel'),
+                                please: i18n('Alert::LoadUrl::Please input Correct'),
+                            });
                         }
                     }
                 },
                 {
-                    label: 'Open Script Folder',
+                    label: i18n('MenuItem::Script::Open Script Folder'),
                     type: 'normal',
                     click: () => {
                         OpenScriptFolder();
                     }
                 },
                 {
-                    label: 'Refresh Script',
+                    label: i18n('MenuItem::Script::Refresh Script'),
                     type: 'normal',
                     click: () => {
                         ipcMain.emit('reload-menu');

@@ -14,10 +14,13 @@ declare var CommonGetServer: () => string;
 CommonGetServer = () => "https://bondage-club-server.herokuapp.com/";
 
 
-function ShowLoadURLPrompt(event: any, ...args: any[]) {
+function ShowLoadURLPrompt(event: any, args: { title: string, confirm: string, cancel: string, please: string }) {
     Swal.fire({
-        title: 'Input script URL',
+        title: args.title,
+        confirmButtonText: args.confirm,
+        cancelButtonText: args.cancel,
         input: 'url',
+        inputPlaceholder: 'https://example.com/script.user.js',
         showCancelButton: true,
     }).then((result) => {
         if (result.isConfirmed) {
@@ -26,7 +29,8 @@ function ShowLoadURLPrompt(event: any, ...args: any[]) {
                 ipcRenderer.send('load-script-url', v);
             else
                 Swal.fire({
-                    title: 'Please input correct url',
+                    title: args.please,
+                    confirmButtonText: args.confirm,
                 });
         }
     });
@@ -46,3 +50,29 @@ ipcRenderer.on('show-prompt-loadurl', ShowLoadURLPrompt)
 ipcRenderer.on('load-script', LoadScript)
 
 ipcRenderer.send('handler-register');
+
+declare var TranslationLoad: () => void;
+declare var TranslationNextLanguage: () => void;
+declare var TranslationLanguage: string | undefined;
+
+const emitLang = () => {
+    if (TranslationLanguage)
+        ipcRenderer.send('language-change', TranslationLanguage);
+}
+
+ipcRenderer.on('script-document-ready', () => {
+    emitLang();
+
+    let _TranslationLoad = TranslationLoad;
+    TranslationLoad = () => {
+        _TranslationLoad();
+        emitLang();
+    };
+
+    let _TranslationNextLanguage = TranslationNextLanguage;
+    TranslationNextLanguage = () => {
+        _TranslationNextLanguage();
+        emitLang();
+    };
+})
+

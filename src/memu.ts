@@ -11,6 +11,13 @@ async function GetMenu() {
             label: i18n('MenuItem::Tools'),
             submenu: [
                 {
+                    label: i18n('MenuItem::Tools::Refresh'),
+                    type: 'normal',
+                    click: () => {
+                        renderer()?.send('reload');
+                    }
+                },
+                {
                     label: i18n('MenuItem::Tools::Open Dev Tools'),
                     type: 'normal',
                     click: () => {

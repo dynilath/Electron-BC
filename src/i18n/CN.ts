@@ -1,6 +1,7 @@
 const translation: Map<string, string> = new Map<string, string>([
     ["MenuItem::Tools", "工具"],
     ["MenuItem::Tools::Open Dev Tools", "打开开发者工具"],
+    ["MenuItem::Tools::Refresh", "刷新页面"],
     ["MenuItem::Script", "脚本"],
     ["MenuItem::Script::Load From URL", "从网址加载"],
     ["MenuItem::Script::Open Script Folder", "打开脚本文件夹"],

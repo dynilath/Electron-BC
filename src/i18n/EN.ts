@@ -1,6 +1,7 @@
 const translation: Map<string, string> = new Map<string, string>([
     ["MenuItem::Tools", "Tools"],
     ["MenuItem::Tools::Open Dev Tools", "Open Dev Tools"],
+    ["MenuItem::Tools::Refresh", "Refresh Page"],
     ["MenuItem::Script", "Script"],
     ["MenuItem::Script::Load From URL", "Load From URL"],
     ["MenuItem::Script::Open Script Folder", "Open Script Folder"],

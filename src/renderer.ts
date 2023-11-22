@@ -51,6 +51,10 @@ ipcRenderer.on('load-script', LoadScript)
 
 ipcRenderer.send('handler-register');
 
+ipcRenderer.on('reload', () => {
+    location.reload();
+});
+
 declare var TranslationLoad: () => void;
 declare var TranslationNextLanguage: () => void;
 declare var TranslationLanguage: string | undefined;

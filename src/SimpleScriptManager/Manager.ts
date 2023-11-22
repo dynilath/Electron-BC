@@ -18,9 +18,9 @@ export class ScriptManager {
 
     static _scripts = new Map<string, ScriptItem>();
 
-    public static async LoadScript(scripts: ScriptItem[]) {
+    public static async LoadScript(reload?: boolean) {
         while (renderer() === undefined) await delay(100);
-        scripts.filter(_ => _.enabled && !_.loaded).forEach(_ => {
+        Array.from(ScriptManager._scripts.values()).filter(_ => _.enabled && (reload || !_.loaded)).forEach(_ => {
             renderer()?.send('load-script', _);
             console.log('emit load-script : ' + JSON.stringify({ name: _.name, enabled: _.enabled, loaded: _.loaded }));
             _.loaded = true;
@@ -65,8 +65,6 @@ export class ScriptManager {
 
         this.SaveConfigs();
 
-        await this.LoadScript(newItemList);
-
         return this._scripts;
     }
 
@@ -86,7 +84,7 @@ export class ScriptManager {
             const old = target.enabled;
             target.enabled = !target.enabled;
             this.SaveConfigs();
-            if (!old) this.LoadScript([target]).then(() => target.loaded = target.enabled);
+            if (!old) this.LoadScript();
         }
     }
 

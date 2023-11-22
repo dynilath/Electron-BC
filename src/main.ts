@@ -4,14 +4,13 @@ import { SetMainWindow } from "./MWContainer";
 import menu from './memu'
 import { ScriptManager } from "./SimpleScriptManager";
 import { windowStateKeeper } from "./WindowState";
+import { updateLang } from "./i18n";
 
 let mainWindow: BrowserWindow | undefined;
 
 function createWindow() {
   const winstate = new windowStateKeeper('main');
 
-
-  // Create the browser window.
   mainWindow = new BrowserWindow({
     ...winstate.getBound(),
     webPreferences: {
@@ -27,6 +26,8 @@ function createWindow() {
 
   winstate.track(mainWindow);
 
+  ScriptManager.LoadDataFolder();
+
   menu().then((v) => {
     Menu.setApplicationMenu(v);
   })
@@ -39,7 +40,6 @@ function createWindow() {
     },
   );
 
-  // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "../BondageClub/BondageClub/index.html"));
 
   //mainWindow.webContents.executeJavaScript('CommonGetServer=()=>\'https://bondage-club-server.herokuapp.com/\';');
@@ -52,22 +52,16 @@ function createWindow() {
     })
   })
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.on('dom-ready', () => {
+    ipcMain.emit('script-document-ready');
+    ScriptManager.LoadScript(true);
+  });
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-
   createWindow();
-
   powerSaveBlocker.start('prevent-display-sleep');
-
   app.on("activate", function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
@@ -87,4 +81,8 @@ app.on("window-all-closed", () => {
 ipcMain.on('load-script-url', (event, arg) => {
   const value = arg as string;
   ScriptManager.LoadFromURl(value, () => ipcMain.emit('reload-menu'));
+});
+
+ipcMain.on('language-change', (event, arg) => {
+  updateLang(arg as string, () => ipcMain.emit('reload-menu'));
 });

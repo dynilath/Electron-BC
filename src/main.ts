@@ -53,7 +53,6 @@ function createWindow() {
   })
 
   mainWindow.webContents.on('dom-ready', () => {
-    ipcMain.emit('script-document-ready');
     ScriptManager.LoadScript(true);
   });
 }
@@ -84,5 +83,6 @@ ipcMain.on('load-script-url', (event, arg) => {
 });
 
 ipcMain.on('language-change', (event, arg) => {
+  console.log('language-change', arg);
   updateLang(arg as string, () => ipcMain.emit('reload-menu'));
 });

@@ -60,7 +60,7 @@ const emitLang = () => {
         ipcRenderer.send('language-change', TranslationLanguage);
 }
 
-ipcRenderer.on('script-document-ready', () => {
+document.addEventListener('DOMContentLoaded', () => {
     emitLang();
 
     let _TranslationLoad = TranslationLoad;

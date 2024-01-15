@@ -11,7 +11,6 @@ export type ScriptMeta = {
         description: string,
         author: string,
         match: string[],
-        icon: string,
     },
     Script: string,
 };

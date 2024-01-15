@@ -21,7 +21,6 @@ export function ReadScriptData(script: string): ScriptMeta | undefined {
             switch (result[1]) {
                 case 'author': ret.author = result[2]; break;
                 case 'description': ret.description = result[2]; break;
-                case 'icon': ret.icon = result[2]; break;
                 case 'match':
                 case 'include': if (!ret.match) ret.match = []; ret.match.push(result[2]); break;
                 case 'name': ret.name = result[2]; break;

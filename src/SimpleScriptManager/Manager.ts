@@ -6,6 +6,7 @@ import { ipcMain, net } from 'electron';
 
 import settings from 'electron-settings';
 import renderer from '../handler';
+import { ReadScriptData } from './ScriptMetadata';
 
 type ConfigItem = { name: string, enabled: boolean };
 
@@ -69,8 +70,7 @@ export class ScriptManager {
     }
 
     static SaveConfigs() {
-        settings.setSync('ScriptManagerConfig', Array.from(this._scripts.values())
-            .map(_ => { return { name: _.name, enabled: _.enabled } }));
+        settings.setSync('ScriptManagerConfig', Array.from(this._scripts.values(), item => { return { name: item.name, enabled: item.enabled } }));
     }
 
     static LoadConfigs(): ConfigItem[] {
@@ -93,8 +93,12 @@ export class ScriptManager {
         const req = net.request(url);
         req.on('response', (r) => {
             r.on('data', (d) => {
-                const desiredPath = path.join(GetDataPath(), `${Date.now()}.user.js`);
-                const lo = ScriptItem.LoadScriptWithScriptContent(desiredPath, d.toString('utf-8'));
+                const decoded = d.toString('utf-8');
+                const meta = ReadScriptData(decoded);
+                if (meta === undefined) return;
+
+                const desiredPath = path.join(GetDataPath(), `${meta.Meta.name.replace(/[\\\/:*?"<>|]/g, '_')}.user.js`);
+                const lo = ScriptItem.LoadScriptWithScriptContent(desiredPath, decoded);
                 if (lo) {
                     this.AddScript(lo);
                     then();

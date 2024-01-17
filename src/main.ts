@@ -1,10 +1,10 @@
-import { app, BrowserWindow, ipcMain, Menu, session, powerSaveBlocker } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, session, powerSaveBlocker, shell } from "electron";
 import * as path from "path";
 import { SetMainWindow } from "./MWContainer";
 import menu from './memu'
 import { ScriptManager } from "./SimpleScriptManager";
 import { windowStateKeeper } from "./WindowState";
-import { updateLang } from "./i18n";
+import { i18n, updateLang } from "./i18n";
 
 let mainWindow: BrowserWindow | undefined;
 
@@ -52,6 +52,21 @@ function createWindow() {
 
   mainWindow.webContents.on('dom-ready', () => {
     ScriptManager.LoadScript(true);
+  });
+
+  mainWindow.webContents.on('context-menu', (event, params) => {
+    const contextMenu = Menu.buildFromTemplate([
+      { label: i18n("ContextMenu::Cut"), role: 'cut' },
+      { label: i18n("ContextMenu::Copy"), role: 'copy' },
+      { label: i18n("ContextMenu::Paste"), role: 'paste' }
+    ]);
+    contextMenu.popup({ window: mainWindow, x: params.x, y: params.y });
+  });
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url === 'about:blank') return { action: 'allow' };
+    shell.openExternal(url);
+    return { action: 'deny' };
   });
 }
 

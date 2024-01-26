@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu, session, powerSaveBlocker, shell } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, powerSaveBlocker, shell, dialog } from "electron";
 import * as path from "path";
 import { SetMainWindow } from "./MWContainer";
 import menu from './memu'
@@ -67,6 +67,10 @@ function createWindow() {
     if (url === 'about:blank') return { action: 'allow' };
     shell.openExternal(url);
     return { action: 'deny' };
+  });
+
+  mainWindow.webContents.on("will-prevent-unload", (event) => {
+    return event.preventDefault();
   });
 }
 

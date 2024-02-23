@@ -1,8 +1,9 @@
-import { dialog, ipcMain, Menu } from "electron";
-import { getHandler } from "./handler";
+import { Menu } from "electron";
+import { handler, newHandler } from "./handler";
 import { GetMainWindow } from "./MWContainer";
 import { openScriptFolder, ScriptManager } from "./SimpleScriptManager";
 import { i18n } from "./i18n";
+import { showPromptLoadurl } from "./Prompts";
 
 type MenuIds = 'script' | 'tools';
 
@@ -15,13 +16,10 @@ export function makeMenu() {
                 {
                     label: i18n('MenuItem::Tools::Refresh'),
                     type: 'normal',
-                    click: () => {
-                        const handler = getHandler();
-                        if (handler) {
-                            handler.send('reload');
-                            ScriptManager.loadDataFolder().then(() => reloadMenu());
-                        }
-                    }
+                    click: () => handler().then(h => {
+                        h.send('reload');
+                        newHandler().then(() => ScriptManager.loadDataFolder().then(() => reloadMenu()));
+                    })
                 },
                 {
                     label: i18n('MenuItem::Tools::Open Dev Tools'),
@@ -41,17 +39,7 @@ export function makeMenu() {
                 {
                     label: i18n('MenuItem::Script::Load From URL'),
                     type: 'normal',
-                    click: () => {
-                        const r = getHandler();
-                        if (r) {
-                            r.send('show-prompt-loadurl', {
-                                title: i18n('Alert::LoadUrl::Input script URL'),
-                                confirm: i18n('Alert::LoadUrl::Confirm'),
-                                cancel: i18n('Alert::LoadUrl::Cancel'),
-                                please: i18n('Alert::LoadUrl::Please input Correct'),
-                            });
-                        }
-                    }
+                    click: () => showPromptLoadurl()
                 },
                 {
                     label: i18n('MenuItem::Script::Open Script Folder'),
@@ -102,6 +90,6 @@ export function popupMenu(id: MenuIds, window: Electron.BrowserWindow) {
     targetMenu.menu.popup({
         window,
         x: menu.items.indexOf(targetMenu) * 25,
-        y: 1
+        y: 0
     });
 }

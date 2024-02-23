@@ -6,8 +6,7 @@
   "author": "dynilath <dynilath@qq.com>",
   "license": "MIT",
   "scripts": {
-    "rip": "replace-in-file --configFile=replace.js",
-    "compile": "npm run rip && tsc",
+    "compile": "tsc",
     "dev": "npm run compile && electron .",
     "build": "npm run compile && electron-builder",
     "dist": "npm run compile && electron-builder --windows nsis:x64 --publish always"

@@ -2,10 +2,6 @@ import { ipcRenderer } from "electron";
 import Swal from "sweetalert2";
 import { ScriptItem } from "./SimpleScriptManager/ScriptItem";
 
-declare var CommonGetServer: () => string;
-
-CommonGetServer = () => "https://bondage-club-server.herokuapp.com/";
-
 function showLoadURLPrompt(event: any, args: { title: string, confirm: string, cancel: string, please: string }) {
     Swal.fire({
         title: args.title,
@@ -34,14 +30,14 @@ async function loadScript(event: any, script: ScriptItem) {
     s.textContent = script.data.content;
     document.head.appendChild(s);
     ipcRenderer.send('load-script-done', script.data.meta.name);
+    s.remove();
 }
 
 ipcRenderer.on('show-prompt-loadurl', showLoadURLPrompt)
 ipcRenderer.on('load-script', loadScript)
+ipcRenderer.on('reload', () => location.reload());
 
 ipcRenderer.send('handler-register');
-
-ipcRenderer.on('reload', () => location.reload());
 
 declare var TranslationLoad: () => void;
 declare var TranslationNextLanguage: () => void;

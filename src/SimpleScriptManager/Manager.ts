@@ -3,7 +3,7 @@ import { SettingTag, getDataFolder } from './Constants';
 import { ScriptItem } from './ScriptItem';
 import { net } from 'electron';
 import settings from 'electron-settings';
-import { getHandler } from '../handler';
+import { handler } from '../handler';
 import { isV1Config, isV2Config } from './types';
 
 function delay(ms: number) {
@@ -52,12 +52,10 @@ export class ScriptManager {
     static onScriptLoaded(scriptName: string) {
         const script = this.scripts.get(scriptName);
         if (script) script.data.loaded = true;
-        console.log('Script Loaded : ' + JSON.stringify({ name: scriptName }));
+        console.log('Script[Load Done] : ' + JSON.stringify({ name: scriptName }));
     }
 
     public static async loadDataFolder() {
-        console.log('loadDataFolder');
-
         const rawConfigs = new Map<string, V2ConfigItem>(this.loadSettings().map(_ => [_.name, _]));
 
         const newItemList = fs.readdirSync(getDataFolder(), { withFileTypes: true })
@@ -73,12 +71,13 @@ export class ScriptManager {
     }
 
     public static loadSingleScript(script: ScriptItem) {
-        getHandler()?.send('load-script', script);
-        console.log('Send Load Script : ' + JSON.stringify({ name: script.data.meta.name }));
+        handler().then(h => {
+            h.send('load-script', script);
+            console.log('Script[Load] : ' + JSON.stringify({ name: script.data.meta.name }));
+        })
     }
 
     public static async loadScript(reload?: boolean) {
-        while (getHandler() === undefined) await delay(100);
         Array.from(ScriptManager.scripts.values()).filter(i => i.data.setting.enabled && (reload || !i.data.loaded)).forEach(i => {
             i.data.loaded = false;
             this.loadSingleScript(i);
@@ -91,7 +90,7 @@ export class ScriptManager {
             const old = target.data.setting.enabled;
             target.data.setting.enabled = !old;
             this.saveSettings();
-            console.log('Switch Script : ' + JSON.stringify({ name: target.data.meta.name, enabled: target.data.setting.enabled }));
+            console.log('Script[Switch] : ' + JSON.stringify({ name: target.data.meta.name, enabled: target.data.setting.enabled }));
             if (!old && !target.data.loaded) this.loadSingleScript(target);
         }
     }
@@ -123,12 +122,11 @@ export class ScriptManager {
     }
 
     public static loadOneFromURL(url: string, promptPath?: string) {
-        const req = net.request(url);
-
-        console.log('Load Script From URL : ' + url + ' To : ' + promptPath);
-
+        console.log('Script[Load URL] : ' + url + ' To : ' + promptPath);
         let accepted_: (() => void) | undefined = undefined;
         let rejected_: ((reason?: Error) => void) | undefined = undefined;
+
+        const req = net.request(url);
         req.on('response', (r) => {
             r.on('data', (d) => {
                 const content = d.toString('utf-8');
@@ -153,4 +151,3 @@ export class ScriptManager {
         };
     }
 }
-

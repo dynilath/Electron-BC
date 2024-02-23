@@ -1,7 +1,7 @@
-import { app, BrowserWindow, ipcMain, Menu, powerSaveBlocker, shell, dialog } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, powerSaveBlocker, shell } from "electron";
 import * as path from "path";
 import { SetMainWindow } from "./MWContainer";
-import { makeMenu, reloadMenu } from './memu'
+import { popupMenu, reloadMenu } from './memu'
 import { ScriptManager } from "./SimpleScriptManager";
 import { windowStateKeeper } from "./WindowState";
 import { i18n, updateLang } from "./i18n";
@@ -49,7 +49,7 @@ function createWindow() {
         const value = arg as string;
         ScriptManager.loadOneFromURL(value).then(() => {
             reloadMenu();
-            Menu.getApplicationMenu()?.getMenuItemById('script')?.submenu?.popup({ window: mainWindow });
+            if (mainWindow) popupMenu('script', mainWindow);
         });
     });
 

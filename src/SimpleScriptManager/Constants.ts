@@ -3,17 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { app, shell } from "electron";
 
-export type ScriptMeta = {
-    Meta: {
-        name: string,
-        namespace: string,
-        version: string,
-        description: string,
-        author: string,
-        match: string[],
-    },
-    Script: string,
-};
+export const SettingTag = 'ScriptManagerConfig';
 
 const DataPath = path.join(app.getPath('appData'), 'Bondage Club', 'Electron App');
 
@@ -23,12 +13,12 @@ function AssureDataPath() {
     }
 }
 
-export function GetDataPath() {
+export function getDataFolder() {
     AssureDataPath();
     return DataPath;
 }
 
-export function OpenScriptFolder() {
+export function openScriptFolder() {
     AssureDataPath();
-    shell.openPath(GetDataPath());
+    shell.openPath(getDataFolder());
 }

@@ -85,9 +85,10 @@ export function popupMenu(id: MenuIds, window: Electron.BrowserWindow) {
     if (!targetMenu) return;
 
     const windowBounds = window.getBounds();
-    const yPosition = windowBounds.y;
 
-    targetMenu.menu.popup({
+    console.log("windowBounds", JSON.stringify(windowBounds));
+
+    targetMenu.submenu?.popup({
         window,
         x: menu.items.indexOf(targetMenu) * 25,
         y: 0

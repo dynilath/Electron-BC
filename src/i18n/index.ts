@@ -16,8 +16,8 @@ export function i18n(tag: string) {
     return tag;
 }
 
-export function updateLang(lang: string, then: () => void) {
-    if (global_language === lang) return;
+export function updateLang(lang: string) {
+    if (global_language === lang) return { then: (cb: () => void) => { } };
     global_language = lang as LanguageSetting;
-    then();
+    return { then: (cb: () => void) => cb() }
 }

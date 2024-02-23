@@ -2,11 +2,7 @@ import { ipcRenderer } from "electron";
 import Swal from "sweetalert2";
 import { ScriptItem } from "./SimpleScriptManager/ScriptItem";
 
-declare var CommonGetServer: () => string;
-
-CommonGetServer = () => "https://bondage-club-server.herokuapp.com/";
-
-function ShowLoadURLPrompt(event: any, args: { title: string, confirm: string, cancel: string, please: string }) {
+function showLoadURLPrompt(event: any, args: { title: string, confirm: string, cancel: string, please: string }) {
     Swal.fire({
         title: args.title,
         confirmButtonText: args.confirm,
@@ -28,24 +24,20 @@ function ShowLoadURLPrompt(event: any, args: { title: string, confirm: string, c
     });
 }
 
-function delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+async function loadScript(event: any, script: ScriptItem) {
+    console.log('Load-Script : ' + JSON.stringify({ name: script.data.meta.name, author: script.data.meta.author, version: script.data.meta.version }));
+    const s = document.createElement('script');
+    s.textContent = script.data.content;
+    document.head.appendChild(s);
+    ipcRenderer.send('load-script-done', script.data.meta.name);
+    s.remove();
 }
 
-async function LoadScript(event: any, script: ScriptItem) {
-    console.log('on load-script : ' + JSON.stringify({ name: script.name, enabled: script.enabled, loaded: script.loaded }));
-    while ((window as any).Player === undefined) await delay(100);
-    eval(script.content.Script)
-}
-
-ipcRenderer.on('show-prompt-loadurl', ShowLoadURLPrompt)
-ipcRenderer.on('load-script', LoadScript)
+ipcRenderer.on('show-prompt-loadurl', showLoadURLPrompt)
+ipcRenderer.on('load-script', loadScript)
+ipcRenderer.on('reload', () => location.reload());
 
 ipcRenderer.send('handler-register');
-
-ipcRenderer.on('reload', () => {
-    location.reload();
-});
 
 declare var TranslationLoad: () => void;
 declare var TranslationNextLanguage: () => void;

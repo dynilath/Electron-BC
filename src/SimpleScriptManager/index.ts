@@ -1,6 +1,2 @@
-import { OpenScriptFolder, ScriptMeta } from "./Constants"
-import { ScriptManager } from "./Manager"
-
-export {
-    ScriptManager, ScriptMeta, OpenScriptFolder
-}
+export * from "./Constants"
+export * from "./Manager"

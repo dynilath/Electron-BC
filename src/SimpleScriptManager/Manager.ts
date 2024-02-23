@@ -1,111 +1,153 @@
-import * as path from 'path';
 import * as fs from 'fs';
-import { GetDataPath } from './Constants';
+import { SettingTag, getDataFolder } from './Constants';
 import { ScriptItem } from './ScriptItem';
-import { ipcMain, net } from 'electron';
-
+import { net } from 'electron';
 import settings from 'electron-settings';
-import renderer from '../handler';
-import { ReadScriptData } from './ScriptMetadata';
-
-type ConfigItem = { name: string, enabled: boolean };
+import { handler } from '../handler';
+import { isV1Config, isV2Config } from './types';
 
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export class ScriptManager {
-    static _storage: ScriptItem[] = [];
+    static scripts: Map<string, ScriptItem>;
 
-    static _scripts = new Map<string, ScriptItem>();
+    private static loadSettings(): V2ConfigItem[] {
+        const config = settings.getSync(SettingTag) as ConfigItem[] | null;
+        if (!config) return [];
 
-    public static async LoadScript(reload?: boolean) {
-        while (renderer() === undefined) await delay(100);
-        Array.from(ScriptManager._scripts.values()).filter(_ => _.enabled && (reload || !_.loaded)).forEach(_ => {
-            renderer()?.send('load-script', _);
-            console.log('emit load-script : ' + JSON.stringify({ name: _.name, enabled: _.enabled, loaded: _.loaded }));
-            _.loaded = true;
-        });
-    }
-
-    public static AddScript(script: ScriptItem) {
-        const old = this._scripts.get(script.name);
-        if (old !== undefined) {
-            script.enabled = old.enabled;
-            script.loaded = false;
-            this._scripts.set(script.name, script);
-        }
-    }
-
-    public static async LoadDataFolder() {
-        console.log('LoadDataFolder');
-
-        const newItemList = fs.readdirSync(GetDataPath(), { withFileTypes: true })
-            .filter(_ => _.isFile() && _.name.endsWith('.user.js'))
-            .map(_ => ScriptItem.LoadScriptFromFile(_.name))
-            .filter(_ => _ !== undefined) as ScriptItem[];
-
-        const configs = new Map(this.LoadConfigs().map(_ => [_.name, _]));
-
-        newItemList.forEach(_ => {
-            const old = this._scripts.get(_.name);
-            if (old !== undefined) {
-                // maybe updated, do not use old content;
-                _.enabled = old.enabled;
-                _.loaded = old.loaded;
-            } else {
-                const old_config = configs.get(_.name)
-                if (old_config !== undefined) {
-                    _.enabled = old_config.enabled;
-                    _.loaded = false;
-                }
+        const upgradeConfig = config.map(c => {
+            if (isV1Config(c)) {
+                return {
+                    name: c.name,
+                    setting: {
+                        enabled: c.enabled,
+                        url: null,
+                        lastUpdate: Date.now()
+                    }
+                } as V2ConfigItem;
             }
+            if (isV2Config(c)) return c;
+        }).filter(c => c !== undefined) as V2ConfigItem[];
+
+        return upgradeConfig;
+    }
+
+    private static saveSettings() {
+        const configs = Array.from(ScriptManager.scripts.entries(), ([name, item]): any => {
+            return {
+                name: name,
+                setting: {
+                    enabled: item.data.setting.enabled,
+                    url: item.data.setting.url,
+                    lastUpdate: item.data.setting.lastUpdate,
+                }
+            } as V2ConfigItem;
         });
 
-        this._scripts = new Map(newItemList.map(_ => [_.name, _]));
-
-        this.SaveConfigs();
-
-        return this._scripts;
+        settings.setSync(SettingTag, configs);
     }
 
-    static SaveConfigs() {
-        settings.setSync('ScriptManagerConfig', Array.from(this._scripts.values(), item => { return { name: item.name, enabled: item.enabled } }));
+    static onScriptLoaded(scriptName: string) {
+        const script = this.scripts.get(scriptName);
+        if (script) script.data.loaded = true;
+        console.log('Script[Load Done] : ' + JSON.stringify({ name: scriptName }));
     }
 
-    static LoadConfigs(): ConfigItem[] {
-        const config = settings.getSync('ScriptManagerConfig');
-        return (config || []) as ConfigItem[];
+    public static async loadDataFolder() {
+        const rawConfigs = new Map<string, V2ConfigItem>(this.loadSettings().map(_ => [_.name, _]));
+
+        const newItemList = fs.readdirSync(getDataFolder(), { withFileTypes: true })
+            .filter(i => i.isFile() && i.name.endsWith('.user.js'))
+            .map(i => ScriptItem.loadScriptFile(i.name, rawConfigs))
+            .filter(i => i !== undefined) as ScriptItem[];
+
+        this.scripts = new Map(newItemList.map(_ => [_.data.meta.name, _]));
+
+        this.saveSettings();
+
+        return this.scripts;
     }
 
-    static SwitchItem(name: string) {
-        const target = this._scripts.get(name);
+    public static loadSingleScript(script: ScriptItem) {
+        handler().then(h => {
+            h.send('load-script', script);
+            console.log('Script[Load] : ' + JSON.stringify({ name: script.data.meta.name }));
+        })
+    }
+
+    public static async loadScript(reload?: boolean) {
+        Array.from(ScriptManager.scripts.values()).filter(i => i.data.setting.enabled && (reload || !i.data.loaded)).forEach(i => {
+            i.data.loaded = false;
+            this.loadSingleScript(i);
+        });
+    }
+
+    public static switchItem(name: string) {
+        const target = this.scripts.get(name);
         if (target) {
-            const old = target.enabled;
-            target.enabled = !target.enabled;
-            this.SaveConfigs();
-            if (!old) this.LoadScript();
+            const old = target.data.setting.enabled;
+            target.data.setting.enabled = !old;
+            this.saveSettings();
+            console.log('Script[Switch] : ' + JSON.stringify({ name: target.data.meta.name, enabled: target.data.setting.enabled }));
+            if (!old && !target.data.loaded) this.loadSingleScript(target);
         }
     }
 
-    public static LoadFromURl(url: string, then: () => void) {
-        console.log('LoadFromURL : ' + url)
+    public static updateAll() {
+        const counter = new Set<string>(this.scripts.keys());
+        let accepted_: (() => void) | undefined = undefined;
+
+        const singleFinish = () => {
+            if (counter.size === 0) {
+                this.saveSettings();
+                accepted_?.();
+            }
+        }
+
+        Array.from(this.scripts.values()).forEach(i => {
+            if (i.data.setting.url === null) counter.delete(i.data.meta.name);
+            if (i.data.setting.url) this.loadOneFromURL(i.data.setting.url, i.data.filePath).then(() => {
+                counter.delete(i.data.meta.name);
+                singleFinish();
+            }, (e) => {
+                console.error(e);
+                counter.delete(i.data.meta.name);
+                singleFinish();
+            });
+        });
+
+        return { then: (accepted: () => void) => { accepted_ = accepted; } };
+    }
+
+    public static loadOneFromURL(url: string, promptPath?: string) {
+        console.log('Script[Load URL] : ' + url + ' To : ' + promptPath);
+        let accepted_: (() => void) | undefined = undefined;
+        let rejected_: ((reason?: Error) => void) | undefined = undefined;
+
         const req = net.request(url);
         req.on('response', (r) => {
             r.on('data', (d) => {
-                const decoded = d.toString('utf-8');
-                const meta = ReadScriptData(decoded);
-                if (meta === undefined) return;
-
-                const desiredPath = path.join(GetDataPath(), `${meta.Meta.name.replace(/[\\\/:*?"<>|]/g, '_')}.user.js`);
-                const lo = ScriptItem.LoadScriptWithScriptContent(desiredPath, decoded);
-                if (lo) {
-                    this.AddScript(lo);
-                    then();
+                const content = d.toString('utf-8');
+                const script = ScriptItem.saveScriptFile(url, content, promptPath);
+                if (script) {
+                    this.scripts.set(script.data.meta.name, script);
+                    this.saveSettings();
+                    accepted_?.();
                 }
             })
         });
+        req.on('error', (e) => {
+            rejected_?.(e);
+        });
         req.end();
+
+        return {
+            then(accepted: () => void, rejected?: (reason?: Error) => void) {
+                accepted_ = accepted;
+                rejected_ = rejected;
+            }
+        };
     }
 }
-

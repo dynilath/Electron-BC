@@ -1,13 +1,25 @@
 import { ipcMain } from "electron";
 
-let renderer: Electron.WebContents | undefined = undefined;
+let handler_: Electron.WebContents | undefined = undefined;
 
-ipcMain.on('handler-register', (event) => {
-    renderer = event.sender;
+ipcMain.once('handler-register', (event) => {
+    handler_ = event.sender;
 });
 
-function GetRendererHandler() {
-    return renderer;
+export function newHandler() {
+    handler_ = undefined;
+    return handler();
 }
 
-export default GetRendererHandler;
+export function handler() {
+    return new Promise<Electron.WebContents>((resolve) => {
+        if (handler_) {
+            resolve(handler_);
+        } else {
+            ipcMain.once('handler-register', (event) => {
+                handler_ = event.sender;
+                resolve(handler_);
+            });
+        }
+    });
+}

@@ -5,6 +5,7 @@ import { popupMenu, reloadMenu } from './memu'
 import { ScriptManager } from "./SimpleScriptManager";
 import { windowStateKeeper } from "./WindowState";
 import { i18n, updateLang } from "./i18n";
+import { autoUpdater } from "electron-updater";
 
 let mainWindow: BrowserWindow | undefined;
 
@@ -92,4 +93,8 @@ app.whenReady().then(() => {
 
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") { app.quit(); }
+});
+
+app.on('ready', function () {
+    autoUpdater.checkForUpdatesAndNotify();
 });

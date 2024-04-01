@@ -41,5 +41,3 @@ window.addEventListener('DOMContentLoaded', () => {
         return "https://bondage-club-server.herokuapp.com/";
     }
 });
-
-

@@ -1,10 +1,15 @@
 import { ipcMain } from "electron";
+import { i18n } from "./i18n";
 
 let handler_: Electron.WebContents | undefined = undefined;
 
-ipcMain.once('handler-register', (event) => {
-    handler_ = event.sender;
-});
+function set_handler(handler: Electron.WebContents) {
+    handler_ = handler;
+    handler_?.send('alert-override', { title: i18n('Alert::Title'), confirm: i18n('Alert::Confirm') });
+    return handler_;
+}
+
+ipcMain.once('handler-register', (event) => set_handler(event.sender));
 
 export function newHandler() {
     handler_ = undefined;
@@ -16,10 +21,7 @@ export function handler() {
         if (handler_) {
             resolve(handler_);
         } else {
-            ipcMain.once('handler-register', (event) => {
-                handler_ = event.sender;
-                resolve(handler_);
-            });
+            ipcMain.once('handler-register', (event) => resolve(set_handler(event.sender)));
         }
     });
 }

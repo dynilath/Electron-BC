@@ -9,7 +9,7 @@
     "compile": "tsc",
     "dev": "npm run compile && electron .",
     "build": "npm run compile && electron-builder",
-    "dist": "npm run compile && electron-builder --windows nsis:x64 --publish always"
+    "dist": "electron-builder --windows nsis:x64 --publish always"
   },
   "devDependencies": {
     "@types/node": "^20.11.20",

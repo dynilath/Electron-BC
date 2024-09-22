@@ -47,7 +47,6 @@ ipcRenderer.on('alert-override', (event, args) => {
 ipcRenderer.send('handler-register');
 
 declare var TranslationLoad: () => void;
-declare var TranslationNextLanguage: () => void;
 declare var TranslationLanguage: string | undefined;
 
 const emitLang = () => {
@@ -55,17 +54,20 @@ const emitLang = () => {
         ipcRenderer.send('language-change', TranslationLanguage);
 }
 
-(() => {
+(async () => {
     emitLang();
+
     let _TranslationLoad = TranslationLoad;
     TranslationLoad = () => {
         _TranslationLoad();
         emitLang();
     };
 
-    let _TranslationNextLanguage = TranslationNextLanguage;
-    TranslationNextLanguage = () => {
-        _TranslationNextLanguage();
-        emitLang();
-    };
+    const dropDownId = 'LanguageDropdown-select';
+    let ld = document.getElementById(dropDownId);
+    while (!ld) {
+        await new Promise(r => setTimeout(r, 100));
+        ld = document.getElementById(dropDownId);
+    }
+    ld.addEventListener('change', (e) => { emitLang(); console.log('Language Change : ' + TranslationLanguage); });
 })();

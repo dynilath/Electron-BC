@@ -3,23 +3,24 @@ import Swal from "sweetalert2";
 import { ScriptItem } from "./SimpleScriptManager/ScriptItem";
 
 ipcRenderer.on('show-prompt-loadurl', (event: any, args: { title: string, confirm: string, cancel: string, please: string }) => {
+    // from https://stackoverflow.com/questions/3809401 with '.js' added
+    const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,32}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)\.js$/;
+
     Swal.fire({
         title: args.title,
         confirmButtonText: args.confirm,
         cancelButtonText: args.cancel,
-        input: 'url',
+        input: "text",
         inputPlaceholder: 'https://example.com/script.user.js',
         showCancelButton: true,
+        inputValidator: (value) => {
+            if (!value || !urlRegex.test(value))
+                return args.please;
+        }
     }).then((result) => {
         if (result.isConfirmed) {
             const v = result.value as string;
-            if (v.length > 0 && v.endsWith('.user.js'))
-                ipcRenderer.send('load-script-url', v);
-            else
-                Swal.fire({
-                    title: args.please,
-                    confirmButtonText: args.confirm,
-                });
+            ipcRenderer.send('load-script-url', v);
         }
     });
 });

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu, powerSaveBlocker, shell } from "electron";
+import { app, BrowserWindow, globalShortcut, ipcMain, Menu, powerSaveBlocker, shell } from "electron";
 import * as path from "path";
 import { SetMainWindow } from "./MWContainer";
 import { popupMenu, reloadMenu } from './memu'
@@ -65,9 +65,9 @@ function createWindow() {
 
     mainWindow.webContents.on('context-menu', (event, params) => {
         const contextMenu = Menu.buildFromTemplate([
-            { label: i18n("ContextMenu::Cut"), role: 'cut' },
-            { label: i18n("ContextMenu::Copy"), role: 'copy' },
-            { label: i18n("ContextMenu::Paste"), role: 'paste' }
+            { label: i18n("ContextMenu::Cut"), role: 'cut', accelerator: 'CmdOrCtrl+X' },
+            { label: i18n("ContextMenu::Copy"), role: 'copy', accelerator: 'CmdOrCtrl+C' },
+            { label: i18n("ContextMenu::Paste"), role: 'paste', accelerator: 'CmdOrCtrl+V' },
         ]);
         contextMenu.popup({ window: mainWindow, x: params.x, y: params.y });
     });

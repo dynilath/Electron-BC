@@ -1,7 +1,9 @@
 const translation: Record<TextTag, string> = {
     "MenuItem::Tools": "Tools",
-    "MenuItem::Tools::Open Dev Tools": "Open Dev Tools",
+    "MenuItem::Tools::DevTools": "Dev Tools",
     "MenuItem::Tools::Refresh": "Refresh Page",
+    "MenuItem::Tools::FullScreen": "Full Screen Mode",
+    "MenuItem::Tools::Exit": "Exit",
     "MenuItem::Script": "Script",
     "MenuItem::Script::Load From URL": "Load From URL",
     "MenuItem::Script::Open Script Folder": "Open Script Folder",
@@ -17,7 +19,7 @@ const translation: Record<TextTag, string> = {
     "Alert::Confirm": "Confirm",
     "Alert::Cancel": "Cancel",
     "Alert::LoadUrl::Please Input Correct": "Please input correct url, which should be like 'https://example.com/script.user.js'",
-    "Alert::Title": "Alert"
+    "Alert::Title": "Alert",
 }
 
 export default translation;

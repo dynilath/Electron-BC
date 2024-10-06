@@ -1,7 +1,9 @@
 const translation: Record<TextTag, string> = {
     "MenuItem::Tools": "工具",
-    "MenuItem::Tools::Open Dev Tools": "打开开发者工具",
+    "MenuItem::Tools::DevTools": "开发者工具",
     "MenuItem::Tools::Refresh": "刷新页面",
+    "MenuItem::Tools::FullScreen": "全屏模式",
+    "MenuItem::Tools::Exit": "退出",
     "MenuItem::Script": "脚本",
     "MenuItem::Script::Load From URL": "从网址加载",
     "MenuItem::Script::Open Script Folder": "打开脚本文件夹",

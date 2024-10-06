@@ -16,18 +16,46 @@ export function makeMenu() {
                 {
                     label: i18n('MenuItem::Tools::Refresh'),
                     type: 'normal',
+                    accelerator: 'F5',
                     click: () => handler().then(h => {
                         h.send('reload');
                         newHandler().then(() => ScriptManager.loadDataFolder().then(() => reloadMenu()));
                     })
                 },
                 {
-                    label: i18n('MenuItem::Tools::Open Dev Tools'),
+                    label: i18n('MenuItem::Tools::FullScreen'),
                     type: 'normal',
+                    accelerator: 'F11',
                     click: () => {
                         const mw = GetMainWindow();
                         if (mw) {
-                            mw.webContents.openDevTools();
+                            mw.setFullScreen(!mw.isFullScreen());
+                        }
+                    }
+                },
+                {
+                    label: i18n('MenuItem::Tools::DevTools'),
+                    type: 'normal',
+                    accelerator: 'F12',
+                    click: () => {
+                        const mw = GetMainWindow();
+                        if (mw) {
+                            if (mw.webContents.isDevToolsOpened()) mw.webContents.closeDevTools();
+                            else mw.webContents.openDevTools();
+                        }
+                    }
+                },
+                {
+                    type: 'separator'
+                },
+                {
+                    label: i18n('MenuItem::Tools::Exit'),
+                    type: 'normal',
+                    accelerator: 'Alt+F4',
+                    click: () => {
+                        const mw = GetMainWindow();
+                        if (mw) {
+                            mw.close();
                         }
                     }
                 }]

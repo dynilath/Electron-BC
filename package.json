@@ -1,7 +1,7 @@
 {
   "name": "electron-bondage-club",
-  "version": "2.9.108",
-  "description": "An electron wrapped bondge-club",
+  "version": "2.10.108",
+  "description": "An electron wrapped bondage-club",
   "main": "./build/main.js",
   "author": "dynilath <dynilath@qq.com>",
   "license": "MIT",
@@ -12,8 +12,10 @@
     "dist": "electron-builder --windows nsis:x64 --publish always"
   },
   "devDependencies": {
+    "@electron-delta/builder": "^0.1.17",
     "@types/node": "^22.7.4",
     "@types/semver": "^7.5.8",
+    "axios": "^1.7.7",
     "electron": "^32.1.2",
     "electron-builder": "25.1.7",
     "eslint": "^9.12.0",
@@ -23,10 +25,13 @@
     "appId": "bondage-club.electron-app",
     "extends": null,
     "icon": "./Logo.ico",
+    "afterAllArtifactBuild": ".electron-delta.js",
     "publish": "github",
     "nsis": {
       "allowToChangeInstallationDirectory": true,
-      "oneClick": false
+      "oneClick": false,
+      "allowElevation": true,
+      "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "files": [
       "BondageClub/**",
@@ -34,6 +39,7 @@
     ]
   },
   "dependencies": {
+    "@electron-delta/updater": "^0.1.17",
     "dexie": "^4.0.8",
     "electron-settings": "^4.0.2",
     "electron-updater": "6.3.9",

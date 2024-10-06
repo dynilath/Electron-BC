@@ -7,6 +7,8 @@ import { windowStateKeeper } from "./WindowState";
 import { i18n, updateLang } from "./i18n";
 import { autoUpdater } from "electron-updater";
 
+const DeltaUpdater = require('@electron-delta/updater');
+
 let mainWindow: BrowserWindow | undefined;
 
 function createWindow() {
@@ -83,12 +85,21 @@ function createWindow() {
     });
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
     createWindow();
     powerSaveBlocker.start('prevent-display-sleep');
     app.on("activate", function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+
+    const deltaUpdater = new DeltaUpdater({
+        autoUpdater,
+    });
+    try {
+        await deltaUpdater.boot({ splashScreen: true });
+    } catch (error) {
+        console.error(error);
+    }
 });
 
 app.on("window-all-closed", () => {

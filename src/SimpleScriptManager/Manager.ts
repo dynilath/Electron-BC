@@ -60,8 +60,13 @@ export class ScriptManager {
 
         const newItemList = fs.readdirSync(getDataFolder(), { withFileTypes: true })
             .filter(i => i.isFile() && i.name.endsWith('.user.js'))
-            .map(i => ScriptItem.loadScriptFile(i.name, rawConfigs))
-            .filter(i => i !== undefined) as ScriptItem[];
+            .map(i => ScriptItem.loadFile(i.name)).filter(i => i !== undefined)
+            .map(i => ({ meta: ScriptItem.loadMeta(i), content: i })).filter(i => i.meta !== undefined)
+            .reduce((acc, cur) => {
+                if (!acc.find(i => i.meta.name === cur.meta?.name)) acc.push({ meta: cur.meta as ScriptMeta, content: cur.content });
+                return acc;
+            }, [] as { meta: ScriptMeta, content: string }[])
+            .map(i => ScriptItem.makeScriptItem(i.meta.name, rawConfigs, i.content, i.meta));
 
         this.scripts = new Map(newItemList.map(_ => [_.data.meta.name, _]));
 

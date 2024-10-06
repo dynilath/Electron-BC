@@ -57,6 +57,43 @@ export class ScriptItem {
         return ret;
     }
 
+    static loadFile(scriptFileName: string): string | undefined {
+        const scriptFilePath = path.join(getDataFolder(), scriptFileName);
+        if (!fs.existsSync(scriptFilePath)) return undefined;
+
+        const content = fs.readFileSync(scriptFilePath, { encoding: "utf-8" });
+        if (!content) return undefined;
+        return content;
+    }
+
+    static loadMeta(scriptContent: string): ScriptMeta | undefined {
+        return getScriptMeta(scriptContent);
+    }
+
+    static makeScriptItem(scriptFilePath: string, configs: Map<string, V2ConfigItem>, content: string, meta: ScriptMeta): ScriptItem {
+        const setting = configs.get(meta.name) || {
+            name: meta.name,
+            setting: {
+                enabled: true,
+                url: null,
+                lastUpdate: Date.now()
+            }
+        } as V2ConfigItem;
+
+        return new ScriptItem({
+            loaded: false,
+            meta,
+            filePath: scriptFilePath,
+            setting: {
+                enabled: setting.setting.enabled,
+                url: setting.setting.url,
+                lastUpdate: setting.setting.lastUpdate
+            },
+            content
+        });
+    }
+
+
     static loadScriptFile(scriptFileName: string, configs: Map<string, V2ConfigItem>): ScriptItem | undefined {
         const scriptFilePath = path.join(getDataFolder(), scriptFileName);
         if (!fs.existsSync(scriptFilePath)) return undefined;
@@ -67,9 +104,14 @@ export class ScriptItem {
         const meta = getScriptMeta(content);
         if (!meta) return undefined;
 
-        const setting = configs.get(meta.name);
-
-        if (!setting) return undefined;
+        const setting = configs.get(meta.name) || {
+            name: meta.name,
+            setting: {
+                enabled: true,
+                url: null,
+                lastUpdate: Date.now()
+            }
+        } as V2ConfigItem;
 
         return new ScriptItem({
             loaded: false,

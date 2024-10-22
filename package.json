@@ -16,6 +16,8 @@
     "@types/node": "^22.7.4",
     "@types/semver": "^7.5.8",
     "axios": "^1.7.7",
+    "conventional-changelog-cli": "^5.0.0",
+    "cz-conventional-changelog": "^3.3.0",
     "electron": "^32.1.2",
     "electron-builder": "25.1.7",
     "eslint": "^9.12.0",
@@ -43,6 +45,7 @@
     "dexie": "^4.0.8",
     "electron-settings": "^4.0.2",
     "electron-updater": "6.3.9",
+    "keytar": "^7.9.0",
     "sweetalert2": "^11.10.5"
   },
   "packageManager": "yarn@1.22.21"

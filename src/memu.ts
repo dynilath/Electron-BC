@@ -1,9 +1,10 @@
-import { Menu } from "electron";
+import { app, Menu, shell } from "electron";
 import { handler, newHandler } from "./handler";
 import { GetMainWindow } from "./MWContainer";
 import { openScriptFolder, ScriptManager } from "./SimpleScriptManager";
 import { i18n } from "./i18n";
 import { showPromptLoadurl } from "./Prompts";
+import { openChangelog } from "./changelog";
 
 type MenuIds = 'script' | 'tools';
 
@@ -98,6 +99,34 @@ export function makeMenu() {
                         click: () => ScriptManager.switchItem(s.data.meta.name)
                     }
                 }))
+            ]
+        },
+        {
+            label: i18n('MenuItem::About'),
+            submenu: [
+                {
+                    label: i18n('MenuItem::About::Version'),
+                    type: 'normal',
+                    enabled: false,
+                    sublabel: app.getVersion()
+                },
+                {
+                    type: 'separator'
+                },
+                {
+                    label: i18n('MenuItem::About::ChangeLog'),
+                    type: 'normal',
+                    click: () => {
+                        openChangelog();
+                    }
+                },
+                {
+                    label: i18n('MenuItem::About::GitHub'),
+                    type: 'normal',
+                    click: () => {
+                        shell.openExternal('https://github.com/dynilath/Electron-BC');
+                    }
+                }
             ]
         }])
 }

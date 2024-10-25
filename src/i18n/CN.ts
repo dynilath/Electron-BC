@@ -19,7 +19,11 @@ const translation: Record<TextTag, string> = {
     "Alert::Confirm": "确认",
     "Alert::Cancel": "取消",
     "Alert::LoadUrl::Please Input Correct": "请输入正确的网址，格式应该类似于 'https://example.com/script.user.js'",
-    "Alert::Title": "提示"
+    "Alert::Title": "提示",
+    "MenuItem::About": "关于",
+    "MenuItem::About::ChangeLog": "显示更新日志",
+    "MenuItem::About::GitHub": "访问GitHub源码",
+    "MenuItem::About::Version": "Electron-BC 版本",
 }
 
 export default translation;

@@ -20,6 +20,10 @@ const translation: Record<TextTag, string> = {
     "Alert::Cancel": "Cancel",
     "Alert::LoadUrl::Please Input Correct": "Please input correct url, which should be like 'https://example.com/script.user.js'",
     "Alert::Title": "Alert",
+    "MenuItem::About": "About",
+    "MenuItem::About::ChangeLog": "Show Change Log",
+    "MenuItem::About::GitHub": "Visit GitHub Repo",
+    "MenuItem::About::Version": "Electron-BC Version",
 }
 
 export default translation;

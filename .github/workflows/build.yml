@@ -38,6 +38,11 @@ jobs:
         with:
           cmd: compile
 
+      - name: Run changelog
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: changelog
+
       - name: Build/release Electron app
         uses: borales/actions-yarn@v4
         with:

@@ -1,7 +1,7 @@
 // .electron-delta.js
 const DeltaBuilder = require("@electron-delta/builder");
 const path = require("path");
-const packageJSON = require("./package.json");
+const packageJSON = require("../package.json");
 const { getReleases } = require("./.get-releases");
 
 const options = {

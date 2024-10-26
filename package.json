@@ -31,7 +31,7 @@
   "build": {
     "appId": "bondage-club.electron-app",
     "extends": null,
-    "icon": "./Logo.ico",
+    "icon": "Logo.ico",
     "afterAllArtifactBuild": "scripts/.electron-delta.js",
     "publish": "github",
     "asarUnpack": [

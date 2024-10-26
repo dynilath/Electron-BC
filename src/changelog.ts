@@ -21,7 +21,7 @@ export function openChangelog() {
 
     changelogWindow.setMenu(null);
 
-    changelogWindow.loadFile('dist/changelog.html');
+    changelogWindow.loadFile('build/changelog.html');
     changelogWindow.setTitle('Electron-BC Change Log');
 
     changelogWindow.on('closed', () => {

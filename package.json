@@ -12,7 +12,7 @@
     "build": "npm run compile && electron-builder",
     "dist": "electron-builder --windows nsis:x64 --publish always",
     "changelog-md": "conventional-changelog -p angular -r 5 -o CHANGELOG.md",
-    "changelog-html": "node ./scripts/.changelog.js CHANGELOG.md dist/changelog.html"
+    "changelog-html": "node ./scripts/.changelog.js CHANGELOG.md build/changelog.html"
   },
   "devDependencies": {
     "@electron-delta/builder": "^0.1.17",

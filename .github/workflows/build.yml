@@ -47,3 +47,8 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: dist
+
+      - name: Publish release
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: gh-release

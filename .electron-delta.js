@@ -2,7 +2,7 @@
 const DeltaBuilder = require("@electron-delta/builder");
 const path = require("path");
 const packageJSON = require("./package.json");
-const { getReleases } = require("./scripts/.get-releases");
+const { getReleases } = require("./scripts/.get-releases.js");
 
 const options = {
   productIconPath: path.join(__dirname, packageJSON.build.icon),

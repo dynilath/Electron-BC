@@ -8,6 +8,7 @@
   "scripts": {
     "compile": "tsc",
     "changelog": "npm run changelog-md && npm run changelog-html",
+    "gh-release": "node ./scripts/.gh-release.js",
     "dev": "npm run compile && electron .",
     "build": "npm run compile && electron-builder",
     "dist": "electron-builder --windows nsis:x64 --publish always",

@@ -1,19 +1,19 @@
 import {
   app,
   BrowserWindow,
-  globalShortcut,
   ipcMain,
   Menu,
   powerSaveBlocker,
   shell,
 } from "electron";
 import * as path from "path";
-import { SetMainWindow } from "./MWContainer";
-import { popupMenu, reloadMenu } from "./memu";
+import { SetMainWindow } from "./main/MWContainer";
+import { popupMenu, reloadMenu } from "./main/memu";
 import { ScriptManager } from "./SimpleScriptManager";
-import { windowStateKeeper } from "./WindowState";
+import { windowStateKeeper } from "./main/WindowState";
 import { i18n, updateLang } from "./i18n";
 import { autoUpdater } from "electron-updater";
+import { initCredentialHandler } from "./main/credential";
 
 const DeltaUpdater = require("@electron-delta/updater");
 
@@ -27,7 +27,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: true,
     },
     icon: path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png"),
   });
@@ -73,6 +73,8 @@ function createWindow() {
     console.log("language-change", arg);
     updateLang(arg as string).then(() => ipcMain.emit("reload-menu"));
   });
+
+  initCredentialHandler();
 
   mainWindow.webContents.on("dom-ready", () => {
     ScriptManager.loadScript(true);

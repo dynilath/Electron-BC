@@ -36,7 +36,7 @@ jobs:
       - name: Run compile
         uses: borales/actions-yarn@v4
         with:
-          cmd: compile
+          cmd: compile:prod
 
       - name: Run changelog
         uses: borales/actions-yarn@v4

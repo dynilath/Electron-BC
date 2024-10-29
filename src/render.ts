@@ -1,11 +1,17 @@
-import { ipcRenderer } from "electron";
 import Swal from "sweetalert2";
-import { ScriptItem } from "../SimpleScriptManager/ScriptItem";
-import { i18n } from "../i18n";
-import { BCInterface, Bridge } from "./globals";
-import { acquire } from "./utils";
+import { ScriptItem } from "./SimpleScriptManager/ScriptItem";
+import { i18n, updateLang } from "./i18n";
+import { BCInterface, Bridge } from "./render/globals";
+import { waitValue } from "./render/utils";
+import Dexie from "dexie";
+import { loginExt } from "./render/login";
 
-ipcRenderer.on("show-prompt-loadurl", (event: any) => {
+BCInterface.CommonGetServer = () =>
+  "https://bondage-club-server.herokuapp.com/";
+
+(window as any).Dexie = Dexie;
+
+Bridge.instance.onPromptLoadUrl(() => {
   // from https://stackoverflow.com/questions/3809401 with '.js' added
   const urlRegex =
     /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,32}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)\.js$/;
@@ -28,7 +34,7 @@ ipcRenderer.on("show-prompt-loadurl", (event: any) => {
   });
 });
 
-ipcRenderer.on("load-script", async (event: any, script: ScriptItem) => {
+Bridge.instance.onLoadScript((script: ScriptItem) => {
   console.log(
     "Load-Script : " +
       JSON.stringify({
@@ -44,21 +50,14 @@ ipcRenderer.on("load-script", async (event: any, script: ScriptItem) => {
   s.remove();
 });
 
-ipcRenderer.on("reload", () => location.reload());
-ipcRenderer.on("alert-override", (event) => {
-  window.alert = (message?: string) => {
-    Swal.fire({
-      title: i18n("Alert::Title"),
-      text: message,
-      confirmButtonText: i18n("Alert::Confirm"),
-    });
-  };
-});
+Bridge.instance.onReload(() => location.reload());
 
 Bridge.instance.register();
 
-const emitLang = () =>
+const emitLang = () => {
   Bridge.instance.languageChange(BCInterface.TranslationLanguage);
+  updateLang(BCInterface.TranslationLanguage);
+};
 
 (async () => {
   emitLang();
@@ -69,9 +68,17 @@ const emitLang = () =>
     emitLang();
   };
 
-  acquire({
-    select: () => document.getElementById("LanguageDropdown-select"),
-  }).then(({ select }) => {
-    select?.addEventListener("change", () => emitLang());
-  });
+  waitValue(() => document.getElementById("LanguageDropdown-select")).then(
+    (element) => element.addEventListener("change", () => emitLang())
+  );
+
+  window.alert = (message?: string) => {
+    Swal.fire({
+      title: i18n("Alert::Title"),
+      text: message,
+      confirmButtonText: i18n("Alert::Confirm"),
+    });
+  };
+
+  loginExt();
 })();

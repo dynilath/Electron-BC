@@ -1,0 +1,24 @@
+.ebc-suggestions {
+    border: 1px solid #ccc;
+    /* max-height: 150px; */
+    overflow-y: auto;
+    position: absolute;
+    z-index: 1000;
+    background-color: white;
+    width: 200px;
+    display: none;
+    border-radius: 8px; 
+    padding: 8px; 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+.ebc-suggestion-list {
+    border:none;
+    max-height: 200px;
+}
+.ebc-suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+}
+.ebc-suggestion-item:hover {
+    background-color: #f0f0f0;
+}

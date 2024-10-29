@@ -13,8 +13,8 @@ export class BCInterface {
     return typingGlobals<string>("CurrentScreen");
   }
 
-  public static get CommonGetServer() {
-    return typingGlobals<() => string>("CommonGetServer");
+  public static set CommonGetServer(new_func: () => string) {
+    (window as any)["CommonGetServer"] = new_func;
   }
 
   public static get TranslationLanguage() {

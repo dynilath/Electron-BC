@@ -1,4 +1,5 @@
 import { ipcRenderer } from "electron";
+import { ScriptItem } from "../SimpleScriptManager/ScriptItem";
 
 export interface UserInfo {
   user: string;
@@ -18,6 +19,10 @@ export interface EBCContext {
   languageChange: (lang: string | undefined) => void;
   loadScriptDone: (scriptName: string) => void;
   loadScriptUrl: (url: string) => void;
+
+  onReload: (callback: () => void) => void;
+  onPromptLoadUrl: (callback: (script: any) => void) => void;
+  onLoadScript: (callback: (script: ScriptItem) => void) => void;
 }
 
 export function createCtxBridge(): EBCContext {
@@ -49,6 +54,16 @@ export function createCtxBridge(): EBCContext {
     },
     loadScriptUrl: async (url: string) => {
       ipcRenderer.send("load-script-url", url);
+    },
+
+    onReload: (callback: () => void) => {
+      ipcRenderer.on("reload", callback);
+    },
+    onPromptLoadUrl: (callback: (script: any) => void) => {
+      ipcRenderer.on("show-prompt-loadurl", callback);
+    },
+    onLoadScript: (callback: (script: ScriptItem) => void) => {
+      ipcRenderer.on("load-script", (e, script) => callback(script));
     },
   };
 }

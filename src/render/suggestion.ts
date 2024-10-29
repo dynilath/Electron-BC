@@ -1,39 +1,3 @@
-const styleSrc = `
-.ebc-suggestions {
-    border: 1px solid #ccc;
-    /* max-height: 150px; */
-    overflow-y: auto;
-    position: absolute;
-    z-index: 1000;
-    background-color: white;
-    width: 200px;
-    display: none;
-    border-radius: 8px; 
-    padding: 8px; 
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-.ebc-suggestion-list {
-    border:none;
-    max-height: 200px;
-}
-.ebc-suggestion-item {
-    padding: 8px;
-    cursor: pointer;
-}
-.ebc-suggestion-item:hover {
-    background-color: #f0f0f0;
-}
-`;
-
-function createStyle() {
-  const styleID = "ebc-suggestion-style";
-  if (document.getElementById(styleID)) return;
-  const style = document.createElement("style");
-  style.id = styleID;
-  style.innerHTML = styleSrc;
-  document.head.appendChild(style);
-}
-
 class HTMLSuggestion {
   _main!: HTMLElement;
   _list!: HTMLElement;
@@ -101,34 +65,31 @@ class HTMLSuggestion {
   }
 }
 
-class Suggestions {
-  _ele: HTMLSuggestion;
-  constructor(
+export class Suggestions {
+  static init(
     input: HTMLInputElement,
     query: (src: string) => Promise<string[]>,
     select: (src: string) => void
   ) {
-    this._ele = new HTMLSuggestion(input.id + "-suggestions");
+    const _ele = new HTMLSuggestion(input.id + "-suggestions");
 
     input.addEventListener("input", async () => {
       const src = input.value;
       const suggestions = await query(src);
-      this._ele.show(input);
-      this._ele.update(suggestions, select);
+      _ele.show(input);
+      _ele.update(suggestions, select);
     });
 
     input.addEventListener("focus", () => {
-      this._ele.show(input);
+      _ele.show(input);
     });
 
     window.addEventListener("resize", () => {
-      this._ele.reShow();
+      _ele.reShow();
     });
 
     window.addEventListener("click", (event) => {
-      if (!this._ele.containsClick(event)) this._ele.hide();
+      if (!_ele.containsClick(event)) _ele.hide();
     });
   }
 }
-
-createStyle();

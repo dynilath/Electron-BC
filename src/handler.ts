@@ -5,7 +5,7 @@ let handler_: Electron.WebContents | undefined = undefined;
 
 function set_handler(handler: Electron.WebContents) {
     handler_ = handler;
-    handler_?.send('alert-override', { title: i18n('Alert::Title'), confirm: i18n('Alert::Confirm') });
+    handler_?.send('alert-override');
     return handler_;
 }
 

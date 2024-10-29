@@ -1,3 +1,6 @@
+import { contextBridge, ipcRenderer } from "electron";
+import { contextIsolated } from "process";
+
 interface Window {
     CommonGetServer?: () => string;
     exports?: any;
@@ -19,12 +22,21 @@ function addScript(src: string, type?: string) {
 window.addEventListener('DOMContentLoaded', () => {
     if (window.exports === undefined) window.exports = {};
 
-    addScript("../../build/renderer.js", "module").onload(() => {
-        window.Dexie = require('dexie');
+    addScript("../../build/renderer/index.js", "module").onload(() => {
+        (window as any).Dexie = require('dexie');
     });
 
     (window as Window).CommonGetServer = () => {
         console.log('CommonGetServer');
         return "https://bondage-club-server.herokuapp.com/";
     }
+});
+
+contextBridge.exposeInMainWorld('EBCContext', {
+    querySuggestion: async (source: string) => {
+        ipcRenderer.send('keytar-query-suggestion', source);
+    },
+    languageChange: async (lang: string) => {
+        ipcRenderer.send('language-change', lang);
+    },
 });

@@ -18,8 +18,8 @@ type TextTag = "MenuItem::Tools"
     | "ContextMenu::Cut"
     | "ContextMenu::Copy"
     | "ContextMenu::Paste"
-    | "Alert::LoadUrl::Input script URL"
+    | "Alert::LoadUrl::InputScriptURL"
     | "Alert::Confirm"
     | "Alert::Cancel"
     | "Alert::Title"
-    | "Alert::LoadUrl::Please Input Correct";
+    | "Alert::LoadUrl::PleaseInputCorrectUrl";

@@ -32,6 +32,10 @@ export class BCInterface {
   public static LoginDoLogin(): void {
     (window as any)["LoginDoLogin"]();
   }
+
+  public static RelogSend(): void {
+    (window as any)["RelogSend"]();
+  }
 }
 
 export class Bridge {

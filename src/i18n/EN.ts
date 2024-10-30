@@ -35,6 +35,9 @@ const translation: Record<TextTag, string> = {
   "MenuItem::BuiltIns::CredentialSupport::Info":
     "Save passwords using OS credential manager",
   "Credential::SavedCredential": "Saved Credentials🔑",
+  "MenuItem::BuiltIns::AutoRelog": "Auto Relog",
+  "MenuItem::BuiltIns::AutoRelog::Info":
+    "Relog on disconnect, requires credential support",
 };
 
 export default translation;

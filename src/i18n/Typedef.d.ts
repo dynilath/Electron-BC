@@ -16,6 +16,8 @@ type TextTag =
   | "MenuItem::BuiltIns::Intro"
   | "MenuItem::BuiltIns::CredentialSupport"
   | "MenuItem::BuiltIns::CredentialSupport::Info"
+  | "MenuItem::BuiltIns::AutoRelog"
+  | "MenuItem::BuiltIns::AutoRelog::Info"
   | "MenuItem::About"
   | "MenuItem::About::Version"
   | "MenuItem::About::ChangeLog"

@@ -1,21 +1,28 @@
 import { ipcRenderer } from "electron";
 import { ScriptItem } from "../SimpleScriptManager/ScriptItem";
+import { SettingsKey } from "../settings";
 
 export interface UserInfo {
   user: string;
   pass: string;
 }
 
-export type SaveUserPassResult =
-  | { state: "new" | "changed"; user: string; handle: string }
-  | { state: "nochange" };
+export type SaveUserPassResultRaw = {
+  state: "new" | "changed" | "nochange";
+  user: string;
+};
+
+export type SaveUserPassResult = SaveUserPassResultRaw & {
+  handle: string;
+};
 
 export interface EBCContext {
   register: () => void;
   queryUserPassSuggestion: (source?: string) => Promise<string[]>;
   selectUserPass: (source: string) => Promise<UserInfo>;
-  trySaveUserPass: (userinfo: UserInfo) => Promise<SaveUserPassResult>;
-  saveUserPass: (handle: string) => Promise<string>;
+  clientLogin: (userinfo: UserInfo) => Promise<SaveUserPassResultRaw>;
+  saveUserPass: () => Promise<string>;
+  clientRelog: () => Promise<UserInfo>;
 
   languageChange: (lang: string | undefined) => void;
   loadScriptDone: (scriptName: string) => void;
@@ -26,13 +33,17 @@ export interface EBCContext {
   onLoadScript: (callback: (script: ScriptItem) => void) => void;
 }
 
-function testCredentialSetting(): Promise<void> {
+function testSetting(key: SettingsKey): Promise<void> {
   return new Promise((resolve) =>
-    ipcRenderer.invoke("settings-test", "credentialSupport").then((value) => {
+    ipcRenderer.invoke("settings-test", key).then((value) => {
       if (value) resolve();
     })
   );
 }
+
+const session = {
+  userHandle: undefined as string | undefined,
+};
 
 export function createCtxBridge(): EBCContext {
   return {
@@ -41,7 +52,7 @@ export function createCtxBridge(): EBCContext {
     },
 
     queryUserPassSuggestion: (source?: string) =>
-      testCredentialSetting().then(
+      testSetting("credentialSupport").then(
         () =>
           new Promise((resolve) => {
             ipcRenderer
@@ -50,7 +61,7 @@ export function createCtxBridge(): EBCContext {
           })
       ),
     selectUserPass: (username: string) =>
-      testCredentialSetting().then(
+      testSetting("credentialSupport").then(
         () =>
           new Promise((resolve) => {
             ipcRenderer
@@ -58,14 +69,25 @@ export function createCtxBridge(): EBCContext {
               .then((r) => resolve(r as UserInfo));
           })
       ),
-    trySaveUserPass: (userinfo): Promise<SaveUserPassResult> =>
-      testCredentialSetting().then(() =>
-        ipcRenderer.invoke("credential-try-save", userinfo)
-      ),
-    saveUserPass: (handle): Promise<string> =>
-      testCredentialSetting().then(() =>
-        ipcRenderer.invoke("credential-save", handle)
-      ),
+    clientLogin: (userinfo): Promise<SaveUserPassResultRaw> =>
+      testSetting("credentialSupport")
+        .then(() => ipcRenderer.invoke("credential-client-login", userinfo))
+        .then((result) => {
+          session.userHandle = result.handle;
+          return { state: result.state, user: result.user };
+        }),
+    saveUserPass: (): Promise<string> =>
+      testSetting("credentialSupport").then(() => {
+        if (session.userHandle)
+          return ipcRenderer.invoke("credential-save", session.userHandle);
+      }),
+    clientRelog: () =>
+      testSetting("credentialSupport")
+        .then(() => testSetting("autoRelogin"))
+        .then(() => {
+          if (session.userHandle)
+            return ipcRenderer.invoke("credential-relog", session.userHandle);
+        }),
 
     languageChange: async (lang: string | undefined) => {
       if (lang) ipcRenderer.send("language-change", lang);

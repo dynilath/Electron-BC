@@ -35,6 +35,8 @@ const translation: Record<TextTag, string> = {
   "MenuItem::BuiltIns::CredentialSupport::Info":
     "使用操作系统凭据管理器保存密码",
   "Credential::SavedCredential": "已保存的凭据🔑",
+  "MenuItem::BuiltIns::AutoRelog": "自动重连",
+  "MenuItem::BuiltIns::AutoRelog::Info": "断线自动重连，需要启用凭据支持",
 };
 
 export default translation;

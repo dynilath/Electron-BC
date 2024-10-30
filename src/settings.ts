@@ -1,11 +1,12 @@
 import { ipcMain } from "electron";
 import settings from "electron-settings";
 
-const settingsKey = ["credentialSupport"] as const;
+const settingsKey = ["credentialSupport", "autoRelogin"] as const;
+export type SettingsKey = (typeof settingsKey)[number];
 
 class Setting {
   key: string;
-  constructor(key: (typeof settingsKey)[number]) {
+  constructor(key: SettingsKey) {
     this.key = `settings.${key}`;
     settings.has(this.key).then((hasKey) => {
       if (!hasKey) settings.set(this.key, false);
@@ -28,10 +29,14 @@ class Setting {
   }
 }
 
-export const EBCSetting: Record<(typeof settingsKey)[number], Setting> = {
-  credentialSupport: new Setting("credentialSupport"),
-};
+export const EBCSetting: Record<SettingsKey, Setting> = settingsKey.reduce(
+  (acc, key) => {
+    acc[key] = new Setting(key);
+    return acc;
+  },
+  {} as Record<SettingsKey, Setting>
+);
 
-ipcMain.handle("settings-test", (event, key: (typeof settingsKey)[number]) => {
+ipcMain.handle("settings-test", (event, key: SettingsKey) => {
   return Promise.resolve(EBCSetting[key].get());
 });

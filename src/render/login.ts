@@ -35,11 +35,8 @@ export async function loginExt() {
   };
 
   const onLogin = async (user: string, pass: string) => {
-    Bridge.instance.trySaveUserPass({ user, pass }).then((saveResult) => {
+    Bridge.instance.clientLogin({ user, pass }).then((saveResult) => {
       if (saveResult.state === "nochange") return;
-
-      console.log("onLogin", saveResult);
-
       Swal.fire({
         title: i18n("Alert::Credential::Title"),
         text: (saveResult.state == "changed"
@@ -50,9 +47,7 @@ export async function loginExt() {
         cancelButtonText: i18n("Alert::Cancel"),
       }).then((result) => {
         if (result.isConfirmed) {
-          console.log("onLogin-confirmed", saveResult);
-
-          Bridge.instance.saveUserPass(saveResult.handle).then((user) => {
+          Bridge.instance.saveUserPass().then((user) => {
             Swal.fire({
               title: i18n("Alert::Credential::Title"),
               text: i18n("Alert::Credential::Saved").replace(
@@ -67,15 +62,16 @@ export async function loginExt() {
     }, console.error);
   };
 
-  let state = "init" as "init" | "inLogin";
-
   (async () => {
     await waitValue(
       () =>
         (window as any).ServerSend as (Message: string, ...args: any[]) => void
     ).then((ServerSend) => {
       (window as any)["ServerSend"] = (Message: string, ...args: any[]) => {
-        if (Message === "AccountLogin") {
+        if (
+          Message === "AccountLogin" &&
+          BCInterface.CurrentScreen === "Login"
+        ) {
           const arg = args[0] as { AccountName: string; Password: string };
           onLogin(arg.AccountName, arg.Password);
         }
@@ -84,16 +80,43 @@ export async function loginExt() {
     });
   })();
 
-  while (true) {
-    const screen = BCInterface.CurrentScreen;
-    const module = BCInterface.CurrentModule;
+  (async () => {
+    let state = "init" as "init" | "inLogin";
+    while (true) {
+      const screen = BCInterface.CurrentScreen;
+      const module = BCInterface.CurrentModule;
 
-    if (module === "Character" && screen === "Login") {
-      if (state !== "inLogin") {
-        state = "inLogin";
-        onLoginLoad();
+      if (module === "Character" && screen === "Login") {
+        if (state !== "inLogin") {
+          state = "inLogin";
+          onLoginLoad();
+        }
       }
+      await sleep(100);
     }
-    await sleep(100);
-  }
+  })();
+
+  (async () => {
+    let state = "init" as "init" | "inRelog";
+    while (true) {
+      const screen = BCInterface.CurrentScreen;
+      const module = BCInterface.CurrentModule;
+
+      if (module === "Character" && screen === "Relog") {
+        if (state !== "inRelog") {
+          state = "inRelog";
+          Bridge.instance.clientRelog().then(({ pass }) => {
+            waitValue(
+              () => document.getElementById("InputPassword") as HTMLInputElement
+            ).then((password) => {
+              password.value = pass;
+              BCInterface.RelogSend();
+            });
+          });
+        }
+      }
+
+      await sleep(200);
+    }
+  })();
 }

@@ -129,6 +129,14 @@ export function makeMenu() {
             EBCSetting.credentialSupport.toggle().then(() => reloadMenu());
           },
         },
+        {
+          label: "🧩" + i18n("MenuItem::BuiltIns::AutoRelog"),
+          type: "checkbox",
+          sublabel: i18n("MenuItem::BuiltIns::AutoRelog::Info"),
+          checked: EBCSetting.autoRelogin.get(),
+          enabled: EBCSetting.credentialSupport.get(),
+          click: () => EBCSetting.autoRelogin.toggle().then(() => reloadMenu()),
+        },
       ],
     },
     {

@@ -33,13 +33,13 @@ export function initCredentialHandler() {
   const tempCredentialMap = new Map<string, { user: string; pass: string }>();
 
   ipcMain.handle(
-    "credential-try-save",
+    "credential-client-login",
     async (event, { user, pass }): Promise<SaveUserPassResult> => {
-      const oldPass = await keytar.getPassword(serviceName, user);
-      if (oldPass == pass) return { state: "nochange" };
-
       const handle = randomString();
       tempCredentialMap.set(handle, { user, pass });
+
+      const oldPass = await keytar.getPassword(serviceName, user);
+      if (oldPass == pass) return { state: "nochange", user, handle };
       if (oldPass === null) return { state: "new", user, handle };
       return { state: "changed", user, handle };
     }
@@ -50,6 +50,15 @@ export function initCredentialHandler() {
     if (saved) {
       keytar.setPassword(serviceName, saved.user, saved.pass);
       return Promise.resolve(saved.user);
+    } else {
+      return Promise.reject(`Invalid Handle: ${handle}`);
+    }
+  });
+
+  ipcMain.handle("credential-relog", (event, handle): Promise<UserInfo> => {
+    const saved = tempCredentialMap.get(handle);
+    if (saved) {
+      return Promise.resolve(saved);
     } else {
       return Promise.reject(`Invalid Handle: ${handle}`);
     }

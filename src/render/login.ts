@@ -23,8 +23,8 @@ export async function loginExt() {
         Bridge.instance
           .selectUserPass(select)
           .then(({ user, pass }) => {
-            username.textContent = user;
-            password.textContent = pass;
+            username.value = user;
+            password.value = pass;
             BCInterface.LoginDoLogin();
           })
           .catch(console.error)
@@ -38,19 +38,27 @@ export async function loginExt() {
     Bridge.instance.trySaveUserPass({ user, pass }).then((saveResult) => {
       if (saveResult.state === "nochange") return;
 
+      console.log("onLogin", saveResult);
+
       Swal.fire({
-        title: "Credential Support",
-        text:
-          saveResult.state == "changed"
-            ? `Save password change for ${saveResult.user}?`
-            : `Save new credential for ${saveResult.user}?`,
+        title: i18n("Alert::Credential::Title"),
+        text: (saveResult.state == "changed"
+          ? i18n("Alert::Credential::Change")
+          : i18n("Alert::Credential::New")
+        ).replace("USERNAME", saveResult.user),
         confirmButtonText: i18n("Alert::Confirm"),
+        cancelButtonText: i18n("Alert::Cancel"),
       }).then((result) => {
         if (result.isConfirmed) {
-          Bridge.instance.confirmSave(saveResult.handle).then((user) => {
+          console.log("onLogin-confirmed", saveResult);
+
+          Bridge.instance.saveUserPass(saveResult.handle).then((user) => {
             Swal.fire({
-              title: "Credential Support",
-              text: `Password for ${user} saved`,
+              title: i18n("Alert::Credential::Title"),
+              text: i18n("Alert::Credential::Saved").replace(
+                "USERNAME",
+                saveResult.user
+              ),
               confirmButtonText: i18n("Alert::Confirm"),
             });
           });

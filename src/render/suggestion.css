@@ -1,4 +1,4 @@
-.ebc-suggestions {
+.ebc-suggestion {
     border: 1px solid #ccc;
     /* max-height: 150px; */
     overflow-y: auto;
@@ -9,7 +9,7 @@
     display: none;
     border-radius: 8px; 
     padding: 8px; 
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
 }
 .ebc-suggestion-list {
     border:none;
@@ -21,4 +21,7 @@
 }
 .ebc-suggestion-item:hover {
     background-color: #f0f0f0;
+}
+.ebc-suggestion-title {
+    text-align: center;
 }

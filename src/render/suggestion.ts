@@ -1,6 +1,10 @@
+import { i18n } from "../i18n";
+import "./suggestion.css";
+
 class HTMLSuggestion {
   _main!: HTMLElement;
   _list!: HTMLElement;
+  _text!: HTMLElement;
 
   _follow?: HTMLInputElement;
 
@@ -9,9 +13,22 @@ class HTMLSuggestion {
       this._main = document.createElement("div");
       this._main.id = id;
       this._main.classList.add("ebc-suggestion");
+
       this._list = document.createElement("div");
       this._list.id = id + "-list";
       this._list.classList.add("ebc-suggestion-list");
+      this._main.appendChild(this._list);
+
+      const hr = document.createElement("hr");
+      hr.style.margin = "5px 0;";
+      this._main.appendChild(hr);
+
+      this._text = document.createElement("div");
+      this._text.innerText = i18n("Credential::SavedCredential");
+      this._text.classList.add("ebc-suggestion-title");
+      this._main.appendChild(this._text);
+
+      document.body.appendChild(this._main);
     };
 
     const main = document.getElementById(id);
@@ -35,7 +52,7 @@ class HTMLSuggestion {
     for (const suggestion of suggestoins) {
       const item = document.createElement("div");
       item.classList.add("ebc-suggestion-item");
-      item.innerText = suggestion;
+      item.innerText = `👤 ${suggestion}`;
       item.addEventListener("click", () => {
         select(suggestion);
         this._main.style.display = "none";
@@ -49,11 +66,11 @@ class HTMLSuggestion {
 
     if (!this._follow) return;
 
-    const rect = this._follow.getBoundingClientRect();
-    this._main.style.top = `${rect.bottom}px`;
-    this._main.style.left = `${rect.left}px`;
-    this._main.style.width = `${rect.width}px`;
+    const { top, left, height } = this._follow.getBoundingClientRect();
+    this._main.style.top = `${top + height + window.scrollY}px`;
+    this._main.style.left = `${left}px`;
     this._main.style.display = "block";
+    this._text.innerText = i18n("Credential::SavedCredential");
   }
 
   hide() {
@@ -68,20 +85,25 @@ class HTMLSuggestion {
 export class Suggestions {
   static init(
     input: HTMLInputElement,
-    query: (src: string) => Promise<string[]>,
+    query: (src?: string) => Promise<string[]>,
     select: (src: string) => void
   ) {
     const _ele = new HTMLSuggestion(input.id + "-suggestions");
 
     input.addEventListener("input", async () => {
-      const src = input.value;
-      const suggestions = await query(src);
+      const suggestions = await query(input.value);
       _ele.show(input);
       _ele.update(suggestions, select);
+
+      console.log("input", input.value, suggestions);
     });
 
-    input.addEventListener("focus", () => {
+    input.addEventListener("focus", async () => {
+      const suggestions = await query(input.value);
       _ele.show(input);
+      _ele.update(suggestions, select);
+
+      console.log("focus", input.value, suggestions);
     });
 
     window.addEventListener("resize", () => {
@@ -89,7 +111,7 @@ export class Suggestions {
     });
 
     window.addEventListener("click", (event) => {
-      if (!_ele.containsClick(event)) _ele.hide();
+      if (!_ele.containsClick(event) && event.target !== input) _ele.hide();
     });
   }
 }

@@ -6,11 +6,6 @@ import { SaveUserPassResult, UserInfo } from "../bridge";
 const serviceName = app.name;
 
 export function initCredentialHandler() {
-  const credentials = [] as { account: string; password: string }[];
-  keytar.findCredentials(serviceName).then((result) => {
-    credentials.push(...result);
-  });
-
   ipcMain.handle(
     "credential-query-select",
     (event, source): Promise<UserInfo> => {
@@ -24,8 +19,10 @@ export function initCredentialHandler() {
   );
 
   ipcMain.handle("credential-query-suggestion", async (event, account) => {
+    const lacc = account.toLowerCase();
+    const credentials = await keytar.findCredentials(serviceName);
     return credentials
-      .filter((i) => i.account.includes(account))
+      .filter((i) => !account || i.account.toLowerCase().includes(lacc))
       .map((i) => i.account);
   });
 
@@ -38,27 +35,23 @@ export function initCredentialHandler() {
   ipcMain.handle(
     "credential-try-save",
     async (event, { user, pass }): Promise<SaveUserPassResult> => {
-      const oldPass = await keytar.getPassword(serviceName, pass);
+      const oldPass = await keytar.getPassword(serviceName, user);
+      if (oldPass == pass) return { state: "nochange" };
+
       const handle = randomString();
       tempCredentialMap.set(handle, { user, pass });
-
-      console.log("credential-try-save", { user, pass, oldPass });
-
       if (oldPass === null) return { state: "new", user, handle };
-      if (oldPass == pass) return { state: "nochange" };
       return { state: "changed", user, handle };
     }
   );
 
-  ipcMain.handle("credential-save", (event, { handle }) => {
-    return new Promise((resolve, reject) => {
-      const saved = tempCredentialMap.get(handle);
-      if (saved) {
-        keytar.setPassword(serviceName, saved.user, saved.pass);
-        resolve(saved.user);
-      } else {
-        reject(`Invalid Handle: ${handle}`);
-      }
-    });
+  ipcMain.handle("credential-save", (event, handle) => {
+    const saved = tempCredentialMap.get(handle);
+    if (saved) {
+      keytar.setPassword(serviceName, saved.user, saved.pass);
+      return Promise.resolve(saved.user);
+    } else {
+      return Promise.reject(`Invalid Handle: ${handle}`);
+    }
   });
 }

@@ -19,12 +19,22 @@ const translation: Record<TextTag, string> = {
   "Alert::Confirm": "Confirm",
   "Alert::Cancel": "Cancel",
   "Alert::LoadUrl::PleaseInputCorrectUrl":
-    "PleaseInputCorrectUrl url, which should be like 'https://example.com/script.user.js'",
+    "Please input correct url, which should be like 'https://example.com/script.user.js'",
   "Alert::Title": "Alert",
   "MenuItem::About": "About",
   "MenuItem::About::ChangeLog": "Show Change Log",
   "MenuItem::About::GitHub": "Visit GitHub Repo",
   "MenuItem::About::Version": "Electron-BC Version",
+  "Alert::Credential::Title": "Credential Support",
+  "Alert::Credential::Change": "Save the password change for user USERNAME?",
+  "Alert::Credential::New": "Save new user USERNAME?",
+  "Alert::Credential::Saved": "Credential saved for USERNAME.",
+  "MenuItem::BuiltIns": "Built-ins",
+  "MenuItem::BuiltIns::Intro": "Click buttons below to toggle built-in support",
+  "MenuItem::BuiltIns::CredentialSupport": "Built-in Credential Support",
+  "MenuItem::BuiltIns::CredentialSupport::Info":
+    "Save passwords using OS credential manager",
+  "Credential::SavedCredential": "Saved Credentials🔑",
 };
 
 export default translation;

@@ -25,6 +25,16 @@ const translation: Record<TextTag, string> = {
   "MenuItem::About::ChangeLog": "显示更新日志",
   "MenuItem::About::GitHub": "访问GitHub源码",
   "MenuItem::About::Version": "Electron-BC 版本",
+  "Alert::Credential::Title": "凭据支持",
+  "Alert::Credential::Change": "保存用户USERNAME的密码修改？",
+  "Alert::Credential::New": "保存新的用户USERNAME？",
+  "Alert::Credential::Saved": "已保存USERNAME的凭据。",
+  "MenuItem::BuiltIns": "内置支持",
+  "MenuItem::BuiltIns::Intro": "点击下面的按钮来开关内置支持功能",
+  "MenuItem::BuiltIns::CredentialSupport": "内置凭据支持",
+  "MenuItem::BuiltIns::CredentialSupport::Info":
+    "使用操作系统凭据管理器保存密码",
+  "Credential::SavedCredential": "已保存的凭据🔑",
 };
 
 export default translation;

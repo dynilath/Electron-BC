@@ -5,6 +5,7 @@ import { openScriptFolder, ScriptManager } from "../SimpleScriptManager";
 import { i18n } from "../i18n";
 import { showPromptLoadurl } from "./Prompts";
 import { openChangelog } from "./changelog";
+import { EBCSetting } from "../settings";
 
 type MenuIds = "script" | "tools";
 
@@ -106,6 +107,28 @@ export function makeMenu() {
             click: () => ScriptManager.switchItem(s.data.meta.name),
           };
         }),
+      ],
+    },
+    {
+      label: i18n("MenuItem::BuiltIns"),
+      submenu: [
+        {
+          label: i18n("MenuItem::BuiltIns::Intro"),
+          type: "normal",
+          enabled: false,
+        },
+        {
+          type: "separator",
+        },
+        {
+          label: "🧩" + i18n("MenuItem::BuiltIns::CredentialSupport"),
+          type: "checkbox",
+          sublabel: i18n("MenuItem::BuiltIns::CredentialSupport::Info"),
+          checked: EBCSetting.credentialSupport.get(),
+          click: () => {
+            EBCSetting.credentialSupport.toggle().then(() => reloadMenu());
+          },
+        },
       ],
     },
     {

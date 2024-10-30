@@ -91,6 +91,8 @@ export async function loginExt() {
           state = "inLogin";
           onLoginLoad();
         }
+      } else {
+        state = "init";
       }
       await sleep(100);
     }
@@ -103,7 +105,7 @@ export async function loginExt() {
       const module = BCInterface.CurrentModule;
 
       if (module === "Character" && screen === "Relog") {
-        if (state !== "inRelog") {
+        if (state !== "inRelog" && BCInterface.ServerIsConnected) {
           state = "inRelog";
           Bridge.instance.clientRelog().then(({ pass }) => {
             waitValue(
@@ -114,6 +116,8 @@ export async function loginExt() {
             });
           });
         }
+      } else {
+        state = "init";
       }
 
       await sleep(200);

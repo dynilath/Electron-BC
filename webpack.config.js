@@ -72,7 +72,7 @@ module.exports = [
       ],
     },
     experiments: {
-      outputModule: true, // 启用模块输出
+      outputModule: true,
     },
   },
 ];

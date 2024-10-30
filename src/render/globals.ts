@@ -36,6 +36,10 @@ export class BCInterface {
   public static RelogSend(): void {
     (window as any)["RelogSend"]();
   }
+
+  public static get ServerIsConnected() {
+    return typingGlobals<boolean>("ServerIsConnected");
+  }
 }
 
 export class Bridge {

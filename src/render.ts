@@ -54,12 +54,12 @@ Bridge.instance.onReload(() => location.reload());
 
 Bridge.instance.register();
 
-const emitLang = () => {
-  Bridge.instance.languageChange(BCInterface.TranslationLanguage);
-  updateLang(BCInterface.TranslationLanguage);
-};
-
 (async () => {
+  const emitLang = () => {
+    Bridge.instance.languageChange(BCInterface.TranslationLanguage);
+    updateLang(BCInterface.TranslationLanguage);
+  };
+
   emitLang();
 
   let oldTranslationLoad = BCInterface.TranslationLoad;

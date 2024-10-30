@@ -123,7 +123,7 @@ app.whenReady().then(async () => {
     autoUpdater,
   });
   try {
-    await deltaUpdater.boot({ splashScreen: true });
+    await deltaUpdater.boot({ splashScreen: false });
   } catch (error) {
     console.error(error);
   }

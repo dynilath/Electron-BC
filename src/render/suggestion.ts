@@ -94,16 +94,12 @@ export class Suggestions {
       const suggestions = await query(input.value);
       _ele.show(input);
       _ele.update(suggestions, select);
-
-      console.log("input", input.value, suggestions);
     });
 
     input.addEventListener("focus", async () => {
       const suggestions = await query(input.value);
       _ele.show(input);
       _ele.update(suggestions, select);
-
-      console.log("focus", input.value, suggestions);
     });
 
     window.addEventListener("resize", () => {

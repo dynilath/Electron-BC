@@ -52,7 +52,7 @@ Bridge.instance.onLoadScript((script: ScriptItem) => {
 
 Bridge.instance.onReload(() => location.reload());
 
-Bridge.instance.register();
+Bridge.instance.register().then((ticket) => loginExt(ticket));
 
 (async () => {
   const emitLang = () => {
@@ -79,6 +79,4 @@ Bridge.instance.register();
       confirmButtonText: i18n("Alert::Confirm"),
     });
   };
-
-  loginExt();
 })();

@@ -40,6 +40,13 @@ export class BCInterface {
   public static get ServerIsConnected() {
     return typingGlobals<boolean>("ServerIsConnected");
   }
+
+  public static get CanLogin() {
+    return (
+      typingGlobals<boolean>("ServerIsConnected") &&
+      !typingGlobals<boolean>("LoginSubmitted")
+    );
+  }
 }
 
 export class Bridge {

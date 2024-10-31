@@ -17,12 +17,18 @@ export type SaveUserPassResult = SaveUserPassResultRaw & {
 };
 
 export interface EBCContext {
-  register: () => void;
-  queryUserPassSuggestion: (source?: string) => Promise<string[]>;
-  selectUserPass: (source: string) => Promise<UserInfo>;
-  clientLogin: (userinfo: UserInfo) => Promise<SaveUserPassResultRaw>;
-  saveUserPass: () => Promise<string>;
-  clientRelog: () => Promise<UserInfo>;
+  register: () => Promise<string>;
+  queryUserPassSuggestion: (
+    ticket: string,
+    source?: string
+  ) => Promise<string[]>;
+  selectUserPass: (ticket: string, source: string) => Promise<UserInfo>;
+  clientLogin: (
+    ticket: string,
+    userinfo: UserInfo
+  ) => Promise<SaveUserPassResultRaw>;
+  saveUserPass: (ticket: string) => Promise<string>;
+  clientRelog: (ticket: string) => Promise<UserInfo>;
 
   languageChange: (lang: string | undefined) => void;
   loadScriptDone: (scriptName: string) => void;
@@ -41,48 +47,65 @@ function testSetting(key: SettingsKey): Promise<void> {
   );
 }
 
-const session = {
-  userHandle: undefined as string | undefined,
-};
-
 export function createCtxBridge(): EBCContext {
+  const session = {
+    ticket: undefined as string | undefined,
+    userHandle: undefined as string | undefined,
+  };
+
+  const testTicket = (ticket: string) =>
+    new Promise<void>((resolve) => {
+      if (session.ticket === ticket) resolve();
+    });
+
   return {
     register: () => {
+      if (session.ticket === undefined)
+        session.ticket = Math.random().toString(16).substring(2);
       ipcRenderer.send("handler-register");
+      return Promise.resolve(session.ticket);
     },
 
-    queryUserPassSuggestion: (source?: string) =>
-      testSetting("credentialSupport").then(
-        () =>
-          new Promise((resolve) => {
-            ipcRenderer
-              .invoke("credential-query-suggestion", source)
-              .then((r) => resolve(r as string[]));
-          })
-      ),
-    selectUserPass: (username: string) =>
-      testSetting("credentialSupport").then(
-        () =>
-          new Promise((resolve) => {
-            ipcRenderer
-              .invoke("credential-query-select", username)
-              .then((r) => resolve(r as UserInfo));
-          })
-      ),
-    clientLogin: (userinfo): Promise<SaveUserPassResultRaw> =>
-      testSetting("credentialSupport")
+    queryUserPassSuggestion: (ticket: string, source?: string) =>
+      testTicket(ticket)
+        .then(() => testSetting("credentialSupport"))
+        .then(
+          () =>
+            new Promise((resolve) => {
+              ipcRenderer
+                .invoke("credential-query-suggestion", source)
+                .then((r) => resolve(r as string[]));
+            })
+        ),
+    selectUserPass: (ticket: string, username: string) =>
+      testTicket(ticket)
+        .then(() => testSetting("credentialSupport"))
+        .then(
+          () =>
+            new Promise((resolve) => {
+              ipcRenderer
+                .invoke("credential-query-select", username)
+                .then((r) => resolve(r as UserInfo));
+            })
+        ),
+    clientLogin: (ticket: string, userinfo): Promise<SaveUserPassResultRaw> =>
+      testTicket(ticket)
+        .then(() => testSetting("credentialSupport"))
         .then(() => ipcRenderer.invoke("credential-client-login", userinfo))
         .then((result) => {
           session.userHandle = result.handle;
           return { state: result.state, user: result.user };
         }),
-    saveUserPass: (): Promise<string> =>
-      testSetting("credentialSupport").then(() => {
-        if (session.userHandle)
-          return ipcRenderer.invoke("credential-save", session.userHandle);
-      }),
-    clientRelog: () =>
-      testSetting("credentialSupport")
+    saveUserPass: (ticket: string): Promise<string> =>
+      testTicket(ticket)
+        .then(() => testSetting("credentialSupport"))
+        .then(() => {
+          if (session.userHandle)
+            return ipcRenderer.invoke("credential-save", session.userHandle);
+        }),
+    clientRelog: (ticket: string) =>
+      testTicket(ticket)
+        .then(() => testSetting("credentialSupport"))
         .then(() => testSetting("autoRelogin"))
         .then(() => {
           if (session.userHandle)

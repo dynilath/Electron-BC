@@ -5,7 +5,7 @@ import { sleep, waitValue } from "./utils";
 import { i18n } from "../i18n";
 import { Suggestions } from "./suggestion";
 
-export async function loginExt() {
+export async function loginExt(ticket: string) {
   const userinfo: Partial<UserInfo> = {};
 
   const onLoginLoad = async () => {
@@ -18,10 +18,10 @@ export async function loginExt() {
 
     Suggestions.init(
       username,
-      async (src) => Bridge.instance.queryUserPassSuggestion(src),
+      async (src) => Bridge.instance.queryUserPassSuggestion(ticket, src),
       async (select) =>
         Bridge.instance
-          .selectUserPass(select)
+          .selectUserPass(ticket, select)
           .then(({ user, pass }) => {
             username.value = user;
             password.value = pass;
@@ -35,7 +35,7 @@ export async function loginExt() {
   };
 
   const onLogin = async (user: string, pass: string) => {
-    Bridge.instance.clientLogin({ user, pass }).then((saveResult) => {
+    Bridge.instance.clientLogin(ticket, { user, pass }).then((saveResult) => {
       if (saveResult.state === "nochange") return;
       Swal.fire({
         title: i18n("Alert::Credential::Title"),
@@ -47,7 +47,7 @@ export async function loginExt() {
         cancelButtonText: i18n("Alert::Cancel"),
       }).then((result) => {
         if (result.isConfirmed) {
-          Bridge.instance.saveUserPass().then((user) => {
+          Bridge.instance.saveUserPass(ticket).then((user) => {
             Swal.fire({
               title: i18n("Alert::Credential::Title"),
               text: i18n("Alert::Credential::Saved").replace(
@@ -104,10 +104,14 @@ export async function loginExt() {
       const screen = BCInterface.CurrentScreen;
       const module = BCInterface.CurrentModule;
 
-      if (module === "Character" && screen === "Relog") {
-        if (state !== "inRelog" && BCInterface.ServerIsConnected) {
+      if (
+        module === "Character" &&
+        screen === "Relog" &&
+        BCInterface.CanLogin
+      ) {
+        if (state !== "inRelog") {
           state = "inRelog";
-          Bridge.instance.clientRelog().then(({ pass }) => {
+          Bridge.instance.clientRelog(ticket).then(({ pass }) => {
             waitValue(
               () => document.getElementById("InputPassword") as HTMLInputElement
             ).then((password) => {

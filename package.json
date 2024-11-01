@@ -41,11 +41,6 @@
     "icon": "Logo.ico",
     "afterAllArtifactBuild": ".electron-delta.js",
     "publish": "github",
-    "asarUnpack": [
-      "**/*.png",
-      "**/*.jpg",
-      "**/*.mp3"
-    ],
     "nsis": {
       "allowToChangeInstallationDirectory": true,
       "oneClick": false,

@@ -16,6 +16,15 @@ fs.readFile(sourcePath, "utf8", (err, data) => {
     process.exit(1);
   }
 
+  const regex = /^ *## \[([^\]]+)\]/gm;
+  const versions = [];
+  let match = regex.exec(data);
+  while (match) {
+    versions.push(match[1]);
+    match = regex.exec(data);
+  }
+  console.log("Versions in changelog : ", versions);
+
   fs.readFile(cssPath, "utf8", (cssErr, cssData) => {
     if (cssErr) {
       console.error("Error reading CSS:", cssErr);

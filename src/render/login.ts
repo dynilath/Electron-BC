@@ -4,6 +4,7 @@ import { BCInterface, Bridge } from "./globals";
 import { sleep, waitValue } from "./utils";
 import { i18n } from "../i18n";
 import { Suggestions } from "./suggestion";
+import { Log } from "./log";
 
 export async function loginExt(ticket: string) {
   const userinfo: Partial<UserInfo> = {};
@@ -23,6 +24,7 @@ export async function loginExt(ticket: string) {
         Bridge.instance
           .selectUserPass(ticket, select)
           .then(({ user, pass }) => {
+            Log.info("Account selected: ", user);
             username.value = user;
             password.value = pass;
             BCInterface.LoginDoLogin();
@@ -48,6 +50,7 @@ export async function loginExt(ticket: string) {
       }).then((result) => {
         if (result.isConfirmed) {
           Bridge.instance.saveUserPass(ticket).then((user) => {
+            Log.info("Account saved: ", user);
             Swal.fire({
               title: i18n("Alert::Credential::Title"),
               text: i18n("Alert::Credential::Saved").replace(
@@ -115,6 +118,7 @@ export async function loginExt(ticket: string) {
             waitValue(
               () => document.getElementById("InputPassword") as HTMLInputElement
             ).then((password) => {
+              Log.info("Relogging");
               password.value = pass;
               BCInterface.RelogSend();
             });

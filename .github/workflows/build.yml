@@ -23,7 +23,7 @@ jobs:
           submodules: "true"
 
       - name: Fetch full history
-        run: git fetch --unshallow
+        run: git fetch --unshallow --recurse-submodules=no
 
       - name: Install Node.js
         uses: actions/setup-node@v4

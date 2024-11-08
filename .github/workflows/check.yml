@@ -67,4 +67,6 @@ jobs:
               Write-Error "File $_ not found in $dir"
               exit 1
             }
+            $size = (Get-Item "$dir\$_").Length
+            Write-Host "File $_ found in $dir, size: $size bytes"
           }

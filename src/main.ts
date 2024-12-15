@@ -14,8 +14,15 @@ import { windowStateKeeper } from "./main/WindowState";
 import { i18n, updateLang } from "./i18n";
 import { autoUpdater } from "electron-updater";
 import { initCredentialHandler } from "./main/credential";
+import { fileURLToPath } from "url";
 
 const DeltaUpdater = require("@electron-delta/updater");
+
+const icon = path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png");
+const changlogPath = path.join(
+  __dirname,
+  "../BondageClub/BondageClub/changelog.html"
+);
 
 let mainWindow: BrowserWindow | undefined;
 
@@ -29,7 +36,7 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: true,
     },
-    icon: path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png"),
+    icon,
   });
 
   if (winstate.windowState.isMaximized) mainWindow.maximize();
@@ -80,8 +87,8 @@ function createWindow() {
     ScriptManager.loadScript(true);
   });
 
-  mainWindow.webContents.on("context-menu", (event, params) => {
-    const contextMenu = Menu.buildFromTemplate([
+  const contextMenu = () =>
+    Menu.buildFromTemplate([
       {
         label: i18n("ContextMenu::Cut"),
         role: "cut",
@@ -98,13 +105,29 @@ function createWindow() {
         accelerator: "CmdOrCtrl+V",
       },
     ]);
-    contextMenu.popup({ window: mainWindow, x: params.x, y: params.y });
+
+  mainWindow.webContents.on("context-menu", (event, params) => {
+    contextMenu().popup({ window: mainWindow, x: params.x, y: params.y });
   });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url === "about:blank") return { action: "allow" };
+    if (url === "about:blank" || fileURLToPath(url) === changlogPath) {
+      return { action: "allow" };
+    }
     shell.openExternal(url);
     return { action: "deny" };
+  });
+
+  mainWindow.webContents.on("did-create-window", (window) => {
+    window.removeMenu();
+    window.webContents.on("context-menu", (event, params) => {
+      contextMenu().popup({
+        window,
+        x: params.x,
+        y: params.y,
+      });
+    });
+    window.setIcon(icon);
   });
 
   mainWindow.webContents.on("will-prevent-unload", (event) => {

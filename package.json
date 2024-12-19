@@ -1,6 +1,6 @@
 {
   "name": "electron-bondage-club",
-  "version": "2.13.111-rc.1",
+  "version": "2.14.111-rc.1",
   "description": "An electron wrapped bondage-club",
   "main": "./build/main.js",
   "author": "dynilath <dynilath@qq.com>",

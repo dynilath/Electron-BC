@@ -136,20 +136,21 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  const deltaUpdater = new DeltaUpdater({
+    autoUpdater,
+  });
+
+  try {
+    await deltaUpdater.boot({ splashScreen: true });
+  } catch (error) {
+    console.error(error);
+  }
+
   createWindow();
   powerSaveBlocker.start("prevent-display-sleep");
   app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
-
-  const deltaUpdater = new DeltaUpdater({
-    autoUpdater,
-  });
-  try {
-    await deltaUpdater.boot({ splashScreen: false });
-  } catch (error) {
-    console.error(error);
-  }
 });
 
 app.on("window-all-closed", () => {

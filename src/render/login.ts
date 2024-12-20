@@ -27,7 +27,7 @@ export async function loginExt(ticket: string) {
             Log.info("Account selected: ", user);
             username.value = user;
             password.value = pass;
-            BCInterface.LoginDoLogin();
+            BCInterface.LoginDoLogin(user, pass);
           })
           .catch(console.error)
     );
@@ -76,7 +76,11 @@ export async function loginExt(ticket: string) {
           BCInterface.CurrentScreen === "Login"
         ) {
           const arg = args[0] as { AccountName: string; Password: string };
-          onLogin(arg.AccountName, arg.Password);
+          if (
+            typeof arg.AccountName === "string" &&
+            typeof arg.Password === "string"
+          )
+            onLogin(arg.AccountName, arg.Password);
         }
         ServerSend(Message, ...args);
       };

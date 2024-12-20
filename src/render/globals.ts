@@ -29,8 +29,8 @@ export class BCInterface {
     (window as any)["TranslationLoad"] = new_func;
   }
 
-  public static LoginDoLogin(): void {
-    (window as any)["LoginDoLogin"]();
+  public static LoginDoLogin(Name: string, Password: string): void {
+    (window as any)["LoginDoLogin"](Name, Password);
   }
 
   public static RelogSend(): void {

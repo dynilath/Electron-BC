@@ -111,7 +111,10 @@ function createWindow() {
   });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url === "about:blank" || fileURLToPath(url) === changlogPath) {
+    if (
+      url === "about:blank" ||
+      (url.startsWith("file://") && fileURLToPath(url) === changlogPath)
+    ) {
       return { action: "allow" };
     }
     shell.openExternal(url);

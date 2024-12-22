@@ -119,13 +119,12 @@ export async function loginExt(ticket: string) {
         if (state !== "inRelog") {
           state = "inRelog";
           Log.info("Detected relogin screen");
-          Bridge.instance.clientRelog(ticket).then(({ pass }) => {
+          Bridge.instance.clientRelog(ticket).then(({ user, pass }) => {
             waitValue(
               () => document.getElementById("InputPassword") as HTMLInputElement
             ).then((password) => {
               Log.info("Relogging");
-              password.value = pass;
-              BCInterface.RelogSend();
+              BCInterface.LoginDoLogin(user, pass);
               state = "init";
             });
           });

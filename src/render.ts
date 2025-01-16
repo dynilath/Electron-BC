@@ -11,7 +11,7 @@ BCInterface.CommonGetServer = () =>
 
 (window as any).Dexie = Dexie;
 
-Bridge.instance.onPromptLoadUrl(() => {
+Bridge.instance.onPromptLoadUrl((suggestion) => {
   // from https://stackoverflow.com/questions/3809401 with '.js' added
   const urlRegex =
     /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,32}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)\.js$/;
@@ -23,6 +23,7 @@ Bridge.instance.onPromptLoadUrl(() => {
     input: "text",
     inputPlaceholder: "https://example.com/script.user.js",
     showCancelButton: true,
+    ...(suggestion ? { inputValue: suggestion } : {}),
     inputValidator: (value) => {
       if (!value || !urlRegex.test(value))
         return i18n("Alert::LoadUrl::PleaseInputCorrectUrl");

@@ -15,6 +15,7 @@ import { i18n, updateLang } from "./i18n";
 import { autoUpdater } from "electron-updater";
 import { initCredentialHandler } from "./main/credential";
 import { fileURLToPath } from "url";
+import { showPromptLoadurl } from "./main/Prompts";
 
 const DeltaUpdater = require("@electron-delta/updater");
 
@@ -117,6 +118,12 @@ function createWindow() {
     ) {
       return { action: "allow" };
     }
+
+    if (url.endsWith(".user.js")) {
+      showPromptLoadurl(url);
+      return { action: "deny" };
+    }
+
     shell.openExternal(url);
     return { action: "deny" };
   });

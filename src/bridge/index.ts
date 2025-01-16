@@ -35,7 +35,7 @@ export interface EBCContext {
   loadScriptUrl: (url: string) => void;
 
   onReload: (callback: () => void) => void;
-  onPromptLoadUrl: (callback: (script: any) => void) => void;
+  onPromptLoadUrl: (callback: (scriptSuggestion?: string) => void) => void;
   onLoadScript: (callback: (script: ScriptItem) => void) => void;
 }
 
@@ -125,8 +125,10 @@ export function createCtxBridge(): EBCContext {
     onReload: (callback: () => void) => {
       ipcRenderer.on("reload", callback);
     },
-    onPromptLoadUrl: (callback: (script: any) => void) => {
-      ipcRenderer.on("show-prompt-loadurl", callback);
+    onPromptLoadUrl: (callback: (scriptSuggestion?: string) => void) => {
+      ipcRenderer.on("show-prompt-loadurl", (e, scriptSuggestion) =>
+        callback(scriptSuggestion)
+      );
     },
     onLoadScript: (callback: (script: ScriptItem) => void) => {
       ipcRenderer.on("load-script", (e, script) => callback(script));

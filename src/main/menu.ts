@@ -1,6 +1,6 @@
 import { app, Menu, shell } from "electron";
 import { handler, newHandler } from "../handler";
-import { GetMainWindow } from "./MWContainer";
+import { accessMainWindow, getMainWindow } from "./MWContainer";
 import { openScriptFolder, ScriptManager } from "../SimpleScriptManager";
 import { i18n } from "../i18n";
 import { showPromptLoadurl } from "./Prompts";
@@ -31,25 +31,15 @@ export function makeMenu() {
           label: i18n("MenuItem::Tools::FullScreen"),
           type: "normal",
           accelerator: "F11",
-          click: () => {
-            const mw = GetMainWindow();
-            if (mw) {
-              mw.setFullScreen(!mw.isFullScreen());
-            }
-          },
+          click: () =>
+            accessMainWindow((mw) => mw.setFullScreen(!mw.isFullScreen())),
         },
         {
           label: i18n("MenuItem::Tools::DevTools"),
           type: "normal",
           accelerator: "F12",
-          click: () => {
-            const mw = GetMainWindow();
-            if (mw) {
-              if (mw.webContents.isDevToolsOpened())
-                mw.webContents.closeDevTools();
-              else mw.webContents.openDevTools();
-            }
-          },
+          click: () =>
+            accessMainWindow((mw) => mw.webContents.toggleDevTools()),
         },
         {
           type: "separator",
@@ -58,12 +48,7 @@ export function makeMenu() {
           label: i18n("MenuItem::Tools::Exit"),
           type: "normal",
           accelerator: "Alt+F4",
-          click: () => {
-            const mw = GetMainWindow();
-            if (mw) {
-              mw.close();
-            }
-          },
+          click: () => accessMainWindow((mw) => mw.close()),
         },
       ],
     },

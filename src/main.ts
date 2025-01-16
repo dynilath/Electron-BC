@@ -7,8 +7,8 @@ import {
   shell,
 } from "electron";
 import * as path from "path";
-import { SetMainWindow } from "./main/MWContainer";
-import { popupMenu, reloadMenu } from "./main/memu";
+import { setMainWindow } from "./main/MWContainer";
+import { popupMenu, reloadMenu } from "./main/menu";
 import { ScriptManager } from "./SimpleScriptManager";
 import { windowStateKeeper } from "./main/WindowState";
 import { i18n, updateLang } from "./i18n";
@@ -65,7 +65,7 @@ function createWindow() {
     path.join(__dirname, "../BondageClub/BondageClub/index.html")
   );
 
-  SetMainWindow(mainWindow);
+  setMainWindow(mainWindow);
 
   ipcMain.on("reload-menu", () => reloadMenu());
 
@@ -88,7 +88,7 @@ function createWindow() {
     ScriptManager.loadScript(true);
   });
 
-  const contextMenu = () =>
+  const makeContextMenu = () =>
     Menu.buildFromTemplate([
       {
         label: i18n("ContextMenu::Cut"),
@@ -108,7 +108,7 @@ function createWindow() {
     ]);
 
   mainWindow.webContents.on("context-menu", (event, params) => {
-    contextMenu().popup({ window: mainWindow, x: params.x, y: params.y });
+    makeContextMenu().popup({ window: mainWindow, x: params.x, y: params.y });
   });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
@@ -131,7 +131,7 @@ function createWindow() {
   mainWindow.webContents.on("did-create-window", (window) => {
     window.removeMenu();
     window.webContents.on("context-menu", (event, params) => {
-      contextMenu().popup({
+      makeContextMenu().popup({
         window,
         x: params.x,
         y: params.y,

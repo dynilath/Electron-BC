@@ -38,6 +38,8 @@ const translation: Record<TextTag, string> = {
   "MenuItem::BuiltIns::AutoRelog": "Auto Relog",
   "MenuItem::BuiltIns::AutoRelog::Info":
     "Relog on disconnect, requires credential support",
+  "MenuItem::Script::InstallTips":
+    "Can also install scripts by clicking links in game",
 };
 
 export default translation;

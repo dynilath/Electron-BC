@@ -59,6 +59,7 @@ export function makeMenu() {
         {
           label: i18n("MenuItem::Script::Load From URL"),
           type: "normal",
+          sublabel: i18n("MenuItem::Script::InstallTips"),
           click: () => showPromptLoadurl(),
         },
         {
@@ -87,7 +88,7 @@ export function makeMenu() {
               const sUnknown = i18n("MenuItem::Script::Unknown");
               return `${sAuthor}: ${meta.author ?? sUnknown}, ${sVersion}: ${
                 meta.version ?? sUnknown
-              }, ${sURL}: ${s.data.setting.url ?? sUnknown}`;
+              },\n ${sURL}: ${s.data.setting.url ?? sUnknown}`;
             })(),
             click: () => ScriptManager.switchItem(s.data.meta.name),
           };

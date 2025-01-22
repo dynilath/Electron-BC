@@ -37,6 +37,7 @@ const translation: Record<TextTag, string> = {
   "Credential::SavedCredential": "已保存的凭据🔑",
   "MenuItem::BuiltIns::AutoRelog": "自动重连",
   "MenuItem::BuiltIns::AutoRelog::Info": "断线自动重连，需要启用凭据支持",
+  "MenuItem::Script::InstallTips": "可以点击游戏中的脚本链接来安装脚本",
 };
 
 export default translation;

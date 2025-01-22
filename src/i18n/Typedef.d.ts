@@ -5,6 +5,7 @@ type TextTag =
   | "MenuItem::Tools::FullScreen"
   | "MenuItem::Tools::Exit"
   | "MenuItem::Script"
+  | "MenuItem::Script::InstallTips"
   | "MenuItem::Script::Load From URL"
   | "MenuItem::Script::Open Script Folder"
   | "MenuItem::Script::UpdateScript"

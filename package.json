@@ -1,6 +1,6 @@
 {
   "name": "electron-bondage-club",
-  "version": "2.16.111-rc.1",
+  "version": "2.16.112-rc.1",
   "description": "An electron wrapped bondage-club",
   "main": "./build/main.js",
   "author": "dynilath <dynilath@qq.com>",
@@ -14,7 +14,8 @@
     "build": "npm run compile:prod && electron-builder",
     "dist": "electron-builder --windows nsis:x64 --publish always",
     "changelog-md": "conventional-changelog -p angular -r 5 -o CHANGELOG.md",
-    "changelog-html": "node ./scripts/.changelog.js CHANGELOG.md build/changelog.html"
+    "changelog-html": "node ./scripts/.changelog.js CHANGELOG.md build/changelog.html",
+    "git:release": "git checkout release && git merge master && git push && git checkout master"
   },
   "devDependencies": {
     "@electron-delta/builder": "^0.1.17",

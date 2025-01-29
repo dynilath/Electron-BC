@@ -1,4 +1,13 @@
-import { app, BrowserWindow, ipcMain, Menu, powerSaveBlocker } from "electron";
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  net,
+  powerSaveBlocker,
+  protocol,
+  session,
+} from "electron";
 import * as path from "path";
 import { setMainWindow } from "./main/MWContainer";
 import { popupMenu, reloadMenu } from "./main/menu";
@@ -12,10 +21,6 @@ import { setupProtocol, windowOpenRequest } from "./protocol";
 const DeltaUpdater = require("@electron-delta/updater");
 
 const icon = path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png");
-const changlogPath = path.join(
-  __dirname,
-  "../BondageClub/BondageClub/changelog.html"
-);
 
 let mainWindow: BrowserWindow | undefined;
 
@@ -54,7 +59,9 @@ function createWindow() {
   );
 
   fetchLatestBC().then(
-    ({ url }) => {
+    ({ url, version }) => {
+      console.log(`BC version: ${version}`);
+      setupProtocol({ urlPrefix: url, version });
       mainWindow?.loadURL(url);
     },
     (error) => {
@@ -141,14 +148,14 @@ app.whenReady().then(async () => {
     console.error(error);
   }
 
-  setupProtocol();
-
   createWindow();
-  
+
   powerSaveBlocker.start("prevent-display-sleep");
-  app.on("activate", function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
+
+  // app.on("activate", function () {
+  //   if (BrowserWindow.getAllWindows().length === 0)
+  //     fetchLatestBC().then(({ url }) => createWindow(url));
+  // });
 });
 
 app.on("window-all-closed", () => {

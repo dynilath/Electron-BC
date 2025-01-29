@@ -14,6 +14,7 @@ module.exports = [
     },
     externals: {
       keytar: "commonjs keytar",
+      "classic-level": "commonjs classic-level",
     },
     module: {
       rules: [

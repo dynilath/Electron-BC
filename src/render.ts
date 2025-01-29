@@ -6,9 +6,6 @@ import { waitValue } from "./render/utils";
 import Dexie from "dexie";
 import { loginExt } from "./render/login";
 
-BCInterface.CommonGetServer = () =>
-  "https://bondage-club-server.herokuapp.com/";
-
 (window as any).Dexie = Dexie;
 
 Bridge.instance.onPromptLoadUrl((suggestion) => {

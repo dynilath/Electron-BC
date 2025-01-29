@@ -1,11 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-  Menu,
-  powerSaveBlocker,
-  shell,
-} from "electron";
+import { app, BrowserWindow, ipcMain, Menu, powerSaveBlocker } from "electron";
 import * as path from "path";
 import { setMainWindow } from "./main/MWContainer";
 import { popupMenu, reloadMenu } from "./main/menu";
@@ -14,10 +7,8 @@ import { windowStateKeeper } from "./main/WindowState";
 import { i18n, updateLang } from "./i18n";
 import { autoUpdater } from "electron-updater";
 import { initCredentialHandler } from "./main/credential";
-import { fileURLToPath } from "url";
-import { showPromptLoadurl } from "./main/Prompts";
-import { checkAndAnounce } from "./anouncer";
-
+import { fetchLatestBC } from "./bc_ver";
+import { setupProtocol, windowOpenRequest } from "./protocol";
 const DeltaUpdater = require("@electron-delta/updater");
 
 const icon = path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png");
@@ -35,7 +26,7 @@ function createWindow() {
     ...winstate.getBound(),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
-      nodeIntegration: true,
+      nodeIntegration: false,
       contextIsolation: true,
     },
     icon,
@@ -62,8 +53,13 @@ function createWindow() {
     }
   );
 
-  mainWindow.loadFile(
-    path.join(__dirname, "../BondageClub/BondageClub/index.html")
+  fetchLatestBC().then(
+    ({ url }) => {
+      mainWindow?.loadURL(url);
+    },
+    (error) => {
+      console.log(error);
+    }
   );
 
   setMainWindow(mainWindow);
@@ -113,24 +109,9 @@ function createWindow() {
     makeContextMenu().popup({ window: mainWindow, x: params.x, y: params.y });
   });
 
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    console.log("setWindowOpenHandler", url);
-
-    if (
-      url === "about:blank" ||
-      (url.startsWith("file://") && fileURLToPath(url) === changlogPath)
-    ) {
-      return { action: "allow" };
-    }
-
-    if (url.endsWith(".user.js")) {
-      showPromptLoadurl(url);
-      return { action: "deny" };
-    }
-
-    shell.openExternal(url);
-    return { action: "deny" };
-  });
+  mainWindow.webContents.setWindowOpenHandler(({ url }) =>
+    windowOpenRequest(url)
+  );
 
   mainWindow.webContents.on("did-create-window", (window) => {
     window.removeMenu();
@@ -160,7 +141,10 @@ app.whenReady().then(async () => {
     console.error(error);
   }
 
+  setupProtocol();
+
   createWindow();
+  
   powerSaveBlocker.start("prevent-display-sleep");
   app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

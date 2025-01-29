@@ -12,7 +12,7 @@ function addScript(src: string, type?: string) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  addScript("../../build/render.js", "module");
+  addScript("ebc://render.js", "module");
 });
 
 contextBridge.exposeInMainWorld("EBCContext", createCtxBridge());

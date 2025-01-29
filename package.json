@@ -21,7 +21,7 @@
     "@electron-delta/builder": "^0.1.17",
     "@types/node": "^22.7.4",
     "@types/semver": "^7.5.8",
-    "axios": "^1.7.7",
+    "axios": "^1.7.9",
     "conventional-changelog-cli": "^5.0.0",
     "css-loader": "^7.1.2",
     "cz-conventional-changelog": "^3.3.0",

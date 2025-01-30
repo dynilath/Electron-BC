@@ -34,6 +34,30 @@ function checkTagExists(tag) {
   );
 }
 
+async function cleanReleases() {
+  const url = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/releases`;
+  const config = {
+    headers: {
+      Authorization: `token ${process.env.GH_TOKEN}`,
+      Accept: "application/vnd.github+json",
+    },
+  };
+
+  const monthsAgo = new Date();
+  monthsAgo.setMonth(monthsAgo.getMonth() - 3);
+
+  return axios.get(url, config).then((response) => {
+    const oldReleases = response.data.filter((release) => {
+      const releaseDate = new Date(release.published_at);
+      return releaseDate < monthsAgo;
+    });
+
+    return Promise.all(
+      oldReleases.forEach((release) => axios.delete(release.url, config))
+    );
+  });
+}
+
 async function createRelease({ tag_name, name, url }) {
   const body = {
     tag_name: tag_name,

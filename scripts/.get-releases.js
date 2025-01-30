@@ -20,6 +20,8 @@ async function getReleases() {
   const { data } = await axios.get(api_url, config);
 
   return data.reduce((acc, release) => {
+    if (release.draft) return acc;
+    
     acc.push({
       version: release.tag_name,
       url: release.assets.find(

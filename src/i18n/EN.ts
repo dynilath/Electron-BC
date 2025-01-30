@@ -22,6 +22,7 @@ const translation: Record<TextTag, string> = {
     "Please input correct url, which should be like 'https://example.com/script.user.js'",
   "Alert::Title": "Alert",
   "MenuItem::About": "About",
+  "MenuItem::About::Suggestions": "Suggestions or Feedback",
   "MenuItem::About::ChangeLog": "Show Change Log",
   "MenuItem::About::GitHub": "Visit GitHub Repo",
   "MenuItem::About::Version": "Electron-BC Version",

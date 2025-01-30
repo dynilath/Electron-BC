@@ -23,6 +23,7 @@ const translation: Record<TextTag, string> = {
   "Alert::Title": "提示",
   "MenuItem::About": "关于",
   "MenuItem::About::ChangeLog": "显示更新日志",
+  "MenuItem::About::Suggestions": "建议或反馈",
   "MenuItem::About::GitHub": "访问GitHub源码",
   "MenuItem::About::Version": "Electron-BC 版本",
   "Alert::Credential::Title": "凭据支持",

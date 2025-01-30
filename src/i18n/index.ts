@@ -16,6 +16,13 @@ export function i18n(tag: TextTag) {
     return tag;
 }
 
+export function i18nEntry(
+  src: Partial<Record<LanguageSetting, string>>
+): string {
+  if (src[global_language]) return src[global_language]!;
+  return src.EN || Object.entries(src)[0][1] || "";
+}
+
 export function updateLang(lang: string) {
     if (global_language === lang) return { then: (cb: () => void) => { } };
     global_language = lang as LanguageSetting;

@@ -16,6 +16,7 @@ import { autoUpdater } from "electron-updater";
 import { initCredentialHandler } from "./main/credential";
 import { fileURLToPath } from "url";
 import { showPromptLoadurl } from "./main/Prompts";
+import { checkAndAnounce } from "./anouncer";
 
 const DeltaUpdater = require("@electron-delta/updater");
 
@@ -85,6 +86,7 @@ function createWindow() {
   initCredentialHandler();
 
   mainWindow.webContents.on("dom-ready", () => {
+    checkAndAnounce();
     ScriptManager.loadScript(true);
   });
 
@@ -112,6 +114,8 @@ function createWindow() {
   });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    console.log("setWindowOpenHandler", url);
+
     if (
       url === "about:blank" ||
       (url.startsWith("file://") && fileURLToPath(url) === changlogPath)

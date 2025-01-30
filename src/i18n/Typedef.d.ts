@@ -21,6 +21,7 @@ type TextTag =
   | "MenuItem::BuiltIns::AutoRelog::Info"
   | "MenuItem::About"
   | "MenuItem::About::Version"
+  | "MenuItem::About::Suggestions"
   | "MenuItem::About::ChangeLog"
   | "MenuItem::About::GitHub"
   | "ContextMenu::Cut"

@@ -51,6 +51,13 @@ Bridge.instance.onLoadScript((script: ScriptItem) => {
   s.remove();
 });
 
+Bridge.instance.onInfoPrompt((message) => {
+  Swal.fire({
+    html: message,
+    confirmButtonText: i18n("Alert::Confirm"),
+  });
+});
+
 Bridge.instance.onReload(() => location.reload());
 
 Bridge.instance.register().then((ticket) => loginExt(ticket));

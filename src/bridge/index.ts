@@ -37,6 +37,7 @@ export interface EBCContext {
   onReload: (callback: () => void) => void;
   onPromptLoadUrl: (callback: (scriptSuggestion?: string) => void) => void;
   onLoadScript: (callback: (script: ScriptItem) => void) => void;
+  onInfoPrompt: (callback: (message: string) => void) => void;
 }
 
 function testSetting(key: SettingsKey): Promise<void> {
@@ -132,6 +133,9 @@ export function createCtxBridge(): EBCContext {
     },
     onLoadScript: (callback: (script: ScriptItem) => void) => {
       ipcRenderer.on("load-script", (e, script) => callback(script));
+    },
+    onInfoPrompt: (callback: (message: string) => void) => {
+      ipcRenderer.on("info-prompt", (e, message) => callback(message));
     },
   };
 }

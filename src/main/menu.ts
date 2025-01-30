@@ -145,6 +145,15 @@ export function makeMenu() {
           },
         },
         {
+          label: i18n("MenuItem::About::Suggestions"),
+          type: "normal",
+          click: () => {
+            shell.openExternal(
+              "https://github.com/dynilath/Electron-BC/issues"
+            );
+          },
+        },
+        {
           label: i18n("MenuItem::About::GitHub"),
           type: "normal",
           click: () => {

@@ -6,6 +6,7 @@ import { i18n } from "../i18n";
 import { showPromptLoadurl } from "./Prompts";
 import { openChangelog } from "./changelog";
 import { EBCSetting } from "../settings";
+import { AssetCache } from "../caching/AssetCache";
 
 type MenuIds = "script" | "tools";
 
@@ -16,15 +17,22 @@ export function makeMenu() {
       id: "tools" as MenuIds,
       submenu: [
         {
+          label: i18n("MenuItem::Tools::OpenCacheDir"),
+          type: "normal",
+          click: () => {
+            shell.openPath(AssetCache.cacheDir());
+          },
+        },
+        {
           label: i18n("MenuItem::Tools::Refresh"),
           type: "normal",
           accelerator: "F5",
           click: () =>
-            handler().then((h) => {
+            handler().then(async (h) => {
               h.send("reload");
-              newHandler().then(() =>
-                ScriptManager.loadDataFolder().then(() => reloadMenu())
-              );
+              await newHandler();
+              await ScriptManager.loadDataFolder();
+              reloadMenu();
             }),
         },
         {

@@ -2,7 +2,7 @@ import { net, protocol, shell, WindowOpenHandlerResponse } from "electron";
 import { readFileSync } from "fs";
 import path from "path";
 import { showPromptLoadurl } from "./main/Prompts";
-import { requestBCAsset } from "./caching/cache";
+import { AssetCache } from "./caching/AssetCache";
 
 interface ProtocolSetting {
   urlPrefix: string;
@@ -10,17 +10,15 @@ interface ProtocolSetting {
 }
 
 async function requestAssetResponse(
-  url: string,
-  version: string,
-  contentType: "image/png" | "text/plain"
+  ...args: Parameters<typeof AssetCache.requestAsset>
 ) {
-  const asset = await requestBCAsset(url, version);
-  return new Response(asset, {
+  const { buffer, type } = await AssetCache.requestAsset(...args);
+  return new Response(buffer, {
     status: 200,
     statusText: "OK",
     headers: {
-      "Content-Type": contentType,
-      "Content-Length": asset.length.toString(),
+      ...(type ? { "Content-Type": type } : {}),
+      "Content-Length": buffer.length.toString(),
     },
   });
 }
@@ -42,16 +40,27 @@ export function setupProtocol(bcStatus: ProtocolSetting) {
 
   protocol.handle("https", async (request) => {
     if (request.url.startsWith(bcStatus.urlPrefix)) {
-      if (request.url.endsWith(".png")) {
-        return requestAssetResponse(request.url, bcStatus.version, "image/png");
-      } else if (request.url.endsWith(".txt") || request.url.endsWith(".csv")) {
-        return requestAssetResponse(
-          request.url,
-          bcStatus.version,
-          "text/plain"
-        );
+      const assetKey = request.url.substring(
+        request.url.lastIndexOf("BondageClub/") + 12
+      );
+
+      if (
+        request.url.endsWith(".png") ||
+        request.url.endsWith(".txt") ||
+        request.url.endsWith(".csv")
+      ) {
+        return requestAssetResponse(request.url, assetKey, bcStatus.version);
       }
     }
+
+    // Cache for Echo's mod
+    if (request.url.startsWith("https://emdsa2.github.io/-mod/")) {
+      const version = Math.floor(Date.now() / 1000 / 24 / 3600).toString();
+      if (request.url.endsWith(".png")) {
+        return requestAssetResponse(request.url, request.url, version);
+      }
+    }
+
     return net.fetch(request, { bypassCustomProtocolHandlers: true });
   });
 }

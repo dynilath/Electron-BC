@@ -1,5 +1,6 @@
 const translation: Record<TextTag, string> = {
   "MenuItem::Tools": "Tools",
+  "MenuItem::Tools::OpenCacheDir": "Open Cache Directory",
   "MenuItem::Tools::DevTools": "Dev Tools",
   "MenuItem::Tools::Refresh": "Refresh Page",
   "MenuItem::Tools::FullScreen": "Full Screen Mode",

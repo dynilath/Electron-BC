@@ -1,5 +1,6 @@
 type TextTag =
   | "MenuItem::Tools"
+  | "MenuItem::Tools::OpenCacheDir"
   | "MenuItem::Tools::DevTools"
   | "MenuItem::Tools::Refresh"
   | "MenuItem::Tools::FullScreen"

@@ -18,6 +18,7 @@ import { autoUpdater } from "electron-updater";
 import { initCredentialHandler } from "./main/credential";
 import { fetchLatestBC } from "./bc_ver";
 import { setupProtocol, windowOpenRequest } from "./protocol";
+import { checkAndAnounce } from "./anouncer";
 const DeltaUpdater = require("@electron-delta/updater");
 
 const icon = path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png");

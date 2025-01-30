@@ -1,5 +1,6 @@
 const translation: Record<TextTag, string> = {
   "MenuItem::Tools": "工具",
+  "MenuItem::Tools::OpenCacheDir": "打开缓存数据目录",
   "MenuItem::Tools::DevTools": "开发者工具",
   "MenuItem::Tools::Refresh": "刷新页面",
   "MenuItem::Tools::FullScreen": "全屏模式",

@@ -17,13 +17,6 @@ export function makeMenu() {
       id: "tools" as MenuIds,
       submenu: [
         {
-          label: i18n("MenuItem::Tools::OpenCacheDir"),
-          type: "normal",
-          click: () => {
-            shell.openPath(AssetCache.cacheDir());
-          },
-        },
-        {
           label: i18n("MenuItem::Tools::Refresh"),
           type: "normal",
           accelerator: "F5",
@@ -48,6 +41,16 @@ export function makeMenu() {
           accelerator: "F12",
           click: () =>
             accessMainWindow((mw) => mw.webContents.toggleDevTools()),
+        },
+        {
+          type: "separator",
+        },
+        {
+          label: i18n("MenuItem::Tools::OpenCacheDir"),
+          type: "normal",
+          click: () => {
+            shell.openPath(AssetCache.cacheDir());
+          },
         },
         {
           type: "separator",

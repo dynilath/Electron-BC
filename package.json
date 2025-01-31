@@ -1,6 +1,6 @@
 {
   "name": "electron-bondage-club",
-  "version": "2.17.112-rc.3",
+  "version": "2.18.0",
   "description": "An electron wrapped bondage-club",
   "main": "./build/main.js",
   "author": "dynilath <dynilath@qq.com>",
@@ -50,7 +50,6 @@
       "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "files": [
-      "BondageClub/**",
       "build/**"
     ]
   },

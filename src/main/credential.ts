@@ -2,6 +2,7 @@ import { app, ipcMain } from "electron";
 
 import keytar from "keytar";
 import { SaveUserPassResult, UserInfo } from "../bridge";
+import { randomString } from "../utility";
 
 const serviceName = app.name;
 
@@ -25,10 +26,6 @@ export function initCredentialHandler() {
       .filter((i) => !account || i.account.toLowerCase().includes(lacc))
       .map((i) => i.account);
   });
-
-  function randomString() {
-    return Math.random().toString(16).substring(2);
-  }
 
   const tempCredentialMap = new Map<string, { user: string; pass: string }>();
 

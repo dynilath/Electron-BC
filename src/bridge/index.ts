@@ -1,6 +1,7 @@
 import { ipcRenderer } from "electron";
 import { ScriptItem } from "../SimpleScriptManager/ScriptItem";
 import { SettingsKey } from "../settings";
+import { randomString } from "../utility";
 
 export interface UserInfo {
   user: string;
@@ -61,8 +62,7 @@ export function createCtxBridge(): EBCContext {
 
   return {
     register: () => {
-      if (session.ticket === undefined)
-        session.ticket = Math.random().toString(16).substring(2);
+      if (session.ticket === undefined) session.ticket = randomString();
       ipcRenderer.send("handler-register");
       return Promise.resolve(session.ticket);
     },

@@ -55,8 +55,12 @@ export function setupProtocol(bcStatus: ProtocolSetting) {
 
     // Cache for Echo's mod
     if (request.url.startsWith("https://emdsa2.github.io/-mod/")) {
-      const version = Math.floor(Date.now() / 1000 / 24 / 3600).toString();
       if (request.url.endsWith(".png")) {
+        const v_start = request.url.indexOf("v=", request.url.indexOf("?") + 1);
+        const version = request.url.substring(
+          v_start + 2,
+          Math.min(v_start + 9, request.url.length)
+        );
         return requestAssetResponse(request.url, request.url, version);
       }
     }

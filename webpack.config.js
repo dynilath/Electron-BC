@@ -15,6 +15,7 @@ module.exports = [
     externals: {
       keytar: "commonjs keytar",
       "classic-level": "commonjs classic-level",
+      "@electron-delta/updater": "commonjs @electron-delta/updater",
     },
     module: {
       rules: [

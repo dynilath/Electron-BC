@@ -1,6 +1,8 @@
 const translation: Record<TextTag, string> = {
   "MenuItem::Tools": "工具",
   "MenuItem::Tools::OpenCacheDir": "打开缓存数据目录",
+  "MenuItem::Tools::ProximateCacheSize": "缓存估计大小（点击刷新）",
+  "MenuItem::Tools::ClearCache": "清除缓存",
   "MenuItem::Tools::DevTools": "开发者工具",
   "MenuItem::Tools::Refresh": "刷新页面",
   "MenuItem::Tools::FullScreen": "全屏模式",
@@ -40,6 +42,8 @@ const translation: Record<TextTag, string> = {
   "MenuItem::BuiltIns::AutoRelog": "自动重连",
   "MenuItem::BuiltIns::AutoRelog::Info": "断线自动重连，需要启用凭据支持",
   "MenuItem::Script::InstallTips": "可以点击游戏中的脚本链接来安装脚本",
+  "Alert::Cache::ClearConfirm":
+    '<p>确认清除缓存？</p><p style="font-style:italic;">备注：由于缓存工作的特性，清除缓存后可能需要经过一些时间缓存文件体积才会减小。如果需要立即释放磁盘空间，请关闭程序后手动删除缓存目录。</p>',
 };
 
 export default translation;

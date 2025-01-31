@@ -2,6 +2,7 @@ import { app } from "electron";
 import path from "path";
 import { ClassicLevel } from "classic-level";
 import { net } from "electron";
+import fs from "fs";
 
 export interface CachedResponse {
   buffer: Buffer;
@@ -84,8 +85,32 @@ function requestAsset(
   });
 }
 
+function formatSize(bytes: number) {
+  const units = ["bytes", "KiB", "MiB", "GiB", "TiB"];
+  let index = 0;
+
+  while (bytes >= 1024 && index < units.length - 1) {
+    bytes /= 1024;
+    index++;
+  }
+
+  return `${bytes.toFixed(2)} ${units[index]}`;
+}
+
+function fileSizeStr() {
+  return formatSize(
+    fs.readdirSync(CachePath, { withFileTypes: true }).reduce((size, file) => {
+      if (file.isFile()) {
+        size += fs.statSync(path.join(CachePath, file.name)).size;
+      }
+      return size;
+    }, 0)
+  );
+}
+
 export class AssetCache {
   static requestAsset = requestAsset;
   static clearCache = clearCache;
   static cacheDir = cacheDir;
+  static fileSizeStr = fileSizeStr;
 }

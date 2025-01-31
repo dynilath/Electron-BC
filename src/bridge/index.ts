@@ -39,6 +39,10 @@ export interface EBCContext {
   onPromptLoadUrl: (callback: (scriptSuggestion?: string) => void) => void;
   onLoadScript: (callback: (script: ScriptItem) => void) => void;
   onInfoPrompt: (callback: (message: string) => void) => void;
+  onConfirmCancelPrompt: (
+    callback: (message: TextTag, key: string) => void
+  ) => void;
+  confirmCancelPromptReply: (key: string, confirm: boolean) => void;
 }
 
 function testSetting(key: SettingsKey): Promise<void> {
@@ -136,6 +140,16 @@ export function createCtxBridge(): EBCContext {
     },
     onInfoPrompt: (callback: (message: string) => void) => {
       ipcRenderer.on("info-prompt", (e, message) => callback(message));
+    },
+    onConfirmCancelPrompt: (
+      callback: (message: TextTag, key: string) => void
+    ) => {
+      ipcRenderer.on("confirm-cancel-prompt", (e, message, key) =>
+        callback(message, key)
+      );
+    },
+    confirmCancelPromptReply: (key: string, confirm: boolean) => {
+      ipcRenderer.send("confirm-cancel-prompt-reply", key, confirm);
     },
   };
 }

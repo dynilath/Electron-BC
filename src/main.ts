@@ -1,13 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-  Menu,
-  net,
-  powerSaveBlocker,
-  protocol,
-  session,
-} from "electron";
+import { app, BrowserWindow, ipcMain, Menu, powerSaveBlocker } from "electron";
 import * as path from "path";
 import { setMainWindow } from "./main/MWContainer";
 import { popupMenu, reloadMenu } from "./main/menu";
@@ -19,6 +10,7 @@ import { initCredentialHandler } from "./main/credential";
 import { fetchLatestBC } from "./bc_ver";
 import { setupProtocol, windowOpenRequest } from "./protocol";
 import { checkAndAnounce } from "./anouncer";
+import { MyPrompt } from "./bridge/MyPrompt";
 const DeltaUpdater = require("@electron-delta/updater");
 
 const icon = path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png");
@@ -87,8 +79,6 @@ function createWindow() {
     updateLang(arg as string).then(() => ipcMain.emit("reload-menu"));
   });
 
-  initCredentialHandler();
-
   mainWindow.webContents.on("dom-ready", () => {
     checkAndAnounce();
     ScriptManager.loadScript(true);
@@ -149,14 +139,13 @@ app.whenReady().then(async () => {
     console.error(error);
   }
 
+  initCredentialHandler();
+
+  MyPrompt.init();
+
   createWindow();
 
   powerSaveBlocker.start("prevent-display-sleep");
-
-  // app.on("activate", function () {
-  //   if (BrowserWindow.getAllWindows().length === 0)
-  //     fetchLatestBC().then(({ url }) => createWindow(url));
-  // });
 });
 
 app.on("window-all-closed", () => {

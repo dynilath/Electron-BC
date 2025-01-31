@@ -55,6 +55,17 @@ Bridge.instance.onInfoPrompt((message) => {
   });
 });
 
+Bridge.instance.onConfirmCancelPrompt((message, key) => {
+  Swal.fire({
+    html: i18n(message),
+    showCancelButton: true,
+    confirmButtonText: i18n("Alert::Confirm"),
+    cancelButtonText: i18n("Alert::Cancel"),
+  }).then((result) => {
+    Bridge.instance.confirmCancelPromptReply(key, result.isConfirmed);
+  });
+});
+
 Bridge.instance.onReload(() => location.reload());
 
 Bridge.instance.register().then((ticket) => loginExt(ticket));

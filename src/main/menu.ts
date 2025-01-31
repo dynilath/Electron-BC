@@ -7,6 +7,7 @@ import { showPromptLoadurl } from "./Prompts";
 import { openChangelog } from "./changelog";
 import { EBCSetting } from "../settings";
 import { AssetCache } from "../caching/AssetCache";
+import { MyPrompt } from "../bridge/MyPrompt";
 
 type MenuIds = "script" | "tools";
 
@@ -50,6 +51,23 @@ export function makeMenu() {
           type: "normal",
           click: () => {
             shell.openPath(AssetCache.cacheDir());
+          },
+        },
+        {
+          label: i18n("MenuItem::Tools::ProximateCacheSize"),
+          sublabel: AssetCache.fileSizeStr(),
+          type: "normal",
+          click: () => {
+            reloadMenu();
+          },
+        },
+        {
+          label: i18n("MenuItem::Tools::ClearCache"),
+          type: "normal",
+          click: () => {
+            MyPrompt.sendConfirmCancel("Alert::Cache::ClearConfirm", () => {
+              AssetCache.clearCache();
+            });
           },
         },
         {

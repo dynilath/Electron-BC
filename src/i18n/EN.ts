@@ -1,6 +1,9 @@
 const translation: Record<TextTag, string> = {
   "MenuItem::Tools": "Tools",
   "MenuItem::Tools::OpenCacheDir": "Open Cache Directory",
+  "MenuItem::Tools::ProximateCacheSize":
+    "Proximate Cache Size (Click to Refresh)",
+  "MenuItem::Tools::ClearCache": "Clear Cache",
   "MenuItem::Tools::DevTools": "Dev Tools",
   "MenuItem::Tools::Refresh": "Refresh Page",
   "MenuItem::Tools::FullScreen": "Full Screen Mode",
@@ -42,6 +45,8 @@ const translation: Record<TextTag, string> = {
     "Relog on disconnect, requires credential support",
   "MenuItem::Script::InstallTips":
     "Can also install scripts by clicking links in game",
+  "Alert::Cache::ClearConfirm":
+    '<p>Confirm to clear cache?</p><p style="font-style:italic;">Note: Due to the nature of cache work, it may take some time for cache file size to reduce after clearing. If you need to release disk space immediately, please close the program and manually delete the cache directory.</p>',
 };
 
 export default translation;

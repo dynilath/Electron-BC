@@ -6,7 +6,7 @@ import { i18n } from "../i18n";
 import { showPromptLoadurl } from "./Prompts";
 import { openChangelog } from "./changelog";
 import { EBCSetting } from "../settings";
-import { AssetCache } from "../caching/AssetCache";
+import { AssetCache } from "./AssetCache";
 import { MyPrompt } from "../bridge/MyPrompt";
 
 type MenuIds = "script" | "tools";

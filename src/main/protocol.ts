@@ -1,8 +1,8 @@
 import { net, protocol, shell, WindowOpenHandlerResponse } from "electron";
 import { readFileSync } from "fs";
 import path from "path";
-import { showPromptLoadurl } from "./main/Prompts";
-import { AssetCache } from "./caching/AssetCache";
+import { showPromptLoadurl } from "./Prompts";
+import { AssetCache } from "./AssetCache";
 
 interface ProtocolSetting {
   urlPrefix: string;

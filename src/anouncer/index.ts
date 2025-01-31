@@ -1,8 +1,8 @@
 import { app } from "electron";
 import anounce1 from "./anounce1";
 import settings from "electron-settings";
-import { handler } from "../handler";
 import semver from "semver";
+import { MyPrompt } from "../bridge/MyPrompt";
 
 const SettingTag = "VersionAnouncerConfig";
 
@@ -30,8 +30,7 @@ export async function checkAndAnounce() {
 
   const anounce = await queryAnounce();
   if (anounce) {
-    const h = await handler();
-    h.send("info-prompt", anounce[lang]);
+    MyPrompt.info(anounce[lang]);
   }
   settings.set(SettingTag, { lastVersion: app.getVersion() });
 }

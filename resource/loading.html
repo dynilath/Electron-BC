@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<head>
+    <style>
+        #container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            background-color: #121212;
+            color: #e0e0e0;
+            font-size: 2rem;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+    <script>
+        const container = document.getElementById("container");
+        const info = document.getElementById("info");
+
+        function createElement(tag, text, className) {
+            const element = document.createElement(tag);
+            element.textContent = text;
+            if (className) {
+                element.classList.add(className);
+            }
+            return element;
+        }
+
+        const text = navigator.language.startsWith('zh') ? {
+            title: '正在从官方网站获取BC版本',
+            error: '错误：',
+            wait: '请稍候...',
+            loading: '正在加载...',
+        } : {
+            title: 'Getting BC version from official website',
+            error: 'Error: ',
+            wait: 'Please wait...',
+            loading: 'Loading...',
+        };
+
+        container.appendChild(createElement('div', text.title, 'title'));
+        container.appendChild(createElement('div', text.wait));
+
+        window.addEventListener('electron-bc-loading', (event) => {
+            const { type, message } = event.detail;
+            if (type === 'error') {
+                container.appendChild(createElement('div', text.error + message));
+            } else if (type === 'done') {
+                container.appendChild(createElement('div', message));
+                container.appendChild(createElement('div', text.loading));
+            }
+        });
+    </script>
+</body>
+
+</html>

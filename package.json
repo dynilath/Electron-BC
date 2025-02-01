@@ -50,7 +50,8 @@
       "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "files": [
-      "build/**"
+      "build/**",
+      "resource/**"
     ]
   },
   "dependencies": {

@@ -1,4 +1,4 @@
-import { contextBridge } from "electron";
+import { contextBridge, ipcRenderer } from "electron";
 import { createCtxBridge } from "./bridge";
 
 function addScript(src: string, type?: string) {
@@ -12,7 +12,14 @@ function addScript(src: string, type?: string) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  addScript("ebc://render.js", "module");
+  if (location.protocol !== "file:") addScript("ebc://render.js", "module");
+  else {
+    ipcRenderer.on("electron-bc-loading", (event, data) => {
+      window.dispatchEvent(
+        new CustomEvent("electron-bc-loading", { detail: data })
+      );
+    });
+  }
 });
 
 contextBridge.exposeInMainWorld("EBCContext", createCtxBridge());

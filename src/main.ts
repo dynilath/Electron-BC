@@ -15,26 +15,9 @@ const DeltaUpdater = require("@electron-delta/updater");
 
 const icon = path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png");
 
-let mainWindow: BrowserWindow | undefined;
-
-function createWindow() {
-  const winstate = new windowStateKeeper("main");
-
-  mainWindow = new BrowserWindow({
-    ...winstate.getBound(),
-    webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      nodeIntegration: false,
-      contextIsolation: true,
-    },
-    icon,
-  });
-
-  if (winstate.windowState.isMaximized) mainWindow.maximize();
-
-  winstate.track(mainWindow);
-
+function mainWindowAfterLoad(mainWindow: BrowserWindow) {
   ScriptManager.loadDataFolder();
+
   ipcMain.on("load-script-done", (event, arg) =>
     ScriptManager.onScriptLoaded(arg as string)
   );
@@ -48,17 +31,6 @@ function createWindow() {
       details.requestHeaders["Origin"] =
         "https://www.bondageprojects.elementfx.com";
       callback({ requestHeaders: { ...details.requestHeaders } });
-    }
-  );
-
-  fetchLatestBC().then(
-    ({ url, version }) => {
-      console.log(`BC version: ${version}`);
-      setupProtocol({ urlPrefix: url, version });
-      mainWindow?.loadURL(url);
-    },
-    (error) => {
-      console.log(error);
     }
   );
 
@@ -126,6 +98,45 @@ function createWindow() {
   mainWindow.webContents.on("will-prevent-unload", (event) => {
     return event.preventDefault();
   });
+}
+
+async function createWindow() {
+  const winstate = new windowStateKeeper("main");
+
+  const mainWindow = new BrowserWindow({
+    ...winstate.getBound(),
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+    icon,
+  });
+
+  if (winstate.windowState.isMaximized) mainWindow.maximize();
+
+  winstate.track(mainWindow);
+
+  mainWindow.removeMenu();
+  await mainWindow.loadFile("resource/loading.html");
+  try {
+    const { url, version } = await fetchLatestBC();
+
+    mainWindow.webContents.send("electron-bc-loading", {
+      type: "done",
+      message: `BC version: ${version}`,
+    });
+
+    console.log(`BC version: ${version}`);
+    setupProtocol({ urlPrefix: url, version });
+    mainWindow.loadURL(url);
+    mainWindowAfterLoad(mainWindow);
+  } catch (error) {
+    mainWindow.webContents.send("electron-bc-loading", {
+      type: "error",
+      message: `${error}`,
+    });
+  }
 }
 
 app.whenReady().then(async () => {

@@ -3,7 +3,6 @@ import { SettingTag, getDataFolder } from "./Constants";
 import { ScriptItem } from "./ScriptItem";
 import { net } from "electron";
 import settings from "electron-settings";
-import { handler } from "../handler";
 import { isV1Config, isV2Config } from "./types";
 
 export class ScriptManager {
@@ -84,25 +83,29 @@ export class ScriptManager {
     return this.scripts;
   }
 
-  public static loadSingleScript(script: ScriptItem) {
-    handler().then((h) => {
-      h.send("load-script", script);
-      console.log(
-        "Script[Load] : " + JSON.stringify({ name: script.data.meta.name })
-      );
-    });
+  public static loadSingleScript(
+    webContents: Electron.WebContents,
+    script: ScriptItem
+  ) {
+    webContents.send("load-script", script);
+    console.log(
+      "Script[Load] : " + JSON.stringify({ name: script.data.meta.name })
+    );
   }
 
-  public static async loadScript(reload?: boolean) {
+  public static async loadScript(
+    webContents: Electron.WebContents,
+    reload?: boolean
+  ) {
     Array.from(ScriptManager.scripts.values())
       .filter((i) => i.data.setting.enabled && (reload || !i.data.loaded))
       .forEach((i) => {
         i.data.loaded = false;
-        this.loadSingleScript(i);
+        this.loadSingleScript(webContents, i);
       });
   }
 
-  public static switchItem(name: string) {
+  public static switchItem(webContents: Electron.WebContents, name: string) {
     const target = this.scripts.get(name);
     if (target) {
       const old = target.data.setting.enabled;
@@ -115,7 +118,8 @@ export class ScriptManager {
               enabled: target.data.setting.enabled,
             })
         );
-        if (!old && !target.data.loaded) this.loadSingleScript(target);
+        if (!old && !target.data.loaded)
+          this.loadSingleScript(webContents, target);
       });
     }
   }

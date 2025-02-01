@@ -67,7 +67,7 @@ export function createCtxBridge(): EBCContext {
   return {
     register: () => {
       if (session.ticket === undefined) session.ticket = randomString();
-      ipcRenderer.send("handler-register");
+      ipcRenderer.send("page-loaded", session.ticket);
       return Promise.resolve(session.ticket);
     },
 

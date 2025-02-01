@@ -25,12 +25,12 @@ async function queryAnounce() {
   return [anounce1].find((_) => shouldAnounce(_.version));
 }
 
-export async function checkAndAnounce() {
+export async function checkAndAnounce(webContents: Electron.WebContents) {
   const lang = app.getLocale().startsWith("zh") ? "CN" : "EN";
 
   const anounce = await queryAnounce();
   if (anounce) {
-    MyPrompt.info(anounce[lang]);
+    MyPrompt.info(webContents, anounce[lang]);
   }
   settings.set(SettingTag, { lastVersion: app.getVersion() });
 }

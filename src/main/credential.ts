@@ -6,7 +6,7 @@ import { randomString } from "../utility";
 
 const serviceName = app.name;
 
-export function initCredentialHandler() {
+function initCredentialHandler() {
   ipcMain.handle(
     "credential-query-select",
     (event, source): Promise<UserInfo> => {
@@ -60,4 +60,8 @@ export function initCredentialHandler() {
       return Promise.reject(`Invalid Handle: ${handle}`);
     }
   });
+}
+
+export class Credential {
+  static init = initCredentialHandler;
 }

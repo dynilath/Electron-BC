@@ -5,38 +5,45 @@ import { ScriptManager } from "./SimpleScriptManager";
 import { windowStateKeeper } from "./main/WindowState";
 import { i18n, updateLang } from "./i18n";
 import { autoUpdater } from "electron-updater";
-import { initCredentialHandler } from "./main/credential";
+import { Credential } from "./main/credential";
 import { fetchLatestBC } from "./utility";
 import { setupProtocol, windowOpenRequest } from "./main/protocol";
 import { checkAndAnounce } from "./main/anouncer";
 import { MyPrompt } from "./main/MyPrompt";
 import { PreloadCacheSetting } from "./main/preloadCacheSetting";
-import { handler } from "./handler";
+import { ContentLoadState } from "./handler";
 const DeltaUpdater = require("@electron-delta/updater");
 
 const icon = path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png");
 
 function mainWindowAfterLoad(
-  BCVersion: { url: string; version: string },
-  mainWindow: BrowserWindow
+  bcVersion: { url: string; version: string },
+  mainWindow: BrowserWindow,
+  readyState: ContentLoadState
 ) {
+  readyState.loaded().then(() => {
+    PreloadCacheSetting.check(webContents, bcVersion);
+  });
+
   ScriptManager.loadDataFolder();
 
   ipcMain.on("load-script-done", (event, arg) =>
     ScriptManager.onScriptLoaded(arg as string)
   );
 
+  const webContents = mainWindow.webContents;
+
   const reloadMenu = () => {
     const menu = makeMenu(
-      BCVersion,
+      bcVersion,
       () => reloadMenu(),
-      () => handler(),
+      () => readyState.reload(),
       mainWindow
     );
     mainWindow.setMenu(menu);
   };
 
-  mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
+  webContents.session.webRequest.onBeforeSendHeaders(
     { urls: ["*://*.herokuapp.com/*", "wss://*.herokuapp.com/*"] },
     (details, callback) => {
       details.requestHeaders["Accept-Language"] = "en-US";
@@ -62,9 +69,11 @@ function mainWindowAfterLoad(
     updateLang(arg as string).then(() => ipcMain.emit("reload-menu"));
   });
 
-  mainWindow.webContents.on("dom-ready", () => {
-    checkAndAnounce();
-    ScriptManager.loadScript(true);
+  webContents.on("dom-ready", () => {
+    checkAndAnounce(webContents);
+    readyState.loaded().then(() => {
+      ScriptManager.loadScript(webContents, true);
+    });
   });
 
   const makeContextMenu = () =>
@@ -86,15 +95,15 @@ function mainWindowAfterLoad(
       },
     ]);
 
-  mainWindow.webContents.on("context-menu", (event, params) => {
+  webContents.on("context-menu", (event, params) => {
     makeContextMenu().popup({ window: mainWindow, x: params.x, y: params.y });
   });
 
-  mainWindow.webContents.setWindowOpenHandler(({ url }) =>
-    windowOpenRequest(url)
+  webContents.setWindowOpenHandler(({ url }) =>
+    windowOpenRequest(webContents, url)
   );
 
-  mainWindow.webContents.on("did-create-window", (window) => {
+  webContents.on("did-create-window", (window) => {
     window.removeMenu();
     window.webContents.on("context-menu", (event, params) => {
       makeContextMenu().popup({
@@ -106,7 +115,7 @@ function mainWindowAfterLoad(
     window.setIcon(icon);
   });
 
-  mainWindow.webContents.on("will-prevent-unload", (event) => {
+  webContents.on("will-prevent-unload", (event) => {
     return event.preventDefault();
   });
 }
@@ -130,12 +139,13 @@ async function createWindow() {
 
   mainWindow.removeMenu();
   await mainWindow.loadFile("resource/loading.html");
+  const webContents = mainWindow.webContents;
   try {
     const { url, version } = await fetchLatestBC();
 
-    PreloadCacheSetting.check(url, version);
+    const readyState = new ContentLoadState(webContents);
 
-    mainWindow.webContents.send("electron-bc-loading", {
+    webContents.send("electron-bc-loading", {
       type: "done",
       message: `BC version: ${version}`,
     });
@@ -143,9 +153,9 @@ async function createWindow() {
     console.log(`BC version: ${version}`);
     setupProtocol({ urlPrefix: url, version });
     mainWindow.loadURL(url);
-    mainWindowAfterLoad({ url, version }, mainWindow);
+    mainWindowAfterLoad({ url, version }, mainWindow, readyState);
   } catch (error) {
-    mainWindow.webContents.send("electron-bc-loading", {
+    webContents.send("electron-bc-loading", {
       type: "error",
       message: `${error}`,
     });
@@ -163,8 +173,7 @@ app.whenReady().then(async () => {
     console.error(error);
   }
 
-  initCredentialHandler();
-
+  Credential.init();
   MyPrompt.init();
 
   createWindow();

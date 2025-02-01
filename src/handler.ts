@@ -1,27 +1,40 @@
 import { ipcMain } from "electron";
 
-let handler_: Electron.WebContents | undefined = undefined;
+const LoadedEvent = "page-loaded";
 
-function set_handler(handler: Electron.WebContents) {
-  handler_ = handler;
-  return handler_;
-}
-
-ipcMain.once("handler-register", (event) => set_handler(event.sender));
-
-export function newHandler() {
-  handler_ = undefined;
-  return handler();
-}
-
-export function handler() {
-  return new Promise<Electron.WebContents>((resolve) => {
-    if (handler_) {
-      resolve(handler_);
-    } else {
-      ipcMain.once("handler-register", (event) =>
-        resolve(set_handler(event.sender))
-      );
+function handler(webContents: Electron.WebContents, then: () => void) {
+  const ret = (event: Electron.IpcMainEvent) => {
+    if (event.sender.id === webContents.id) {
+      ipcMain.removeListener(LoadedEvent, ret);
+      then();
     }
-  });
+  };
+  return ret;
+}
+
+export class ContentLoadState {
+  private _loaded = false;
+  constructor(readonly webContents: Electron.WebContents) {
+    ipcMain.on(
+      LoadedEvent,
+      handler(webContents, () => {
+        this._loaded = true;
+      })
+    );
+  }
+
+  loaded() {
+    if (this._loaded) return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      ipcMain.once(LoadedEvent, handler(this.webContents, resolve));
+    });
+  }
+
+  reload() {
+    this._loaded = false;
+    this.webContents.send("reload");
+    return new Promise<void>((resolve) => {
+      ipcMain.once(LoadedEvent, handler(this.webContents, resolve));
+    });
+  }
 }

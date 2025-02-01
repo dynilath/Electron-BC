@@ -72,13 +72,16 @@ export function setupProtocol(bcStatus: ProtocolSetting) {
   });
 }
 
-export function windowOpenRequest(url: string): WindowOpenHandlerResponse {
+export function windowOpenRequest(
+  webContents: Electron.WebContents,
+  url: string
+): WindowOpenHandlerResponse {
   if (url === "about:blank") {
     return { action: "allow" };
   }
 
   if (url.endsWith(".user.js")) {
-    MyPrompt.loadUrl(url);
+    MyPrompt.loadUrl(webContents, url);
     return { action: "deny" };
   }
 

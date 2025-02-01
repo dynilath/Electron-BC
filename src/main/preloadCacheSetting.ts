@@ -18,19 +18,22 @@ async function saveVersion(version: string) {
   await settings.set(SettingTag, { version });
 }
 
-async function checkCache(url_prefix: string, cur_version: string) {
+async function checkCache(
+  webContents: Electron.WebContents,
+  BCVersion: { url: string; version: string }
+) {
   const currentVersion = await version();
 
-  if (!currentVersion || currentVersion !== cur_version) {
-    MyPrompt.confirmCancel("Alert::Cache::UpdateConfirm", () => {
-      AssetCache.preloadCache(url_prefix, cur_version).then(() => {
+  if (!currentVersion || currentVersion !== BCVersion.version) {
+    MyPrompt.confirmCancel(webContents, "Alert::Cache::UpdateConfirm", () => {
+      AssetCache.preloadCache(BCVersion.url, BCVersion.version).then(() => {
         ipcMain.emit("reload-menu");
       });
       ipcMain.emit("reload-menu");
     });
   }
 
-  saveVersion(cur_version);
+  saveVersion(BCVersion.version);
 }
 
 export class PreloadCacheSetting {

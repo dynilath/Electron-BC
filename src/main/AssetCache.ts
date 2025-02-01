@@ -119,16 +119,18 @@ async function preloadCache(url_prefix: string, verion: string) {
 
   const slash_url = url_prefix.endsWith("/") ? url_prefix : `${url_prefix}/`;
 
+  const dataPath = app.isPackaged
+    ? path.join(process.resourcesPath, "app.asar", "resource/preload.data")
+    : path.join(__dirname, "../resource/preload.data");
+
   const content = JSON.parse(
     LZString.decompressFromUint8Array(
-      fs.readFileSync("./resource/preload.data", { encoding: null })
+      fs.readFileSync(dataPath, { encoding: null })
     )
   ) as Dir;
 
   console.log(`Preloading cache from ${url_prefix}`);
-
   let processList = [{ container: content, path: "" }];
-
   while (processList.length > 0) {
     let current = processList.pop() as { container: Dir; path: string };
 
@@ -138,7 +140,6 @@ async function preloadCache(url_prefix: string, verion: string) {
         const url = `${slash_url}${assetPath}`;
         const data = await db.get(assetPath);
         if (!data || data?.version !== verion) {
-          console.log(`Preloading ${url}`);
           const { buffer, type } = await fetchAsset(url);
           storeAsset(assetPath, verion, buffer, type);
         }
@@ -147,7 +148,7 @@ async function preloadCache(url_prefix: string, verion: string) {
       }
     }
   }
-
+  console.log("Preloading cache done");
   preloadCacheRunning = false;
 }
 

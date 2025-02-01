@@ -1,6 +1,7 @@
 import settings from "electron-settings";
 import { MyPrompt } from "./MyPrompt";
 import { AssetCache } from "./AssetCache";
+import { ipcMain } from "electron";
 
 const SettingTag = "PreloadCacheConfig";
 
@@ -22,7 +23,10 @@ async function checkCache(url_prefix: string, cur_version: string) {
 
   if (!currentVersion || currentVersion !== cur_version) {
     MyPrompt.confirmCancel("Alert::Cache::UpdateConfirm", () => {
-      AssetCache.preloadCache(url_prefix, cur_version);
+      AssetCache.preloadCache(url_prefix, cur_version).then(() => {
+        ipcMain.emit("reload-menu");
+      });
+      ipcMain.emit("reload-menu");
     });
   }
 

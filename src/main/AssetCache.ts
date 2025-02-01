@@ -3,6 +3,7 @@ import path from "path";
 import { ClassicLevel } from "classic-level";
 import { net } from "electron";
 import fs from "fs";
+import LZString from "lz-string";
 
 export interface CachedResponse {
   buffer: Buffer;
@@ -113,36 +114,38 @@ function canPreloadCache() {
 }
 
 async function preloadCache(url_prefix: string, verion: string) {
-  if (!preloadCacheRunning) return;
+  if (preloadCacheRunning) return;
   preloadCacheRunning = true;
 
+  const slash_url = url_prefix.endsWith("/") ? url_prefix : `${url_prefix}/`;
+
   const content = JSON.parse(
-    fs.readFileSync("./resources/preload.json", "utf-8")
+    LZString.decompressFromUint8Array(
+      fs.readFileSync("./resource/preload.data", { encoding: null })
+    )
   ) as Dir;
+
+  console.log(`Preloading cache from ${url_prefix}`);
 
   let processList = [{ container: content, path: "" }];
 
   while (processList.length > 0) {
     let current = processList.pop() as { container: Dir; path: string };
-    Object.entries(current.container).forEach(async ([key, value]) => {
+
+    for (let [key, value] of Object.entries(current.container)) {
       const assetPath = `${current.path}${key}`;
-      console.log(`Processing ${assetPath}`);
-
       if (typeof value !== "object") {
-        const key = `${url_prefix}/${assetPath}`;
-        const data = await db.get(key);
+        const url = `${slash_url}${assetPath}`;
+        const data = await db.get(assetPath);
         if (!data || data?.version !== verion) {
-          console.log(`Preloading ${key}`);
-
-          // const { buffer, type } = await fetchAsset(
-          //   `${url_prefix}/${assetPath}`
-          // );
-          // storeAsset(assetPath, verion, buffer, type);
+          console.log(`Preloading ${url}`);
+          const { buffer, type } = await fetchAsset(url);
+          storeAsset(assetPath, verion, buffer, type);
         }
       } else {
         processList.push({ container: value, path: `${assetPath}/` });
       }
-    });
+    }
   }
 
   preloadCacheRunning = false;

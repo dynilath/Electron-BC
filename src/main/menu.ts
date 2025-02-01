@@ -57,6 +57,12 @@ export function makeMenu(
         {
           label: i18n("MenuItem::Tools::StartUICacheUpdate"),
           type: "normal",
+          enabled: AssetCache.canPreloadCache(),
+          ...(AssetCache.canPreloadCache()
+            ? {}
+            : {
+                sublabel: i18n("MenuItem::Tools::StartUICacheUpdate::Loading"),
+              }),
           click: () => {
             AssetCache.preloadCache(BCVersion.url, BCVersion.version).then(() =>
               reload()
@@ -169,6 +175,12 @@ export function makeMenu(
     {
       label: i18n("MenuItem::About"),
       submenu: [
+        {
+          label: i18n("MenuItem::About::BCVersion"),
+          type: "normal",
+          enabled: false,
+          sublabel: BCVersion.version,
+        },
         {
           label: i18n("MenuItem::About::Version"),
           type: "normal",

@@ -46,6 +46,7 @@ function mainWindowAfterLoad(
     }
   );
 
+  reloadMenu();
   ipcMain.on("reload-menu", () => reloadMenu());
 
   ipcMain.on("load-script-url", (event, arg) => {

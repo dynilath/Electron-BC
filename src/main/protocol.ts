@@ -44,11 +44,9 @@ export function setupProtocol(bcStatus: ProtocolSetting) {
         request.url.lastIndexOf("BondageClub/") + 12
       );
 
-      if (
-        request.url.endsWith(".png") ||
-        request.url.endsWith(".txt") ||
-        request.url.endsWith(".csv")
-      ) {
+      const idx = assetKey.lastIndexOf(".");
+      const ext = idx === -1 ? "" : assetKey.substring(idx);
+      if ([".png", ".jpg", ".mp3", ".txt", ".csv"].includes(ext)) {
         return requestAssetResponse(request.url, assetKey, bcStatus.version);
       }
     }
@@ -62,7 +60,11 @@ export function setupProtocol(bcStatus: ProtocolSetting) {
           v_start + 2,
           Math.min(v_start + 9, args.length)
         );
-        return requestAssetResponse(request.url, resource, version);
+        return requestAssetResponse(
+          request.url,
+          `EchoMod://${resource}`,
+          version
+        );
       }
     }
 

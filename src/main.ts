@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu, powerSaveBlocker } from "electron";
 import * as path from "path";
-import { setMainWindow } from "./main/MWContainer";
-import { popupMenu, reloadMenu } from "./main/menu";
+import { makeMenu, popupMenu } from "./main/menu";
 import { ScriptManager } from "./SimpleScriptManager";
 import { windowStateKeeper } from "./main/WindowState";
 import { i18n, updateLang } from "./i18n";
@@ -9,20 +8,33 @@ import { autoUpdater } from "electron-updater";
 import { initCredentialHandler } from "./main/credential";
 import { fetchLatestBC } from "./utility";
 import { setupProtocol, windowOpenRequest } from "./main/protocol";
-import { checkAndAnounce } from "./anouncer";
-import { MyPrompt } from "./bridge";
+import { checkAndAnounce } from "./main/anouncer";
+import { MyPrompt } from "./main/MyPrompt";
+import { PreloadCacheSetting } from "./main/preloadCacheSetting";
+import { handler } from "./handler";
 const DeltaUpdater = require("@electron-delta/updater");
 
 const icon = path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png");
 
-function mainWindowAfterLoad(mainWindow: BrowserWindow) {
+function mainWindowAfterLoad(
+  BCVersion: { url: string; version: string },
+  mainWindow: BrowserWindow
+) {
   ScriptManager.loadDataFolder();
 
   ipcMain.on("load-script-done", (event, arg) =>
     ScriptManager.onScriptLoaded(arg as string)
   );
 
-  reloadMenu();
+  const reloadMenu = () => {
+    const menu = makeMenu(
+      BCVersion,
+      () => reloadMenu(),
+      () => handler(),
+      mainWindow
+    );
+    mainWindow.setMenu(menu);
+  };
 
   mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
     { urls: ["*://*.herokuapp.com/*", "wss://*.herokuapp.com/*"] },
@@ -33,8 +45,6 @@ function mainWindowAfterLoad(mainWindow: BrowserWindow) {
       callback({ requestHeaders: { ...details.requestHeaders } });
     }
   );
-
-  setMainWindow(mainWindow);
 
   ipcMain.on("reload-menu", () => reloadMenu());
 
@@ -122,6 +132,8 @@ async function createWindow() {
   try {
     const { url, version } = await fetchLatestBC();
 
+    PreloadCacheSetting.check(url, version);
+
     mainWindow.webContents.send("electron-bc-loading", {
       type: "done",
       message: `BC version: ${version}`,
@@ -130,7 +142,7 @@ async function createWindow() {
     console.log(`BC version: ${version}`);
     setupProtocol({ urlPrefix: url, version });
     mainWindow.loadURL(url);
-    mainWindowAfterLoad(mainWindow);
+    mainWindowAfterLoad({ url, version }, mainWindow);
   } catch (error) {
     mainWindow.webContents.send("electron-bc-loading", {
       type: "error",

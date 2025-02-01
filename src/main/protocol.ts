@@ -2,7 +2,7 @@ import { net, protocol, shell, WindowOpenHandlerResponse } from "electron";
 import { readFileSync } from "fs";
 import path from "path";
 import { AssetCache } from "./AssetCache";
-import { MyPrompt } from "../bridge";
+import { MyPrompt } from "./MyPrompt";
 
 interface ProtocolSetting {
   urlPrefix: string;

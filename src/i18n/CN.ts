@@ -44,6 +44,9 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Script::InstallTips": "可以点击游戏中的脚本链接来安装脚本",
   "Alert::Cache::ClearConfirm":
     '<p>确认清除缓存？</p><p style="font-style:italic;">备注：由于缓存工作的特性，清除缓存后可能需要经过一些时间缓存文件体积才会减小。如果需要立即释放磁盘空间，请关闭程序后手动删除缓存目录。</p>',
+  "MenuItem::Tools::StartUICacheUpdate": "预加载用户界面资源",
+  "Alert::Cache::UpdateConfirm":
+    '<p>发现版本更新，点击确认立即开始缓存用户界面相关资源（不含角色资源）。</p><p style="font-style:italic;">备注：首次加载会消耗网络流量，提前加载可以避免游戏中的图片加载延迟。如果现在取消加载，之后也可以通过菜单启动加载。</p>',
 };
 
 export default translation;

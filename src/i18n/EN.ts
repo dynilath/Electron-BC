@@ -47,6 +47,9 @@ const translation: Record<TextTag, string> = {
     "Can also install scripts by clicking links in game",
   "Alert::Cache::ClearConfirm":
     '<p>Confirm to clear cache?</p><p style="font-style:italic;">Note: Due to the nature of cache work, it may take some time for cache file size to reduce after clearing. If you need to release disk space immediately, please close the program and manually delete the cache directory.</p>',
+  "MenuItem::Tools::StartUICacheUpdate": "Preload UI resources",
+  "Alert::Cache::UpdateConfirm":
+    '<p>Version update found, click confirm to start caching UI related resources (aside character resources) immediately.</p><p style="font-style:italic;">Note: Initial loading will consume network traffic, preloading can avoid image loading delay in game. If you cancel loading now, you can also start loading through menu later.</p>',
 };
 
 export default translation;

@@ -2,7 +2,7 @@ import { app } from "electron";
 import anounce1 from "./anounce1";
 import settings from "electron-settings";
 import semver from "semver";
-import { MyPrompt } from "../bridge";
+import { MyPrompt } from "../MyPrompt";
 
 const SettingTag = "VersionAnouncerConfig";
 

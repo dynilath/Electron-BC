@@ -45,7 +45,7 @@ function showPromptLoadurl(suggestion?: string) {
 
 export class MyPrompt {
   static init = initConfirmCancelPrompt;
-  static sendConfirmCancel = sendConfirmCancelPrompt;
+  static confirmCancel = sendConfirmCancelPrompt;
   static info = infoPrompt;
   static loadUrl = showPromptLoadurl;
 }

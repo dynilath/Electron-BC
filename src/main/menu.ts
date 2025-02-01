@@ -1,16 +1,20 @@
 import { app, Menu, shell } from "electron";
-import { handler, newHandler } from "../handler";
-import { accessMainWindow } from "./MWContainer";
+import { newHandler } from "../handler";
 import { openScriptFolder, ScriptManager } from "../SimpleScriptManager";
 import { i18n } from "../i18n";
 import { openChangelog } from "./changelog";
 import { EBCSetting } from "../settings";
 import { AssetCache } from "./AssetCache";
-import { MyPrompt } from "../bridge";
+import { MyPrompt } from "./MyPrompt";
 
 type MenuIds = "script" | "tools";
 
-export function makeMenu() {
+export function makeMenu(
+  BCVersion: { url: string; version: string },
+  reload: () => void,
+  handler: () => Promise<any>,
+  mainWindow: Electron.BrowserWindow
+) {
   return Menu.buildFromTemplate([
     {
       label: i18n("MenuItem::Tools"),
@@ -25,22 +29,20 @@ export function makeMenu() {
               h.send("reload");
               await newHandler();
               await ScriptManager.loadDataFolder();
-              reloadMenu();
+              reload();
             }),
         },
         {
           label: i18n("MenuItem::Tools::FullScreen"),
           type: "normal",
           accelerator: "F11",
-          click: () =>
-            accessMainWindow((mw) => mw.setFullScreen(!mw.isFullScreen())),
+          click: () => mainWindow.setFullScreen(!mainWindow.isFullScreen()),
         },
         {
           label: i18n("MenuItem::Tools::DevTools"),
           type: "normal",
           accelerator: "F12",
-          click: () =>
-            accessMainWindow((mw) => mw.webContents.toggleDevTools()),
+          click: () => mainWindow.webContents.toggleDevTools(),
         },
         {
           type: "separator",
@@ -53,18 +55,29 @@ export function makeMenu() {
           },
         },
         {
+          label: i18n("MenuItem::Tools::StartUICacheUpdate"),
+          type: "normal",
+          click: () => {
+            AssetCache.preloadCache(BCVersion.url, BCVersion.version).then(() =>
+              reload()
+            );
+            reload();
+          },
+        },
+        {
           label: i18n("MenuItem::Tools::ProximateCacheSize"),
           sublabel: AssetCache.fileSizeStr(),
           type: "normal",
           click: () => {
-            reloadMenu();
+            AssetCache.clearSizeResult();
+            reload();
           },
         },
         {
           label: i18n("MenuItem::Tools::ClearCache"),
           type: "normal",
           click: () => {
-            MyPrompt.sendConfirmCancel("Alert::Cache::ClearConfirm", () => {
+            MyPrompt.confirmCancel("Alert::Cache::ClearConfirm", () => {
               AssetCache.clearCache();
             });
           },
@@ -76,7 +89,7 @@ export function makeMenu() {
           label: i18n("MenuItem::Tools::Exit"),
           type: "normal",
           accelerator: "Alt+F4",
-          click: () => accessMainWindow((mw) => mw.close()),
+          click: () => mainWindow.close(),
         },
       ],
     },
@@ -98,7 +111,7 @@ export function makeMenu() {
         {
           label: i18n("MenuItem::Script::UpdateScript"),
           type: "normal",
-          click: () => ScriptManager.updateAll().then(() => reloadMenu()),
+          click: () => ScriptManager.updateAll().then(() => reload()),
         },
         {
           type: "separator",
@@ -140,7 +153,7 @@ export function makeMenu() {
           sublabel: i18n("MenuItem::BuiltIns::CredentialSupport::Info"),
           checked: EBCSetting.credentialSupport.get(),
           click: () => {
-            EBCSetting.credentialSupport.toggle().then(() => reloadMenu());
+            EBCSetting.credentialSupport.toggle().then(() => reload());
           },
         },
         {
@@ -149,7 +162,7 @@ export function makeMenu() {
           sublabel: i18n("MenuItem::BuiltIns::AutoRelog::Info"),
           checked: EBCSetting.autoRelogin.get(),
           enabled: EBCSetting.credentialSupport.get(),
-          click: () => EBCSetting.autoRelogin.toggle().then(() => reloadMenu()),
+          click: () => EBCSetting.autoRelogin.toggle().then(() => reload()),
         },
       ],
     },
@@ -191,10 +204,6 @@ export function makeMenu() {
       ],
     },
   ]);
-}
-
-export function reloadMenu() {
-  Menu.setApplicationMenu(makeMenu());
 }
 
 export function popupMenu(id: MenuIds, window: Electron.BrowserWindow) {

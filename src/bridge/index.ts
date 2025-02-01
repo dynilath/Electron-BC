@@ -53,8 +53,6 @@ function testSetting(key: SettingsKey): Promise<void> {
   );
 }
 
-export { MyPrompt } from "./MyPrompt";
-
 export function createCtxBridge(): EBCContext {
   const session = {
     ticket: undefined as string | undefined,

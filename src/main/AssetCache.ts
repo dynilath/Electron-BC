@@ -42,47 +42,28 @@ function storeAsset(
   });
 }
 
-function queryAsset(key: string): Promise<CacheItem> {
-  return db.get(key);
+async function fetchAsset(url: string): Promise<CachedResponse> {
+  const response = await net.fetch(url, { bypassCustomProtocolHandlers: true });
+  const buffer = Buffer.from(await response.arrayBuffer());
+  return { buffer, type: response.headers.get("Content-Type") };
 }
 
-function clearCache() {
-  return db.clear();
-}
-
-function cacheDir() {
-  return CachePath;
-}
-
-function requestAsset(
+async function requestAsset(
   url: string,
   key: string,
   version: string
 ): Promise<CachedResponse> {
-  return new Promise((resolve, reject) => {
-    queryAsset(key).then(
-      (data) => {
-        if (data && data.version === version) {
-          resolve({
-            buffer: Buffer.from(data.base64Data, "base64"),
-            type: data.type,
-          });
-        } else {
-          net
-            .fetch(url, { bypassCustomProtocolHandlers: true })
-            .then(async (response) => ({
-              buffer: Buffer.from(await response.arrayBuffer()),
-              type: response.headers.get("Content-Type"),
-            }))
-            .then(({ buffer, type }) => {
-              storeAsset(key, version, buffer, type);
-              resolve({ buffer, type });
-            });
-        }
-      },
-      (error) => reject(error)
-    );
-  });
+  const data = await db.get(key);
+  if (data && data.version === version) {
+    return {
+      buffer: Buffer.from(data.base64Data, "base64"),
+      type: data.type,
+    };
+  } else {
+    const { buffer, type } = await fetchAsset(url);
+    storeAsset(key, version, buffer, type);
+    return { buffer, type };
+  }
 }
 
 function formatSize(bytes: number) {
@@ -97,20 +78,83 @@ function formatSize(bytes: number) {
   return `${bytes.toFixed(2)} ${units[index]}`;
 }
 
+let cachedResult: undefined | string = undefined;
+
 function fileSizeStr() {
-  return formatSize(
-    fs.readdirSync(CachePath, { withFileTypes: true }).reduce((size, file) => {
+  if (cachedResult) return cachedResult;
+
+  const size = fs
+    .readdirSync(CachePath, { withFileTypes: true })
+    .reduce((size, file) => {
       if (file.isFile()) {
         size += fs.statSync(path.join(CachePath, file.name)).size;
       }
       return size;
-    }, 0)
-  );
+    }, 0);
+
+  cachedResult = formatSize(size);
+
+  return cachedResult;
+}
+
+function clearSizeResult() {
+  cachedResult = undefined;
+}
+
+type DirLeaf = string | number;
+interface Dir {
+  [key: string]: DirLeaf | Dir;
+}
+
+let preloadCacheRunning = false;
+
+function canPreloadCache() {
+  return !preloadCacheRunning;
+}
+
+async function preloadCache(url_prefix: string, verion: string) {
+  if (!preloadCacheRunning) return;
+  preloadCacheRunning = true;
+
+  const content = JSON.parse(
+    fs.readFileSync("./resources/preload.json", "utf-8")
+  ) as Dir;
+
+  let processList = [{ container: content, path: "" }];
+
+  while (processList.length > 0) {
+    let current = processList.pop() as { container: Dir; path: string };
+    Object.entries(current.container).forEach(async ([key, value]) => {
+      const assetPath = `${current.path}${key}`;
+      console.log(`Processing ${assetPath}`);
+
+      if (typeof value !== "object") {
+        const key = `${url_prefix}/${assetPath}`;
+        const data = await db.get(key);
+        if (!data || data?.version !== verion) {
+          console.log(`Preloading ${key}`);
+
+          // const { buffer, type } = await fetchAsset(
+          //   `${url_prefix}/${assetPath}`
+          // );
+          // storeAsset(assetPath, verion, buffer, type);
+        }
+      } else {
+        processList.push({ container: value, path: `${assetPath}/` });
+      }
+    });
+  }
+
+  preloadCacheRunning = false;
 }
 
 export class AssetCache {
   static requestAsset = requestAsset;
-  static clearCache = clearCache;
-  static cacheDir = cacheDir;
+  static clearCache = () => db.clear();
+  static cacheDir = () => CachePath;
   static fileSizeStr = fileSizeStr;
+  static clearSizeResult = clearSizeResult;
+
+  static preloadCache = preloadCache;
+  static canPreloadCache = canPreloadCache;
 }

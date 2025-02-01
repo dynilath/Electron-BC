@@ -10,7 +10,7 @@ import { initCredentialHandler } from "./main/credential";
 import { fetchLatestBC } from "./utility";
 import { setupProtocol, windowOpenRequest } from "./main/protocol";
 import { checkAndAnounce } from "./anouncer";
-import { MyPrompt } from "./bridge/MyPrompt";
+import { MyPrompt } from "./bridge";
 const DeltaUpdater = require("@electron-delta/updater");
 
 const icon = path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png");

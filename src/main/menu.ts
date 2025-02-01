@@ -1,13 +1,12 @@
 import { app, Menu, shell } from "electron";
 import { handler, newHandler } from "../handler";
-import { accessMainWindow, getMainWindow } from "./MWContainer";
+import { accessMainWindow } from "./MWContainer";
 import { openScriptFolder, ScriptManager } from "../SimpleScriptManager";
 import { i18n } from "../i18n";
-import { showPromptLoadurl } from "./Prompts";
 import { openChangelog } from "./changelog";
 import { EBCSetting } from "../settings";
 import { AssetCache } from "./AssetCache";
-import { MyPrompt } from "../bridge/MyPrompt";
+import { MyPrompt } from "../bridge";
 
 type MenuIds = "script" | "tools";
 
@@ -89,7 +88,7 @@ export function makeMenu() {
           label: i18n("MenuItem::Script::Load From URL"),
           type: "normal",
           sublabel: i18n("MenuItem::Script::InstallTips"),
-          click: () => showPromptLoadurl(),
+          click: () => MyPrompt.loadUrl(),
         },
         {
           label: i18n("MenuItem::Script::Open Script Folder"),

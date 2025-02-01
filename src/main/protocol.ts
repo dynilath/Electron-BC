@@ -1,8 +1,8 @@
 import { net, protocol, shell, WindowOpenHandlerResponse } from "electron";
 import { readFileSync } from "fs";
 import path from "path";
-import { showPromptLoadurl } from "./Prompts";
 import { AssetCache } from "./AssetCache";
+import { MyPrompt } from "../bridge";
 
 interface ProtocolSetting {
   urlPrefix: string;
@@ -76,7 +76,7 @@ export function windowOpenRequest(url: string): WindowOpenHandlerResponse {
   }
 
   if (url.endsWith(".user.js")) {
-    showPromptLoadurl(url);
+    MyPrompt.loadUrl(url);
     return { action: "deny" };
   }
 

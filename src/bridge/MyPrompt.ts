@@ -37,8 +37,15 @@ function infoPrompt(message: string) {
   handler().then((h) => h.send("info-prompt", message));
 }
 
+function showPromptLoadurl(suggestion?: string) {
+  handler().then((h) =>
+    h.send("show-prompt-loadurl", ...(suggestion ? [suggestion] : []))
+  );
+}
+
 export class MyPrompt {
   static init = initConfirmCancelPrompt;
   static sendConfirmCancel = sendConfirmCancelPrompt;
   static info = infoPrompt;
+  static loadUrl = showPromptLoadurl;
 }

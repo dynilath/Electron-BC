@@ -50,6 +50,7 @@
       "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "files": [
+      "./Logo.ico",
       "build/**",
       "resource/**"
     ]

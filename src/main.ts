@@ -6,7 +6,7 @@ import { windowStateKeeper } from "./main/WindowState";
 import { i18n, updateLang } from "./i18n";
 import { autoUpdater } from "electron-updater";
 import { Credential } from "./main/credential";
-import { fetchLatestBC } from "./utility";
+import { packageFile, fetchLatestBC } from "./main/utility";
 import { MyProtocol, windowOpenRequest } from "./main/protocol";
 import { checkAndAnounce } from "./main/anouncer";
 import { MyPrompt } from "./main/MyPrompt";
@@ -14,7 +14,7 @@ import { PreloadCacheSetting } from "./main/preloadCacheSetting";
 import { ContentLoadState } from "./handler";
 const DeltaUpdater = require("@electron-delta/updater");
 
-const icon = path.join(__dirname, "../BondageClub/BondageClub/Icons/Logo.png");
+const icon = packageFile("Logo.ico");
 
 function mainWindowAfterLoad(
   bcVersion: { url: string; version: string },

@@ -4,6 +4,7 @@ import { ClassicLevel } from "classic-level";
 import { net } from "electron";
 import fs from "fs";
 import LZString from "lz-string";
+import { packageFile } from "./utility";
 
 export interface CachedResponse {
   buffer: Buffer;
@@ -113,19 +114,17 @@ function canPreloadCache() {
   return !preloadCacheRunning;
 }
 
+const preloadDataPath = packageFile("resource/preload.data");
+
 async function preloadCache(url_prefix: string, verion: string) {
   if (preloadCacheRunning) return;
   preloadCacheRunning = true;
 
   const slash_url = url_prefix.endsWith("/") ? url_prefix : `${url_prefix}/`;
 
-  const dataPath = app.isPackaged
-    ? path.join(process.resourcesPath, "app.asar", "resource/preload.data")
-    : path.join(__dirname, "../resource/preload.data");
-
   const content = JSON.parse(
     LZString.decompressFromUint8Array(
-      fs.readFileSync(dataPath, { encoding: null })
+      fs.readFileSync(preloadDataPath, { encoding: null })
     )
   ) as Dir;
 
@@ -140,6 +139,7 @@ async function preloadCache(url_prefix: string, verion: string) {
         const url = `${slash_url}${assetPath}`;
         const data = await db.get(assetPath);
         if (!data || data?.version !== verion) {
+          console.log(`Preloading ${url}`);
           const { buffer, type } = await fetchAsset(url);
           storeAsset(assetPath, verion, buffer, type);
         }

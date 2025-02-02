@@ -1,5 +1,5 @@
 import { ipcRenderer } from "electron";
-import { ScriptItem } from "../SimpleScriptManager/ScriptItem";
+import { ScriptItem } from "../main/script/ScriptItem";
 import { SettingsKey } from "../settings";
 import { randomString } from "../utility";
 

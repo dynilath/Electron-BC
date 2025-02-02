@@ -1,5 +1,5 @@
 import { app, ipcMain, Menu, shell } from "electron";
-import { openScriptFolder, ScriptManager } from "../SimpleScriptManager";
+import { openScriptFolder, ScriptManager } from "./script";
 import { i18n } from "../i18n";
 import { openChangelog } from "./changelog";
 import { EBCSetting } from "../settings";

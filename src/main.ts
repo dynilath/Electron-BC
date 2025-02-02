@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain, Menu, powerSaveBlocker } from "electron";
 import * as path from "path";
 import { makeMenu, popupMenu } from "./main/menu";
-import { ScriptManager } from "./SimpleScriptManager";
+import { ScriptManager } from "./main/script";
 import { windowStateKeeper } from "./main/WindowState";
 import { i18n, updateLang } from "./i18n";
 import { autoUpdater } from "electron-updater";

@@ -1,5 +1,5 @@
 import Swal from "sweetalert2";
-import { ScriptItem } from "./SimpleScriptManager/ScriptItem";
+import { ScriptItem } from "./main/script/ScriptItem";
 import { i18n, updateLang } from "./i18n";
 import { BCInterface, Bridge } from "./render/globals";
 import { waitValue } from "./render/utils";

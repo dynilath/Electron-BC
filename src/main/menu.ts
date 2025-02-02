@@ -1,4 +1,4 @@
-import { app, Menu, shell } from "electron";
+import { app, ipcMain, Menu, shell } from "electron";
 import { openScriptFolder, ScriptManager } from "../SimpleScriptManager";
 import { i18n } from "../i18n";
 import { openChangelog } from "./changelog";
@@ -14,6 +14,8 @@ export function makeMenu(
   reloadPage: () => Promise<any>,
   mainWindow: Electron.BrowserWindow
 ) {
+  const reloadAllMenu = () => ipcMain.emit("reload-menu");
+
   return Menu.buildFromTemplate([
     {
       label: i18n("MenuItem::Tools"),
@@ -62,9 +64,9 @@ export function makeMenu(
               }),
           click: () => {
             AssetCache.preloadCache(BCVersion.url, BCVersion.version).then(() =>
-              reloadMenu()
+              reloadAllMenu()
             );
-            reloadMenu();
+            reloadAllMenu();
           },
         },
         {
@@ -73,7 +75,7 @@ export function makeMenu(
           type: "normal",
           click: () => {
             AssetCache.clearSizeResult();
-            reloadMenu();
+            reloadAllMenu();
           },
         },
         {
@@ -118,7 +120,7 @@ export function makeMenu(
         {
           label: i18n("MenuItem::Script::UpdateScript"),
           type: "normal",
-          click: () => ScriptManager.updateAll().then(() => reloadMenu()),
+          click: () => ScriptManager.updateAll().then(() => reloadAllMenu()),
         },
         {
           type: "separator",
@@ -163,8 +165,9 @@ export function makeMenu(
           type: "checkbox",
           sublabel: i18n("MenuItem::BuiltIns::CredentialSupport::Info"),
           checked: EBCSetting.credentialSupport.get(),
-          click: () => {
-            EBCSetting.credentialSupport.toggle().then(() => reloadMenu());
+          click: async () => {
+            await EBCSetting.credentialSupport.toggle();
+            reloadAllMenu();
           },
         },
         {
@@ -173,7 +176,10 @@ export function makeMenu(
           sublabel: i18n("MenuItem::BuiltIns::AutoRelog::Info"),
           checked: EBCSetting.autoRelogin.get(),
           enabled: EBCSetting.credentialSupport.get(),
-          click: () => EBCSetting.autoRelogin.toggle().then(() => reloadMenu()),
+          click: async () => {
+            await EBCSetting.autoRelogin.toggle();
+            reloadAllMenu();
+          },
         },
       ],
     },

@@ -5,7 +5,7 @@ import { AssetCache } from "./AssetCache";
 import { MyPrompt } from "./MyPrompt";
 
 interface ProtocolSetting {
-  urlPrefix: string;
+  url: string;
   version: string;
 }
 
@@ -23,8 +23,10 @@ async function requestAssetResponse(
   });
 }
 
-export function setupProtocol(bcStatus: ProtocolSetting) {
-  protocol.handle("ebc", async (request) => {
+export class MyProtocol {
+  bcStatus: ProtocolSetting | undefined;
+
+  private async ebcHandler(request: Request) {
     const url = request.url.substring(6);
     const filePath = path.join(__dirname, url);
     try {
@@ -36,10 +38,10 @@ export function setupProtocol(bcStatus: ProtocolSetting) {
     } catch (error) {
       return new Response("File not found", { status: 404 });
     }
-  });
+  }
 
-  protocol.handle("https", async (request) => {
-    if (request.url.startsWith(bcStatus.urlPrefix)) {
+  private async httpsHandler(request: Request) {
+    if (this.bcStatus && request.url.startsWith(this.bcStatus.url)) {
       const assetKey = request.url.substring(
         request.url.lastIndexOf("BondageClub/") + 12
       );
@@ -47,7 +49,11 @@ export function setupProtocol(bcStatus: ProtocolSetting) {
       const idx = assetKey.lastIndexOf(".");
       const ext = idx === -1 ? "" : assetKey.substring(idx);
       if ([".png", ".jpg", ".mp3", ".txt", ".csv"].includes(ext)) {
-        return requestAssetResponse(request.url, assetKey, bcStatus.version);
+        return requestAssetResponse(
+          request.url,
+          assetKey,
+          this.bcStatus.version
+        );
       }
     }
 
@@ -69,7 +75,24 @@ export function setupProtocol(bcStatus: ProtocolSetting) {
     }
 
     return net.fetch(request, { bypassCustomProtocolHandlers: true });
-  });
+  }
+
+  constructor(bcStatus?: ProtocolSetting) {
+    this.bcStatus = bcStatus;
+
+    protocol.handle("ebc", (req) => this.ebcHandler(req));
+    protocol.handle("https", (req) => this.httpsHandler(req));
+  }
+
+  private static instance: MyProtocol | null = null;
+
+  static setBCStatus(bcStatus: ProtocolSetting) {
+    if (this.instance) this.instance.bcStatus = bcStatus;
+  }
+
+  static init() {
+    if (!this.instance) this.instance = new MyProtocol();
+  }
 }
 
 export function windowOpenRequest(

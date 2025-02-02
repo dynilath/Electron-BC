@@ -7,7 +7,7 @@ import { i18n, updateLang } from "./i18n";
 import { autoUpdater } from "electron-updater";
 import { Credential } from "./main/credential";
 import { fetchLatestBC } from "./utility";
-import { setupProtocol, windowOpenRequest } from "./main/protocol";
+import { MyProtocol, windowOpenRequest } from "./main/protocol";
 import { checkAndAnounce } from "./main/anouncer";
 import { MyPrompt } from "./main/MyPrompt";
 import { PreloadCacheSetting } from "./main/preloadCacheSetting";
@@ -120,8 +120,8 @@ function mainWindowAfterLoad(
   });
 }
 
-async function createWindow() {
-  const winstate = new windowStateKeeper("main");
+async function createWindow(name: string) {
+  const winstate = new windowStateKeeper(name);
 
   const mainWindow = new BrowserWindow({
     ...winstate.getBound(),
@@ -151,7 +151,7 @@ async function createWindow() {
     });
 
     console.log(`BC version: ${version}`);
-    setupProtocol({ urlPrefix: url, version });
+    MyProtocol.setBCStatus({ url, version });
     mainWindow.loadURL(url);
     mainWindowAfterLoad({ url, version }, mainWindow, readyState);
   } catch (error) {
@@ -162,7 +162,14 @@ async function createWindow() {
   }
 }
 
+let windowCount = 0;
+
 app.whenReady().then(async () => {
+  if (!app.requestSingleInstanceLock()) {
+    app.quit();
+    return;
+  }
+
   const deltaUpdater = new DeltaUpdater({
     autoUpdater,
   });
@@ -173,12 +180,20 @@ app.whenReady().then(async () => {
     console.error(error);
   }
 
+  MyProtocol.init();
   Credential.init();
   MyPrompt.init();
 
-  createWindow();
+  createWindow("main");
+  windowCount += 1;
 
   powerSaveBlocker.start("prevent-display-sleep");
+});
+
+app.on("second-instance", () => {
+  const name = `main-${windowCount}`;
+  windowCount += 1;
+  createWindow(name);
 });
 
 app.on("window-all-closed", () => {

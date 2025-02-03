@@ -1,5 +1,4 @@
 import { ipcRenderer } from "electron";
-import { ScriptItem } from "../main/script/ScriptItem";
 import { SettingsKey } from "../settings";
 import { randomString } from "../utility";
 
@@ -37,12 +36,19 @@ export interface EBCContext {
 
   onReload: (callback: () => void) => void;
   onPromptLoadUrl: (callback: (scriptSuggestion?: string) => void) => void;
-  onLoadScript: (callback: (script: ScriptItem) => void) => void;
   onInfoPrompt: (callback: (message: string) => void) => void;
   onConfirmCancelPrompt: (
     callback: (message: TextTag, key: string) => void
   ) => void;
   confirmCancelPromptReply: (key: string, confirm: boolean) => void;
+  onLoadScriptV2: (callback: (script: ScriptResourceItem) => void) => void;
+  onLoadScriptDoneV2: (scriptName: string) => void;
+  registerMenuCommand: (
+    scriptName: string,
+    menuName: string,
+    callback: () => void
+  ) => number;
+  unregisterMenuCommand: (id: number) => void;
 }
 
 function testSetting(key: SettingsKey): Promise<void> {
@@ -63,6 +69,13 @@ export function createCtxBridge(): EBCContext {
     new Promise<void>((resolve) => {
       if (session.ticket === ticket) resolve();
     });
+
+  const menuCommands = new Map<number, () => void>();
+
+  ipcRenderer.on("invoke-menu-command", (e, id: number) => {
+    const func = menuCommands.get(id);
+    if (func) func();
+  });
 
   return {
     register: () => {
@@ -135,9 +148,6 @@ export function createCtxBridge(): EBCContext {
         callback(scriptSuggestion)
       );
     },
-    onLoadScript: (callback: (script: ScriptItem) => void) => {
-      ipcRenderer.on("load-script", (e, script) => callback(script));
-    },
     onInfoPrompt: (callback: (message: string) => void) => {
       ipcRenderer.on("info-prompt", (e, message) => callback(message));
     },
@@ -150,6 +160,27 @@ export function createCtxBridge(): EBCContext {
     },
     confirmCancelPromptReply: (key: string, confirm: boolean) => {
       ipcRenderer.send("confirm-cancel-prompt-reply", key, confirm);
+    },
+
+    onLoadScriptV2: (callback: (script: ScriptResourceItem) => void) => {
+      ipcRenderer.on("load-script-v2", (e, script) => callback(script));
+    },
+    onLoadScriptDoneV2: (scriptName: string) => {
+      ipcRenderer.send("load-script-done-v2", scriptName);
+    },
+    registerMenuCommand: (
+      scriptName: string,
+      menuName: string,
+      callback: () => void
+    ) => {
+      const ret = menuCommands.size + 1;
+      menuCommands.set(ret, () => callback());
+      ipcRenderer.send("register-menu-command", ret, scriptName, menuName);
+      return ret;
+    },
+    unregisterMenuCommand: (id: number) => {
+      ipcRenderer.send("remove-menu-command", id);
+      menuCommands.delete(id);
     },
   };
 }

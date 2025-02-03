@@ -1,10 +1,11 @@
 import Swal from "sweetalert2";
-import { ScriptItem } from "./main/script/ScriptItem";
 import { i18n, updateLang } from "./i18n";
 import { BCInterface, Bridge } from "./render/globals";
 import { waitValue } from "./render/utils";
 import Dexie from "dexie";
 import { loginExt } from "./render/login";
+import { evalScript } from "./render/script";
+import { Log } from "./render/log";
 
 (window as any).Dexie = Dexie;
 
@@ -32,20 +33,9 @@ Bridge.instance.onPromptLoadUrl((suggestion) => {
   });
 });
 
-Bridge.instance.onLoadScript((script: ScriptItem) => {
-  console.log(
-    "Load-Script : " +
-      JSON.stringify({
-        name: script.data.meta.name,
-        author: script.data.meta.author,
-        version: script.data.meta.version,
-      })
-  );
-  const s = document.createElement("script");
-  s.textContent = script.data.content;
-  document.head.appendChild(s);
-  Bridge.instance.loadScriptDone(script.data.meta.name);
-  s.remove();
+Bridge.instance.onLoadScriptV2((script) => {
+  Log.info("Load-Script : " + JSON.stringify(script.meta));
+  evalScript(Bridge.instance, script);
 });
 
 Bridge.instance.onInfoPrompt((message) => {

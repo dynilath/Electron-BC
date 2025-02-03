@@ -13,12 +13,12 @@ function AssureDataPath() {
     }
 }
 
-export function getDataFolder() {
-    AssureDataPath();
-    return DataPath;
+export function getScriptFolder() {
+  AssureDataPath();
+  return DataPath;
 }
 
 export function openScriptFolder() {
-    AssureDataPath();
-    shell.openPath(getDataFolder());
+  AssureDataPath();
+  shell.openPath(getScriptFolder());
 }

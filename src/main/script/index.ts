@@ -1,2 +1,1 @@
-export * from "./Constants"
-export * from "./Manager"
+export * from "./Constants";

@@ -1,31 +1,23 @@
 interface ScriptSetting {
-    enabled: boolean;
-    url: string | null;
-    lastUpdate: number;
+  enabled: boolean;
+  url: string | null;
+  lastUpdate: number;
 }
 
 interface ScriptMeta {
-    name: string;
-    author?: string;
-    version?: string;
+  name: string;
+  author?: string;
+  version?: string;
 }
 
-interface ScriptItemData {
-    loaded: boolean;
-    meta: ScriptMeta;
-    filePath: string;
-    setting: ScriptSetting;
-    content: string;
+interface ScriptResourceItem {
+  setting: ScriptSetting;
+  file: string;
+  meta: ScriptMeta;
+  content: string;
 }
 
-interface V1ConfigItem {
-    name: string,
-    enabled: boolean,
+interface ConfigItem {
+  name: string;
+  setting: ScriptSetting;
 }
-
-interface V2ConfigItem {
-    name: string,
-    setting: ScriptSetting,
-}
-
-type ConfigItem = V1ConfigItem | V2ConfigItem;

@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu, powerSaveBlocker } from "electron";
 import * as path from "path";
 import { makeMenu, popupMenu } from "./main/menu";
-import { ScriptManager } from "./main/script";
 import { windowStateKeeper } from "./main/WindowState";
 import { i18n, updateLang } from "./i18n";
 import { autoUpdater } from "electron-updater";
@@ -12,6 +11,9 @@ import { checkAndAnounce } from "./main/anouncer";
 import { MyPrompt } from "./main/MyPrompt";
 import { PreloadCacheSetting } from "./main/preloadCacheSetting";
 import { ContentLoadState } from "./handler";
+import { ScriptState } from "./main/script/state";
+import { ScriptResource } from "./main/script/resource";
+
 const DeltaUpdater = require("@electron-delta/updater");
 
 const icon = packageFile("Logo.ico");
@@ -25,20 +27,17 @@ function mainWindowAfterLoad(
     PreloadCacheSetting.check(webContents, bcVersion);
   });
 
-  ScriptManager.loadDataFolder();
-
-  ipcMain.on("load-script-done", (event, arg) =>
-    ScriptManager.onScriptLoaded(arg as string)
-  );
-
   const webContents = mainWindow.webContents;
+
+  const scriptState = new ScriptState(webContents);
 
   const reloadMenu = () => {
     const menu = makeMenu(
       bcVersion,
       () => reloadMenu(),
       () => readyState.reload(),
-      mainWindow
+      mainWindow,
+      scriptState
     );
     mainWindow.setMenu(menu);
   };
@@ -56,12 +55,11 @@ function mainWindowAfterLoad(
   reloadMenu();
   ipcMain.on("reload-menu", () => reloadMenu());
 
-  ipcMain.on("load-script-url", (event, arg) => {
-    const value = arg as string;
-    ScriptManager.loadOneFromURL(value).then(() => {
-      reloadMenu();
-      if (mainWindow) popupMenu("script", mainWindow);
-    });
+  ipcMain.on("load-script-url", async (event, url: string) => {
+    const script = await ScriptResource.loadScriptFromUrl(url);
+    await scriptState.loadOneScript(script);
+    reloadMenu();
+    popupMenu("script", mainWindow);
   });
 
   ipcMain.on("language-change", (event, arg) => {
@@ -69,11 +67,11 @@ function mainWindowAfterLoad(
     updateLang(arg as string).then(() => ipcMain.emit("reload-menu"));
   });
 
-  webContents.on("dom-ready", () => {
+  webContents.on("dom-ready", async () => {
     checkAndAnounce(webContents);
-    readyState.loaded().then(() => {
-      ScriptManager.loadScript(webContents, true);
-    });
+    await readyState.loaded();
+    await scriptState.loadScript();
+    reloadMenu();
   });
 
   const makeContextMenu = () =>
@@ -155,6 +153,7 @@ async function createWindow(name: string) {
     mainWindow.loadURL(url);
     mainWindowAfterLoad({ url, version }, mainWindow, readyState);
   } catch (error) {
+    console.error(error);
     webContents.send("electron-bc-loading", {
       type: "error",
       message: `${error}`,

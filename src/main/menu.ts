@@ -1,10 +1,13 @@
 import { app, ipcMain, Menu, shell } from "electron";
-import { openScriptFolder, ScriptManager } from "./script";
+import { openScriptFolder } from "./script";
 import { i18n } from "../i18n";
 import { openChangelog } from "./changelog";
 import { EBCSetting } from "../settings";
 import { AssetCache } from "./AssetCache";
 import { MyPrompt } from "./MyPrompt";
+import { createScriptMenu } from "./scriptMenu";
+import { ScriptState } from "./script/state";
+import { ScriptResource } from "./script/resource";
 
 type MenuIds = "script" | "tools";
 
@@ -12,7 +15,8 @@ export function makeMenu(
   BCVersion: { url: string; version: string },
   reloadMenu: () => void,
   reloadPage: () => Promise<any>,
-  mainWindow: Electron.BrowserWindow
+  mainWindow: Electron.BrowserWindow,
+  scriptState: ScriptState
 ) {
   const reloadAllMenu = () => ipcMain.emit("reload-menu");
 
@@ -25,11 +29,7 @@ export function makeMenu(
           label: i18n("MenuItem::Tools::Refresh"),
           type: "normal",
           accelerator: "F5",
-          click: async () => {
-            await reloadPage();
-            await ScriptManager.loadDataFolder();
-            reloadMenu();
-          },
+          click: () => reloadPage(),
         },
         {
           label: i18n("MenuItem::Tools::FullScreen"),
@@ -120,33 +120,12 @@ export function makeMenu(
         {
           label: i18n("MenuItem::Script::UpdateScript"),
           type: "normal",
-          click: () => ScriptManager.updateAll().then(() => reloadAllMenu()),
+          click: () => ScriptResource.updateScripts(),
         },
         {
           type: "separator",
         },
-        ...Array.from(ScriptManager.scripts.values()).map((s) => {
-          return {
-            label: s.data.meta.name,
-            type: "checkbox" as "checkbox",
-            checked: s.data.setting.enabled,
-            sublabel: (() => {
-              const meta = s.data.meta;
-              const sAuthor = i18n("MenuItem::Script::Author");
-              const sVersion = i18n("MenuItem::Script::Version");
-              const sURL = i18n("MenuItem::Script::URL");
-              const sUnknown = i18n("MenuItem::Script::Unknown");
-              return `${sAuthor}: ${meta.author ?? sUnknown}, ${sVersion}: ${
-                meta.version ?? sUnknown
-              },\n ${sURL}: ${s.data.setting.url ?? sUnknown}`;
-            })(),
-            click: () =>
-              ScriptManager.switchItem(
-                mainWindow.webContents,
-                s.data.meta.name
-              ),
-          };
-        }),
+        ...createScriptMenu(scriptState),
       ],
     },
     {

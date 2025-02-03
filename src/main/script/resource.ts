@@ -3,6 +3,8 @@ import { getScriptFolder } from "./Constants";
 import { readMeta } from "./meta";
 import { ScriptConfig } from "./config";
 import path from "path";
+import { ipcMain } from "electron";
+import { reloadAllMenu } from "../reloadAllMenu";
 
 function scriptFiles() {
   return new Promise<string[]>((resolve, reject) => {
@@ -32,7 +34,7 @@ function saveScriptFile(content: string, meta: ScriptMeta) {
 }
 
 async function load() {
-  return (await scriptFiles())
+  const ret = (await scriptFiles())
     .map((file) => {
       const content = fs.readFileSync(file, { encoding: "utf-8" });
       const meta = readMeta(content);
@@ -44,6 +46,9 @@ async function load() {
       const { setting } = ScriptConfig.getConfig(meta.name);
       return { setting, meta, content, file };
     });
+
+  ScriptConfig.shrinkConfig(ret.map((i) => i.meta.name));
+  return ret;
 }
 
 const newScriptListeners: ((script: ScriptResourceItem) => void)[] = [];
@@ -71,7 +76,9 @@ async function loadScriptFromUrl(url: string) {
   if (!meta) throw new Error(`Failed to read metadata from ${url}`);
   const { setting } = ScriptConfig.getConfig(meta.name, url);
   const file = await saveScriptFile(content, meta);
-  return { setting, meta, content, file } as ScriptResourceItem;
+  const ret = { setting, meta, content, file } as ScriptResourceItem;
+  newScriptListeners.forEach((listener) => listener(ret));
+  return ret;
 }
 
 async function updateScripts() {
@@ -89,10 +96,19 @@ async function updateScripts() {
   );
 }
 
+function init() {
+  ipcMain.on("load-script-url", async (event, url: string) => {
+    await ScriptResource.loadScriptFromUrl(url);
+    console.log("load-script-url - reload-menu");
+    reloadAllMenu();
+  });
+}
+
 export class ScriptResource {
   static load = load;
   static on = on;
   static removeListener = removeListener;
   static loadScriptFromUrl = loadScriptFromUrl;
   static updateScripts = updateScripts;
+  static init = init;
 }

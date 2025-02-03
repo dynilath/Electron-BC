@@ -11,6 +11,7 @@ type TextTag =
   | "MenuItem::Tools::Exit"
   | "MenuItem::Script"
   | "MenuItem::Script::InstallTips"
+  | "MenuItem::Script::NeedRefresh"
   | "MenuItem::Script::Load From URL"
   | "MenuItem::Script::Open Script Folder"
   | "MenuItem::Script::UpdateScript"

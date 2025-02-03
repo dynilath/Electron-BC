@@ -10,6 +10,7 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Tools::Exit": "退出",
   "MenuItem::Script": "脚本",
   "MenuItem::Script::Load From URL": "从网址加载",
+  "MenuItem::Script::NeedRefresh": "需要刷新以应用更改",
   "MenuItem::Script::Open Script Folder": "打开脚本文件夹",
   "MenuItem::Script::UpdateScript": "从网址更新现有脚本",
   "MenuItem::Script::Author": "作者",

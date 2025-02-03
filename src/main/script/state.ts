@@ -1,5 +1,6 @@
 import { ipcMain } from "electron";
 import { ScriptResource } from "./resource";
+import { ScriptConfig } from "./config";
 
 function loadOneScriptRaw(
   webContents: Electron.WebContents,
@@ -52,27 +53,30 @@ interface MenuItems {
 const stash = new Map<number, ScriptState>();
 
 export class ScriptState {
-  scripts: Promise<ScriptResourceItem[]> | ScriptResourceItem[];
+  scripts: ScriptResourceItem[] = [];
 
   handlers: Map<MyEvent, (...args: any[]) => any> = new Map();
   newScriptHandler: AnyFunction;
 
   menuItems: MenuItems[] = [];
 
-  async finishLoad() {
-    if (!Array.isArray(this.scripts)) this.scripts = await this.scripts;
+  async loadScriptResource() {
+    this.scripts = await ScriptResource.load();
+    this.needRefresh = false;
     return this.scripts;
   }
 
+  needRefresh = true;
+
   constructor(readonly webContents: Electron.WebContents) {
-    this.scripts = ScriptResource.load();
-    this.finishLoad();
+    this.loadScriptResource();
 
     const old = stash.get(webContents.id);
     if (old) old.unload();
     stash.set(webContents.id, this);
 
     this.newScriptHandler = (script: ScriptResourceItem) => {
+      this.scripts.push(script);
       loadOneScriptRaw(this.webContents, script);
     };
 
@@ -125,9 +129,23 @@ export class ScriptState {
     loadScripts(this.webContents, [script]);
   }
 
+  async toggleConfig(scriptName: string) {
+    const script = this.scripts.find((i) => i.meta.name === scriptName);
+    if (!script) return;
+
+    script.setting.enabled = !script.setting.enabled;
+    ScriptConfig.saveConfig({
+      name: script.meta.name,
+      setting: script.setting,
+    });
+    if (script.setting.enabled) await this.loadOneScript(script);
+    else this.needRefresh = true;
+  }
+
   async loadScript() {
-    const scripts = (await this.finishLoad()).filter((i) => i.setting.enabled);
-    console.log("Script[Load] : " + JSON.stringify(scripts.map((i) => i.meta)));
+    const scripts = (await this.loadScriptResource()).filter(
+      (i) => i.setting.enabled
+    );
     const waitLoad = loadScripts(this.webContents, scripts);
     await waitLoad;
   }

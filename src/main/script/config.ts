@@ -24,9 +24,18 @@ async function saveConfig() {
 }
 
 export class ScriptConfig {
-  static addConfig(config: ConfigItem) {
-    config_storage.set(config.name, config);
+  static shrinkConfig(names: string[]) {
+    const unused = [] as string[];
+    config_storage.forEach((v, k) => {
+      if (!names.includes(k)) unused.push(k);
+    });
+    unused.forEach((k) => config_storage.delete(k));
     saveConfig();
+  }
+
+  static async saveConfig(config: ConfigItem) {
+    config_storage.set(config.name, config);
+    await saveConfig();
   }
 
   static getConfig(name: string, url: string | null = null): ConfigItem {

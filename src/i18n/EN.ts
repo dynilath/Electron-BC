@@ -11,6 +11,7 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Tools::FullScreen": "Full Screen Mode",
   "MenuItem::Tools::Exit": "Exit",
   "MenuItem::Script": "Script",
+  "MenuItem::Script::NeedRefresh": "Need Refresh to Apply Changes",
   "MenuItem::Script::Load From URL": "Load From URL",
   "MenuItem::Script::Open Script Folder": "Open Script Folder",
   "MenuItem::Script::UpdateScript": "Update Exisiting Script From URL",

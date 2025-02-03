@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, Menu, powerSaveBlocker } from "electron";
 import * as path from "path";
 import { makeMenu, popupMenu } from "./main/menu";
+import { reloadAllMenu } from "./main/reloadAllMenu";
 import { windowStateKeeper } from "./main/WindowState";
 import { i18n, updateLang } from "./i18n";
 import { autoUpdater } from "electron-updater";
@@ -31,6 +32,8 @@ function mainWindowAfterLoad(
 
   const scriptState = new ScriptState(webContents);
 
+  const reloadListener = [] as ((menu: Electron.Menu) => void)[];
+
   const reloadMenu = () => {
     const menu = makeMenu(
       bcVersion,
@@ -40,39 +43,21 @@ function mainWindowAfterLoad(
       scriptState
     );
     mainWindow.setMenu(menu);
+    reloadListener.forEach((i) => i(menu));
+    reloadListener.length = 0;
   };
 
-  webContents.session.webRequest.onBeforeSendHeaders(
-    { urls: ["*://*.herokuapp.com/*", "wss://*.herokuapp.com/*"] },
-    (details, callback) => {
-      details.requestHeaders["Accept-Language"] = "en-US";
-      details.requestHeaders["Origin"] =
-        "https://www.bondageprojects.elementfx.com";
-      callback({ requestHeaders: { ...details.requestHeaders } });
+  const loadScriptURL = async (event: Electron.IpcMainEvent, url: string) => {
+    if (event.sender.id === webContents.id)
+      reloadListener.push((menu) => popupMenu("script", menu, mainWindow));
+  };
+
+  const languageChange = async (event: Electron.IpcMainEvent, lang: string) => {
+    if (event.sender.id === webContents.id) {
+      console.log("language-change", lang);
+      updateLang(lang).then(reloadMenu);
     }
-  );
-
-  reloadMenu();
-  ipcMain.on("reload-menu", () => reloadMenu());
-
-  ipcMain.on("load-script-url", async (event, url: string) => {
-    const script = await ScriptResource.loadScriptFromUrl(url);
-    await scriptState.loadOneScript(script);
-    reloadMenu();
-    popupMenu("script", mainWindow);
-  });
-
-  ipcMain.on("language-change", (event, arg) => {
-    console.log("language-change", arg);
-    updateLang(arg as string).then(() => ipcMain.emit("reload-menu"));
-  });
-
-  webContents.on("dom-ready", async () => {
-    checkAndAnounce(webContents);
-    await readyState.loaded();
-    await scriptState.loadScript();
-    reloadMenu();
-  });
+  };
 
   const makeContextMenu = () =>
     Menu.buildFromTemplate([
@@ -92,6 +77,34 @@ function mainWindowAfterLoad(
         accelerator: "CmdOrCtrl+V",
       },
     ]);
+
+  webContents.session.webRequest.onBeforeSendHeaders(
+    { urls: ["*://*.herokuapp.com/*", "wss://*.herokuapp.com/*"] },
+    (details, callback) => {
+      details.requestHeaders["Accept-Language"] = "en-US";
+      details.requestHeaders["Origin"] =
+        "https://www.bondageprojects.elementfx.com";
+      callback({ requestHeaders: { ...details.requestHeaders } });
+    }
+  );
+
+  reloadMenu();
+  ipcMain.on("reload-menu", reloadMenu);
+  ipcMain.on("load-script-url", loadScriptURL);
+  ipcMain.on("language-change", languageChange);
+
+  mainWindow.on("close", () => {
+    ipcMain.removeListener("reload-menu", reloadMenu);
+    ipcMain.removeListener("load-script-url", loadScriptURL);
+    ipcMain.removeListener("language-change", languageChange);
+  });
+
+  webContents.on("dom-ready", async () => {
+    checkAndAnounce(webContents);
+    await readyState.loaded();
+    await scriptState.loadScript();
+    reloadMenu();
+  });
 
   webContents.on("context-menu", (event, params) => {
     makeContextMenu().popup({ window: mainWindow, x: params.x, y: params.y });
@@ -179,6 +192,7 @@ app.whenReady().then(async () => {
     console.error(error);
   }
 
+  ScriptResource.init();
   MyProtocol.init();
   Credential.init();
   MyPrompt.init();

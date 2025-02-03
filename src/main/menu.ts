@@ -1,4 +1,4 @@
-import { app, ipcMain, Menu, shell } from "electron";
+import { app, Menu, shell } from "electron";
 import { openScriptFolder } from "./script";
 import { i18n } from "../i18n";
 import { openChangelog } from "./changelog";
@@ -8,6 +8,7 @@ import { MyPrompt } from "./MyPrompt";
 import { createScriptMenu } from "./scriptMenu";
 import { ScriptState } from "./script/state";
 import { ScriptResource } from "./script/resource";
+import { reloadAllMenu } from "./reloadAllMenu";
 
 type MenuIds = "script" | "tools";
 
@@ -18,8 +19,6 @@ export function makeMenu(
   mainWindow: Electron.BrowserWindow,
   scriptState: ScriptState
 ) {
-  const reloadAllMenu = () => ipcMain.emit("reload-menu");
-
   return Menu.buildFromTemplate([
     {
       label: i18n("MenuItem::Tools"),
@@ -125,7 +124,7 @@ export function makeMenu(
         {
           type: "separator",
         },
-        ...createScriptMenu(scriptState),
+        ...createScriptMenu(scriptState, reloadAllMenu),
       ],
     },
     {
@@ -208,16 +207,13 @@ export function makeMenu(
   ]);
 }
 
-export function popupMenu(id: MenuIds, window: Electron.BrowserWindow) {
-  const menu = Menu.getApplicationMenu();
-  if (!menu) return;
+export function popupMenu(
+  id: MenuIds,
+  menu: Electron.Menu,
+  window: Electron.BrowserWindow
+) {
   const targetMenu = menu.getMenuItemById(id);
   if (!targetMenu) return;
-
-  const windowBounds = window.getBounds();
-
-  console.log("windowBounds", JSON.stringify(windowBounds));
-
   targetMenu.submenu?.popup({
     window,
     x: menu.items.indexOf(targetMenu) * 25,

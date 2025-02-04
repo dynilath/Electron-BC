@@ -46,7 +46,7 @@ export interface EBCContext {
   registerMenuCommand: (
     scriptName: string,
     menuName: string,
-    callback: () => void
+    callback?: () => void
   ) => number;
   unregisterMenuCommand: (id: number) => void;
 }
@@ -70,6 +70,7 @@ export function createCtxBridge(): EBCContext {
       if (session.ticket === ticket) resolve();
     });
 
+  let menuCommandCounter = 0;
   const menuCommands = new Map<number, () => void>();
 
   ipcRenderer.on("invoke-menu-command", (e, id: number) => {
@@ -171,10 +172,10 @@ export function createCtxBridge(): EBCContext {
     registerMenuCommand: (
       scriptName: string,
       menuName: string,
-      callback: () => void
+      callback?: () => void
     ) => {
-      const ret = menuCommands.size + 1;
-      menuCommands.set(ret, () => callback());
+      const ret = menuCommandCounter++;
+      if (callback) menuCommands.set(ret, () => callback());
       ipcRenderer.send("register-menu-command", ret, scriptName, menuName);
       return ret;
     },

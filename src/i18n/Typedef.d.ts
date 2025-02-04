@@ -12,6 +12,7 @@ type TextTag =
   | "MenuItem::Script"
   | "MenuItem::Script::InstallTips"
   | "MenuItem::Script::NeedRefresh"
+  | "MenuItem::Script::SubMenu::Switch"
   | "MenuItem::Script::Load From URL"
   | "MenuItem::Script::Open Script Folder"
   | "MenuItem::Script::UpdateScript"

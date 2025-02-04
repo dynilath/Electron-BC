@@ -68,6 +68,8 @@ export class ScriptState {
 
   needRefresh = true;
 
+  loaded = false;
+
   constructor(readonly webContents: Electron.WebContents) {
     this.loadScriptResource();
 
@@ -90,6 +92,7 @@ export class ScriptState {
     ) => {
       if (this.webContents.id === event.sender.id) {
         this.menuItems.push({ id, scriptName, menuName });
+        if (this.loaded) ipcMain.emit("reload-menu", webContents.id);
       }
     };
 
@@ -100,6 +103,7 @@ export class ScriptState {
       if (this.webContents.id === event.sender.id) {
         const index = this.menuItems.findIndex((i) => i.id === mid);
         if (index >= 0) this.menuItems.splice(index, 1);
+        if (this.loaded) ipcMain.emit("reload-menu", webContents.id);
       }
     };
 
@@ -139,14 +143,21 @@ export class ScriptState {
       setting: script.setting,
     });
     if (script.setting.enabled) await this.loadOneScript(script);
-    else this.needRefresh = true;
+    else {
+      this.menuItems = this.menuItems.filter(
+        (i) => i.scriptName !== scriptName
+      );
+      this.needRefresh = true;
+    }
   }
 
   async loadScript() {
+    this.menuItems = [];
     const scripts = (await this.loadScriptResource()).filter(
       (i) => i.setting.enabled
     );
     const waitLoad = loadScripts(this.webContents, scripts);
+    this.loaded = true;
     await waitLoad;
   }
 }

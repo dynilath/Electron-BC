@@ -4,21 +4,11 @@ import { Log } from "./log";
 export function evalScript(context: EBCContext, script: ScriptResourceItem) {
   const value = {} as any;
 
-  const wrapSource = (source: string, name: string) => {
-    return `try {
-      ${source}
-    } catch (e) {
-      GM_log("ERROR: Execution of script '${name}' failed! " + e.message);
-    }`;
-  };
-
   const _this = Object.freeze({
     window: globalThis.window,
     document: globalThis.document,
-    GM_registerMenuCommand: (menuName: string, func: () => void) => {
-      return context.registerMenuCommand(script.meta.name, menuName, () =>
-        func()
-      );
+    GM_registerMenuCommand: (menuName: string, func?: () => void) => {
+      return context.registerMenuCommand(script.meta.name, menuName, func);
     },
     GM_unregisterMenuCommand: (id: number) => {
       context.unregisterMenuCommand(id);
@@ -35,6 +25,18 @@ export function evalScript(context: EBCContext, script: ScriptResourceItem) {
     GM_listValues: () => Object.keys(value),
     GM_log: (message: string) => Log.info(message),
   });
+
+  const wrapSource = (source: string, name: string) => {
+    return `
+    ${Object.keys(_this)
+      .map((key) => `const ${key} = this.${key};`)
+      .join("\n")}
+    try {
+      ${source}
+    } catch (e) {
+      GM_log("ERROR: Execution of script '${name}' failed! " + e.message);
+    }`;
+  };
 
   try {
     const evalFunc = new Function(wrapSource(script.content, script.meta.name));

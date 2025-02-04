@@ -34,7 +34,9 @@ function mainWindowAfterLoad(
 
   const reloadListener = [] as ((menu: Electron.Menu) => void)[];
 
-  const reloadMenu = () => {
+  const reloadMenu = (webID?: number) => {
+    if (webID && webID !== webContents.id) return;
+
     const menu = makeMenu(
       bcVersion,
       () => reloadMenu(),
@@ -45,6 +47,13 @@ function mainWindowAfterLoad(
     mainWindow.setMenu(menu);
     reloadListener.forEach((i) => i(menu));
     reloadListener.length = 0;
+  };
+
+  const reloadMenuEvent = async (
+    event: Electron.IpcMainEvent,
+    webID?: number
+  ) => {
+    reloadMenu(webID);
   };
 
   const loadScriptURL = async (event: Electron.IpcMainEvent, url: string) => {
@@ -89,12 +98,12 @@ function mainWindowAfterLoad(
   );
 
   reloadMenu();
-  ipcMain.on("reload-menu", reloadMenu);
+  ipcMain.on("reload-menu", reloadMenuEvent);
   ipcMain.on("load-script-url", loadScriptURL);
   ipcMain.on("language-change", languageChange);
 
   mainWindow.on("close", () => {
-    ipcMain.removeListener("reload-menu", reloadMenu);
+    ipcMain.removeListener("reload-menu", reloadMenuEvent);
     ipcMain.removeListener("load-script-url", loadScriptURL);
     ipcMain.removeListener("language-change", languageChange);
   });

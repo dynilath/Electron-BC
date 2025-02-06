@@ -7,18 +7,28 @@ import { windowOpenRequest } from "./protocol";
 import { checkAndAnounce } from "./anouncer";
 import { i18n, updateLang } from "../i18n";
 import { makeMenu, popupMenu } from "./menu";
-import { PreloadCacheSetting } from "./preloadCacheSetting";
 import { ScriptState } from "./script/state";
+import { checkCacheVersion } from "./AssetCache/preloadCache";
+import { MyPrompt } from "./MyPrompt";
+import { AssetCache } from "./AssetCache";
 
 const icon = packageFile("Logo.ico");
 
 function mainWindowAfterLoad(
-  bcVersion: { url: string; version: string },
+  bcVersion: BCVersion,
   mainWindow: BrowserWindow,
   readyState: ContentLoadState
 ) {
-  readyState.loaded().then(() => {
-    PreloadCacheSetting.check(webContents, bcVersion);
+  readyState.loaded().then(async () => {
+    const shouldUpdate = await checkCacheVersion(bcVersion);
+    if (shouldUpdate) {
+      MyPrompt.confirmCancel(webContents, "Alert::Cache::UpdateConfirm", () => {
+        AssetCache.preloadCache(bcVersion.url, bcVersion.version).then(() => {
+          ipcMain.emit("reload-menu");
+        });
+        ipcMain.emit("reload-menu");
+      });
+    }
   });
 
   const webContents = mainWindow.webContents;

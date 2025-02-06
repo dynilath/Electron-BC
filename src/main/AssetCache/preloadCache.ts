@@ -2,12 +2,14 @@ import fs from "fs";
 import LZString from "lz-string";
 import { aquire, fetchAsset, storeAsset } from "./database";
 import { packageFile } from "../utility";
+import settings from "electron-settings";
 
 let preloadCacheRunning = false;
 
 export function canPreloadCache() {
   return !preloadCacheRunning;
 }
+
 type DirLeaf = string | number;
 
 interface Dir {
@@ -51,4 +53,26 @@ export async function preloadCache(url_prefix: string, verion: string) {
   }
   console.log("Preloading cache done");
   preloadCacheRunning = false;
+}
+
+export const SettingTag = "PreloadCacheConfig";
+
+export interface PreloadCacheConfig {
+  version: string | null;
+}
+
+async function cacheVersion() {
+  const config = (await settings.get(SettingTag)) as PreloadCacheConfig | null;
+  return config?.version;
+}
+
+async function saveCacheVersion(version: string) {
+  await settings.set(SettingTag, { version });
+}
+
+export async function checkCacheVersion(bcVer: BCVersion) {
+  const currentVersion = await cacheVersion();
+  const ret = !currentVersion || currentVersion !== bcVer.version;
+  saveCacheVersion(bcVer.version);
+  return ret;
 }

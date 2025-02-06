@@ -24,14 +24,23 @@ export async function preloadCache(url_prefix: string, verion: string) {
 
   const slash_url = url_prefix.endsWith("/") ? url_prefix : `${url_prefix}/`;
 
+  const preloadData = await fs.promises.readFile(preloadDataPath, {
+    encoding: null,
+  });
+
   const content = JSON.parse(
-    LZString.decompressFromUint8Array(
-      fs.readFileSync(preloadDataPath, { encoding: null })
-    )
+    LZString.decompressFromUint8Array(preloadData)
   ) as Dir;
 
   console.log(`Preloading cache from ${url_prefix}`);
-  let processList = [{ container: content, path: "" }];
+
+  const processList = Object.entries(content).map(([key, value]) => {
+    return { container: value, path: `${key}/` };
+  });
+
+  // cache 'Assets' last
+  processList.reverse();
+
   while (processList.length > 0) {
     let current = processList.pop() as { container: Dir; path: string };
 

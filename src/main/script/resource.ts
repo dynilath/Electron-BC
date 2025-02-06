@@ -7,48 +7,43 @@ import { ipcMain } from "electron";
 import { reloadAllMenu } from "../reloadAllMenu";
 import EventEmitter from "events";
 
-function scriptFiles() {
-  return new Promise<string[]>((resolve, reject) => {
-    fs.readdir(getScriptFolder(), { withFileTypes: true }, (err, files) => {
-      if (err) reject(err);
-      else {
-        const scriptFiles = files
-          .filter((file) => file.isFile() && file.name.endsWith(".user.js"))
-          .map((file) => path.join(file.parentPath, file.name));
-        resolve(scriptFiles);
-      }
-    });
+async function scriptFiles() {
+  const files = await fs.promises.readdir(getScriptFolder(), {
+    withFileTypes: true,
   });
+  return files
+    .filter((file) => file.isFile() && file.name.endsWith(".user.js"))
+    .map((file) => path.join(file.parentPath, file.name));
 }
 
-function saveScriptFile(content: string, meta: ScriptMeta) {
-  return new Promise<string>((resolve, reject) => {
-    const desiredPath = path.join(
-      getScriptFolder(),
-      `${meta.name.replace(/[\\\/:*?"<>|]/g, "_")}.user.js`
-    );
-    fs.writeFile(desiredPath, content, { encoding: "utf-8" }, (err) => {
-      if (err) reject(err);
-      else resolve(desiredPath);
-    });
-  });
+async function saveScriptFile(content: string, meta: ScriptMeta) {
+  const desiredPath = path.join(
+    getScriptFolder(),
+    `${meta.name.replace(/[\\\/:*?"<>|]/g, "_")}.user.js`
+  );
+
+  await fs.promises.writeFile(desiredPath, content, { encoding: "utf-8" });
+  return desiredPath;
 }
 
 async function load() {
-  const ret = (await scriptFiles())
-    .map((file) => {
-      const content = fs.readFileSync(file, { encoding: "utf-8" });
+  const files = await scriptFiles();
+
+  const ret = [] as ScriptResourceItem[];
+
+  await Promise.all(
+    files.map(async (file) => {
+      const content = await fs.promises.readFile(file, { encoding: "utf-8" });
       const meta = readMeta(content);
-      if (!meta) return undefined;
-      return { meta, content, file };
-    })
-    .filter((i) => i !== undefined)
-    .map(({ meta, content, file }): ScriptResourceItem => {
+      if (!meta) return;
       const { setting } = ScriptConfig.getConfig(meta.name);
-      return { setting, meta, content, file };
-    });
+      ret.push({ setting, meta, content, file });
+    })
+  );
 
   ScriptConfig.shrinkConfig(ret.map((i) => i.meta.name));
+
+  ret.sort((a, b) => a.meta.name.localeCompare(b.meta.name, ["en", "zh-CN"]));
   return ret;
 }
 

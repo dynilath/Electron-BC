@@ -69,6 +69,7 @@ export function makeMenu(
 
                 await AssetCache.relocate(
                   result.filePaths[0],
+                  () => reloadAllMenu(),
                   () =>
                     new Promise((resolve) => {
                       MyPrompt.confirmCancel(

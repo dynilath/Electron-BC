@@ -80,9 +80,11 @@ export async function clear() {
 
 export async function relocate(
   newPath: string,
+  copyStart: () => void,
   copyConfirm: () => boolean | PromiseLike<boolean>
 ) {
   const olddb = access.invalidate();
+  copyStart();
   if (olddb) await olddb.close();
   await relocateCachePath(newPath, copyConfirm);
   access.release(createDatabase());

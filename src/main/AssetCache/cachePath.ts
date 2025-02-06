@@ -49,18 +49,23 @@ export async function relocateCachePath(
       const onSameDevice = (() => {
         if (process.platform === "win32")
           return path.parse(oldPath).root === path.parse(newPath).root;
-        else return path.parse(oldPath).dir === path.parse(newPath).dir;
+        else {
+          return fs.statSync(oldPath).dev === fs.statSync(newPath).dev;
+        }
       })();
 
       if (onSameDevice) {
-        fs.rmSync(newPath, { recursive: true });
-        fs.renameSync(oldPath, newPath);
+        await fs.promises.rm(newPath, { recursive: true });
+        await fs.promises.rename(oldPath, newPath);
       } else {
-        const contents = fs.readdirSync(oldPath);
+        const contents = await fs.promises.readdir(oldPath);
         for (const item of contents) {
-          fs.copyFileSync(path.join(oldPath, item), path.join(newPath, item));
+          await fs.promises.copyFile(
+            path.join(oldPath, item),
+            path.join(newPath, item)
+          );
         }
-        fs.rmSync(newPath, { recursive: true });
+        await fs.promises.rm(oldPath, { recursive: true });
       }
       needClearSizeResult = true;
     }

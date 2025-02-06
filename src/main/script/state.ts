@@ -1,6 +1,7 @@
 import { ipcMain } from "electron";
 import { ScriptResource } from "./resource";
 import { ScriptConfig } from "./config";
+import { reloadAllMenu } from "../reloadAllMenu";
 
 function loadOneScriptRaw(
   webContents: Electron.WebContents,
@@ -74,12 +75,13 @@ export class ScriptState {
     this.loadScriptResource();
 
     const old = stash.get(webContents.id);
-    if (old) old.unload();
+    if (old) old.dispose();
     stash.set(webContents.id, this);
 
-    this.newScriptHandler = (script: ScriptResourceItem) => {
+    this.newScriptHandler = async (script: ScriptResourceItem) => {
       this.scripts.push(script);
-      loadOneScriptRaw(this.webContents, script);
+      await loadScripts(this.webContents, [script]);
+      reloadAllMenu();
     };
 
     ScriptResource.event.on("new-script", this.newScriptHandler);
@@ -120,7 +122,7 @@ export class ScriptState {
     );
   }
 
-  unload() {
+  dispose() {
     this.handlers.forEach((func, event) => ipcMain.removeListener(event, func));
     ScriptResource.event.removeListener("new-script", this.newScriptHandler);
   }

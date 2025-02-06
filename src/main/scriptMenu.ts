@@ -5,11 +5,6 @@ export function createScriptMenu(
   reloadAllMenu: () => void,
   i18n: (tag: TextTag) => string
 ) {
-  if (!Array.isArray(scriptState.scripts)) {
-    console.log("ScriptState.scripts is not array");
-    return [];
-  }
-
   const scriptMenu = scriptState.menuItems.reduce((pv, cv) => {
     if (!pv[cv.scriptName]) {
       pv[cv.scriptName] = [];

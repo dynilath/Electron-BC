@@ -11,6 +11,11 @@ import { ScriptState } from "./script/state";
 import { checkCacheVersion } from "./AssetCache/preloadCache";
 import { MyPrompt } from "./MyPrompt";
 import { AssetCache } from "./AssetCache";
+import EventEmitter from "events";
+
+interface MenuReloadEvent {
+  reloaded: [Electron.Menu];
+}
 
 const icon = packageFile("Logo.ico");
 
@@ -39,7 +44,7 @@ function mainWindowAfterLoad(
 
   const scriptState = new ScriptState(webContents);
 
-  const reloadListener = [] as ((menu: Electron.Menu) => void)[];
+  const menuReloadEvents = new EventEmitter<MenuReloadEvent>();
 
   const reloadMenu = () => {
     const menu = makeMenu(
@@ -51,20 +56,21 @@ function mainWindowAfterLoad(
       i18n
     );
     mainWindow.setMenu(menu);
-    reloadListener.forEach((i) => i(menu));
-    reloadListener.length = 0;
+    menuReloadEvents.emit("reloaded", menu);
   };
 
   const reloadMenuEvent = async (
     event: Electron.IpcMainEvent,
     webID?: number
   ) => {
-    if (webID === webContents.id) reloadMenu();
+    if (webID === undefined || webID === webContents.id) reloadMenu();
   };
 
   const loadScriptURL = async (event: Electron.IpcMainEvent, url: string) => {
     if (event.sender.id === webContents.id)
-      reloadListener.push((menu) => popupMenu("script", menu, mainWindow));
+      menuReloadEvents.once("reloaded", (menu) => {
+        popupMenu("script", menu, mainWindow);
+      });
   };
 
   const languageChange = async (event: Electron.IpcMainEvent, lang: string) => {
@@ -113,6 +119,7 @@ function mainWindowAfterLoad(
     ipcMain.removeListener("reload-menu", reloadMenuEvent);
     ipcMain.removeListener("load-script-url", loadScriptURL);
     ipcMain.removeListener("language-change", languageChange);
+    scriptState.dispose();
   });
 
   webContents.on("dom-ready", async () => {

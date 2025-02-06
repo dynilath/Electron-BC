@@ -66,10 +66,7 @@ async function loadScriptFromUrl(url: string) {
   const { meta, content } = await fetchScript(url);
   const { setting } = ScriptConfig.getConfig(meta.name, url);
   const file = await saveScriptFile(content, meta);
-
-  const ret = { setting, meta, content, file } as ScriptResourceItem;
-  scriptEventEmmiter.emit("new-script", ret);
-  return ret;
+  return { setting, meta, content, file } as ScriptResourceItem;
 }
 
 async function updateScripts() {
@@ -85,9 +82,8 @@ async function updateScripts() {
 
 function init() {
   ipcMain.on("load-script-url", async (event, url: string) => {
-    await ScriptResource.loadScriptFromUrl(url);
-    console.log("load-script-url - reload-menu");
-    reloadAllMenu();
+    const ret = await ScriptResource.loadScriptFromUrl(url);
+    scriptEventEmmiter.emit("new-script", ret);
   });
 }
 

@@ -1,66 +1,83 @@
 <!DOCTYPE html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetching BC Version</title>
     <style>
-        #container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-            background-color: #121212;
+        body {
+            background-color: #2f3542;
             color: #e0e0e0;
             font-size: 2rem;
+            height: 100%;
         }
 
-        .title {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #f0f0f0;
+        #container {
+            width: 100%;
+            height: 60%;
+            overflow-y: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .log-item {
+            width: 90%;
+            padding: 10px;
+            text-align: center;
+            opacity: 1;
+            transition: opacity 0.5s ease-out, transform 0.5s ease;
         }
     </style>
 </head>
 
 <body>
-    <div id="container"></div>
+    <div id="log-container"></div>
     <script>
-        const container = document.getElementById("container");
-        const info = document.getElementById("info");
+    let logCounter = 0;
 
-        function createElement(tag, text, className) {
-            const element = document.createElement(tag);
-            element.textContent = text;
-            if (className) {
-                element.classList.add(className);
-            }
-            return element;
-        }
+    function addLog(message) {
+        const container = document.getElementById('log-container');
 
-        const text = navigator.language.startsWith('zh') ? {
-            title: '正在从官方网站获取BC版本',
-            error: '错误：',
-            wait: '请稍候...',
-            loading: '正在加载...',
-        } : {
-            title: 'Getting BC version from official website',
-            error: 'Error: ',
-            wait: 'Please wait...',
-            loading: 'Loading...',
-        };
+        // 创建新的一行日志
+        const item = document.createElement('div');
+        item.classList.add('log-item');
+        item.textContent = message;
 
-        container.appendChild(createElement('div', text.title, 'title'));
-        container.appendChild(createElement('div', text.wait));
+        container.appendChild(item);
 
-        window.addEventListener('electron-bc-loading', (event) => {
-            const { type, message } = event.detail;
-            if (type === 'error') {
-                container.appendChild(createElement('div', text.error + message));
-            } else if (type === 'done') {
-                container.appendChild(createElement('div', message));
-                container.appendChild(createElement('div', text.loading));
-            }
-        });
+        // 延迟处理日志淡化和上移的效果
+        setTimeout(() => {
+            const allLogs = document.querySelectorAll('.log-item');
+            const len = allLogs.length;
+            allLogs.forEach((log, index) => {
+                if (index < len - 1) {
+                    log.style.opacity = 0.1;
+                }
+            });
+        }, 100);  // 延迟以便新日志完全添加
+            
+        const itemHeight = item.offsetHeight;
+        const containerHeight = container.offsetHeight;
+        container.scrollTop = container.scrollHeight - containerHeight/2 - itemHeight/2;
+    };
+
+    window.addEventListener("fetching-bc-start", () => {
+        addLog(electron.i18n("正在获得BC版本"));
+    });
+
+    window.addEventListener("fetching-bc-done", (info) => {
+        const [bcv] = info.detail;
+        addLog(electron.i18n("BC版本: {version}").replace("{version}", bcv.version));
+    });
+
+    window.addEventListener("error", (info) => {
+        const [error] = info.detail;
+        addLog(error);
+    });
     </script>
 </body>
 

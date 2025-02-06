@@ -1,6 +1,7 @@
 type TextTag =
   | "MenuItem::Tools"
   | "MenuItem::Tools::OpenCacheDir"
+  | "MenuItem::Tools::RelocateCacheDir"
   | "MenuItem::Tools::ProximateCacheSize"
   | "MenuItem::Tools::StartUICacheUpdate::Loading"
   | "MenuItem::Tools::StartUICacheUpdate"
@@ -46,4 +47,5 @@ type TextTag =
   | "Alert::Credential::New"
   | "Alert::Credential::Saved"
   | "Alert::Cache::ClearConfirm"
-  | "Alert::Cache::UpdateConfirm";
+  | "Alert::Cache::UpdateConfirm"
+  | "Alert::Cache::RelocateConfirm";

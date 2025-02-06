@@ -78,9 +78,16 @@ export async function clear() {
   return db.clear();
 }
 
-export async function relocate(newPath: string) {
+export async function relocate(
+  newPath: string,
+  copyConfirm: () => boolean | PromiseLike<boolean>
+) {
   const olddb = access.invalidate();
-  if (olddb) olddb.close();
-  await relocateCachePath(newPath);
+  if (olddb) await olddb.close();
+  await relocateCachePath(newPath, copyConfirm);
   access.release(createDatabase());
+}
+
+export function available() {
+  return access.test();
 }

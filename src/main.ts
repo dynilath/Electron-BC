@@ -6,10 +6,13 @@ import { MyPrompt } from "./main/MyPrompt";
 import { ScriptResource } from "./main/script/resource";
 import { createFetchBCVersionWindow } from "./loading";
 import { MainWindowProvider } from "./main/mainWindow";
+import settings from "electron-settings";
 
 const DeltaUpdater = require("@electron-delta/updater");
 
 let mainWindowProvider: MainWindowProvider | undefined;
+
+console.log("Setting file:", settings.file());
 
 app.whenReady().then(async () => {
   if (!app.requestSingleInstanceLock()) {
@@ -42,6 +45,10 @@ app.whenReady().then(async () => {
   mainWindowProvider.createWindow();
 
   powerSaveBlocker.start("prevent-display-sleep");
+
+  if (app.isPackaged) {
+    setInterval(() => autoUpdater.checkForUpdatesAndNotify(), 60000);
+  }
 });
 
 app.on("second-instance", () => {
@@ -52,8 +59,4 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
-});
-
-app.on("ready", function () {
-  autoUpdater.checkForUpdatesAndNotify();
 });

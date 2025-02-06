@@ -49,4 +49,6 @@ export class MyPrompt {
   static confirmCancel = sendConfirmCancelPrompt;
   static info = infoPrompt;
   static loadUrl = showPromptLoadurl;
+
+  static error = infoPrompt;
 }

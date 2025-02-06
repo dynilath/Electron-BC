@@ -25,6 +25,10 @@ export class PendingAccess<T extends object> {
     });
   }
 
+  test() {
+    return this.object !== undefined;
+  }
+
   invalidate() {
     const old = this.object;
     this.object = undefined;

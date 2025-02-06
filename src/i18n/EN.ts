@@ -3,6 +3,7 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Tools::OpenCacheDir": "Open Cache Directory",
   "MenuItem::Tools::ProximateCacheSize":
     "Proximate Cache Size (Click to Refresh)",
+  "MenuItem::Tools::RelocateCacheDir": "Relocate Cache Directory",
   "MenuItem::Tools::StartUICacheUpdate::Loading":
     "Loading, close window to abort",
   "MenuItem::Tools::ClearCache": "Clear Cache",
@@ -55,6 +56,8 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Tools::StartUICacheUpdate": "Preload UI Resources",
   "Alert::Cache::UpdateConfirm":
     '<p>Version update found, click confirm to start caching UI related resources immediately.</p><p style="font-style:italic;">Note: Initial loading will consume network traffic, preloading can avoid image loading delay in game. If you cancel loading now, you can also start loading via menu later.</p>',
+  "Alert::Cache::RelocateConfirm":
+    "<p>New cache directory is empty, old cache data can be moved to new directory.<br>Moving will read and write disk, and cache cannot be used, do you want to move?</p><p>(Cancel will not move, keep old cache and create empty cache in new directory)</p>",
 };
 
 export default translation;

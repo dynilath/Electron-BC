@@ -1,4 +1,4 @@
-import { app, Menu, shell } from "electron";
+import { app, dialog, Menu, shell } from "electron";
 import { openScriptFolder } from "./script";
 import { i18n } from "../i18n";
 import { openChangelog } from "./changelog";
@@ -9,6 +9,7 @@ import { createScriptMenu } from "./scriptMenu";
 import { ScriptState } from "./script/state";
 import { ScriptResource } from "./script/resource";
 import { reloadAllMenu } from "./reloadAllMenu";
+import { getCachePath } from "./AssetCache/cachePath";
 
 type MenuIds = "script" | "tools";
 
@@ -53,9 +54,43 @@ export function makeMenu(
           },
         },
         {
+          label: i18n("MenuItem::Tools::RelocateCacheDir"),
+          type: "normal",
+          enabled: AssetCache.available(),
+          click: () => {
+            (async () => {
+              try {
+                const result = await dialog.showOpenDialog(mainWindow, {
+                  properties: ["openDirectory"],
+                  defaultPath: getCachePath(),
+                });
+
+                if (result.canceled) return;
+
+                await AssetCache.relocate(
+                  result.filePaths[0],
+                  () =>
+                    new Promise((resolve) => {
+                      MyPrompt.confirmCancel(
+                        mainWindow.webContents,
+                        "Alert::Cache::RelocateConfirm",
+                        () => resolve(true),
+                        () => resolve(false)
+                      );
+                    })
+                );
+                reloadAllMenu();
+              } catch (e: any) {
+                console.log(e);
+                MyPrompt.error(mainWindow.webContents, e);
+              }
+            })();
+          },
+        },
+        {
           label: i18n("MenuItem::Tools::StartUICacheUpdate"),
           type: "normal",
-          enabled: AssetCache.canPreloadCache(),
+          enabled: AssetCache.canPreloadCache() && AssetCache.available(),
           ...(AssetCache.canPreloadCache()
             ? {}
             : {

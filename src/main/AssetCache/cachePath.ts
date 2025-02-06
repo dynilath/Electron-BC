@@ -26,26 +26,51 @@ export function getCachePath() {
   return cachePath;
 }
 
-export async function relocateCachePath(newPath: string) {
+function isDirectoryEmpty(path: string) {
+  return fs.readdirSync(path).length === 0;
+}
+
+export async function relocateCachePath(
+  newPath: string,
+  copyConfirm: () => boolean | PromiseLike<boolean>
+) {
   const oldPath = getCachePath();
   if (oldPath === newPath) return;
 
+  if (!fs.existsSync(newPath) || !fs.statSync(newPath).isDirectory()) return;
+
+  let needClearSizeResult = true;
+
+  // If the new path is empty, we may move old cache to new path
+  if (isDirectoryEmpty(newPath)) {
+    const confirm = await copyConfirm();
+
+    if (confirm) {
+      const onSameDevice = (() => {
+        if (process.platform === "win32")
+          return path.parse(oldPath).root === path.parse(newPath).root;
+        else return path.parse(oldPath).dir === path.parse(newPath).dir;
+      })();
+
+      if (onSameDevice) {
+        fs.rmSync(newPath, { recursive: true });
+        fs.renameSync(oldPath, newPath);
+      } else {
+        const contents = fs.readdirSync(oldPath);
+        for (const item of contents) {
+          fs.copyFileSync(path.join(oldPath, item), path.join(newPath, item));
+        }
+        fs.rmSync(newPath, { recursive: true });
+      }
+      needClearSizeResult = true;
+    }
+  }
+
+  if (needClearSizeResult) clearSizeResult();
+
+  console.log(`Relocate cache from ${oldPath} to ${newPath}`);
   cachePath = newPath;
   settings.set(SettingTag, newPath);
-
-  await new Promise<void>((resolve, reject) => {
-    fs.copyFile(oldPath, newPath, (err) => {
-      if (err) reject(err);
-      resolve();
-    });
-  });
-
-  await new Promise<void>((resolve, reject) => {
-    fs.rmdir(oldPath, { recursive: true }, (err) => {
-      if (err) reject(err);
-      resolve();
-    });
-  });
 }
 
 let cachedSizeResult: undefined | string = undefined;

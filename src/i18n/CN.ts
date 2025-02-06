@@ -4,6 +4,7 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Tools::ProximateCacheSize": "缓存估计大小（点击刷新）",
   "MenuItem::Tools::StartUICacheUpdate::Loading": "正在加载，关闭窗口以取消",
   "MenuItem::Tools::ClearCache": "清除缓存",
+  "MenuItem::Tools::RelocateCacheDir": "修改缓存数据目录",
   "MenuItem::Tools::DevTools": "开发者工具",
   "MenuItem::Tools::Refresh": "刷新页面",
   "MenuItem::Tools::FullScreen": "全屏模式",
@@ -51,6 +52,8 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Tools::StartUICacheUpdate": "预加载用户界面资源",
   "Alert::Cache::UpdateConfirm":
     '<p>发现版本更新，点击确认立即开始缓存用户界面相关资源。</p><p style="font-style:italic;">备注：首次加载会消耗网络流量，提前加载可以避免游戏中的图片加载延迟。如果现在取消加载，之后也可以通过菜单启动加载。</p>',
+  "Alert::Cache::RelocateConfirm":
+    "<p>新缓存目录为空，旧缓存数据可以移动到新目录。<br>移动时会读写硬盘、且无法使用缓存，是否移动？</p><p>（取消则不移动，保留原缓存并在新缓存目录创建空缓存）</p>",
 };
 
 export default translation;

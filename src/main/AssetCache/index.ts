@@ -1,6 +1,6 @@
 import { canPreloadCache, preloadCache } from "./preloadCache";
 import { clearSizeResult, fileSizeStr, getCachePath } from "./cachePath";
-import { requestAsset, relocate, clear } from "./database";
+import { requestAsset, relocate, clear, available } from "./database";
 
 export class AssetCache {
   static requestAsset = requestAsset;
@@ -13,4 +13,5 @@ export class AssetCache {
   static canPreloadCache = canPreloadCache;
 
   static relocate = relocate;
+  static available = available;
 }

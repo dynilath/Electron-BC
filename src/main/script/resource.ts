@@ -5,6 +5,7 @@ import { ScriptConfig } from "./config";
 import path from "path";
 import { ipcMain } from "electron";
 import { reloadAllMenu } from "../reloadAllMenu";
+import EventEmitter from "events";
 
 function scriptFiles() {
   return new Promise<string[]>((resolve, reject) => {
@@ -51,33 +52,28 @@ async function load() {
   return ret;
 }
 
-const newScriptListeners: ((script: ScriptResourceItem) => void)[] = [];
+type ScriptEvent = {
+  "new-script": [ScriptResourceItem];
+};
 
-function on(
-  event: "new-script",
-  listener: (script: ScriptResourceItem) => void
-): void {
-  newScriptListeners.push(listener);
-}
+const scriptEventEmmiter = new EventEmitter<ScriptEvent>();
 
-function removeListener(
-  event: "new-script",
-  listener: (script: ScriptResourceItem) => void
-): void {
-  const index = newScriptListeners.indexOf(listener);
-  if (index >= 0) newScriptListeners.splice(index, 1);
-}
-
-async function loadScriptFromUrl(url: string) {
+async function fetchScript(url: string) {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Failed to fetch ${url}`);
   const content = await response.text();
   const meta = readMeta(content);
   if (!meta) throw new Error(`Failed to read metadata from ${url}`);
+  return { meta, content };
+}
+
+async function loadScriptFromUrl(url: string) {
+  const { meta, content } = await fetchScript(url);
   const { setting } = ScriptConfig.getConfig(meta.name, url);
   const file = await saveScriptFile(content, meta);
+
   const ret = { setting, meta, content, file } as ScriptResourceItem;
-  newScriptListeners.forEach((listener) => listener(ret));
+  scriptEventEmmiter.emit("new-script", ret);
   return ret;
 }
 
@@ -86,11 +82,7 @@ async function updateScripts() {
     (await load()).map(async (script) => {
       const url = script.setting.url;
       if (!url) return;
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`Failed to fetch ${url}`);
-      const content = await response.text();
-      const meta = readMeta(content);
-      if (!meta) throw new Error(`Failed to read metadata from ${url}`);
+      const { meta, content } = await fetchScript(url);
       saveScriptFile(content, meta);
     })
   );
@@ -106,8 +98,7 @@ function init() {
 
 export class ScriptResource {
   static load = load;
-  static on = on;
-  static removeListener = removeListener;
+  static event = scriptEventEmmiter;
   static loadScriptFromUrl = loadScriptFromUrl;
   static updateScripts = updateScripts;
   static init = init;

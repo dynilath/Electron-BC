@@ -82,7 +82,7 @@ export class ScriptState {
       loadOneScriptRaw(this.webContents, script);
     };
 
-    ScriptResource.on("new-script", this.newScriptHandler);
+    ScriptResource.event.on("new-script", this.newScriptHandler);
 
     const GM_registerMenuCommand = (
       event: Electron.IpcMainEvent,
@@ -122,7 +122,7 @@ export class ScriptState {
 
   unload() {
     this.handlers.forEach((func, event) => ipcMain.removeListener(event, func));
-    ScriptResource.removeListener("new-script", this.newScriptHandler);
+    ScriptResource.event.removeListener("new-script", this.newScriptHandler);
   }
 
   invokeMenu(id: number) {

@@ -2,9 +2,9 @@ import Swal from "sweetalert2";
 import { UserInfo } from "../bridge";
 import { BCInterface, Bridge } from "./globals";
 import { sleep, waitValue } from "./utils";
-import { i18n } from "../i18n";
 import { Suggestions } from "./suggestion";
 import { Log } from "./log";
+import { i18n } from "../i18n";
 
 export async function loginExt(ticket: string) {
   const userinfo: Partial<UserInfo> = {};

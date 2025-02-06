@@ -1,9 +1,9 @@
-import { i18n } from "../i18n";
 import { ScriptState } from "./script/state";
 
 export function createScriptMenu(
   scriptState: ScriptState,
-  reloadAllMenu: () => void
+  reloadAllMenu: () => void,
+  i18n: (tag: TextTag) => string
 ) {
   if (!Array.isArray(scriptState.scripts)) {
     console.log("ScriptState.scripts is not array");

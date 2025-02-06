@@ -1,6 +1,8 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { ForwardedEvent } from "./constant";
-import { i18n } from "../i18n";
+import { i18nText } from "../i18n";
+
+const i18ntext = new i18nText();
 
 ForwardedEvent.forEach((eventName) => {
   ipcRenderer.on(eventName, (event, ...args) => {
@@ -9,5 +11,5 @@ ForwardedEvent.forEach((eventName) => {
 });
 
 contextBridge.exposeInMainWorld("electron", {
-  i18n: (key: TextTag) => i18n(key),
+  i18n: (key: TextTag) => i18ntext.get(key),
 });

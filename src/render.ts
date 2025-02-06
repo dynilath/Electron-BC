@@ -1,11 +1,13 @@
 import Swal from "sweetalert2";
-import { i18n, updateLang } from "./i18n";
+import { initGlobal, i18n, updateLang } from "./i18n";
 import { BCInterface, Bridge } from "./render/globals";
 import { waitValue } from "./render/utils";
 import Dexie from "dexie";
 import { loginExt } from "./render/login";
 import { evalScript } from "./render/script";
 import { Log } from "./render/log";
+
+initGlobal();
 
 (window as any).Dexie = Dexie;
 

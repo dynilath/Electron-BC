@@ -1,6 +1,5 @@
 import { app, dialog, Menu, shell } from "electron";
 import { openScriptFolder } from "./script";
-import { i18n } from "../i18n";
 import { openChangelog } from "./changelog";
 import { EBCSetting } from "../settings";
 import { AssetCache } from "./AssetCache";
@@ -18,7 +17,8 @@ export function makeMenu(
   reloadMenu: () => void,
   reloadPage: () => Promise<any>,
   mainWindow: Electron.BrowserWindow,
-  scriptState: ScriptState
+  scriptState: ScriptState,
+  i18n: (tag: TextTag) => string
 ) {
   return Menu.buildFromTemplate([
     {
@@ -160,7 +160,7 @@ export function makeMenu(
         {
           type: "separator",
         },
-        ...createScriptMenu(scriptState, reloadAllMenu),
+        ...createScriptMenu(scriptState, reloadAllMenu, i18n),
       ],
     },
     {

@@ -1,5 +1,5 @@
 import { BrowserWindow, ipcMain, Menu } from "electron";
-import { windowStateKeeper } from "./WindowState";
+import { StateKeptWindow } from "./WindowState";
 import path from "path";
 import { packageFile } from "./utility";
 import { ContentLoadState } from "../handler";
@@ -134,10 +134,7 @@ function mainWindowAfterLoad(
 }
 
 async function makeMainWindow(bcVersion: BCVersion, winName: string) {
-  const winstate = new windowStateKeeper(winName);
-
-  const mainWindow = new BrowserWindow({
-    ...winstate.getBound(),
+  const win = new StateKeptWindow(winName, {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
@@ -146,19 +143,15 @@ async function makeMainWindow(bcVersion: BCVersion, winName: string) {
     icon,
   });
 
-  if (winstate.windowState.isMaximized) mainWindow.maximize();
-
-  winstate.track(mainWindow);
-
-  const webContents = mainWindow.webContents;
+  const webContents = win.webContents;
 
   const { url, version } = bcVersion;
 
   const readyState = new ContentLoadState(webContents);
 
-  mainWindow.loadURL(url);
+  win.loadURL(url);
 
-  mainWindowAfterLoad({ url, version }, mainWindow, readyState);
+  mainWindowAfterLoad({ url, version }, win.window, readyState);
 }
 
 export class MainWindowProvider {

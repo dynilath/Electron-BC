@@ -9,49 +9,57 @@ type WinStateType = {
     isMaximized?: boolean,
 };
 
-export class windowStateKeeper {
-    window: BrowserWindow | undefined = undefined;
+function _bounds(windowName: string): WinStateType | null {
+  return settings.getSync(`windowState.${windowName}`) as WinStateType | null;
+}
 
+function _save(windowName: string, windowState: WinStateType) {
+  settings.setSync(`windowState.${windowName}`, windowState);
+}
 
-    windowState: WinStateType;
-    windowName: string;
+export class StateKeptWindow {
+  windowState: WinStateType;
+  window: BrowserWindow;
 
+  constructor(
+    readonly windowName: string,
+    readonly option?: Electron.BrowserWindowConstructorOptions
+  ) {
+    const bounds = _bounds(windowName) || {
+      width: 1000,
+      height: 800,
+    };
+    const nOption = Object.assign(option || {}, bounds);
+    this.window = new BrowserWindow(nOption);
+    if (bounds.isMaximized) this.window.maximize();
+    this.windowState = bounds;
+    const save = () => {
+      this.windowState = this.window.getBounds();
+      this.windowState.isMaximized = this.window.isMaximized();
+      _save(windowName, this.windowState);
+    };
+    this.window.on("resize", save);
+    this.window.on("move", save);
+    this.window.on("close", save);
+  }
 
-    constructor(windowName: string, option?: WinStateType) {
-        this.windowName = windowName;
-        this.windowState = option || {
-            width: 1000,
-            height: 800
-        };
-        this.setBounds();
-    }
+  get webContents() {
+    return this.window.webContents;
+  }
 
-    setBounds() {
-        if (settings.hasSync(`windowState.${this.windowName}`)) {
-            this.windowState = settings.getSync(`windowState.${this.windowName}`) as any;
-            return;
-        }
-    }
+  loadURL(...args: Parameters<BrowserWindow["loadURL"]>) {
+    this.window.loadURL(...args);
+  }
 
-    saveState() {
-        if (this.window === undefined) return;
-        if (!this.windowState.isMaximized) {
-            Object.assign(this.windowState, this.window.getBounds());
-        }
-        this.windowState.isMaximized = this.window.isMaximized();
-        settings.setSync(`windowState.${this.windowName}`, this.windowState);
-    }
+  loadFile(...args: Parameters<BrowserWindow["loadFile"]>) {
+    this.window.loadFile(...args);
+  }
 
-    track(win: BrowserWindow) {
-        this.window = win;
-        win.on('resize', () => { this.saveState(); });
-        win.on('move', () => { this.saveState(); });
-        win.on('close', () => { this.saveState(); });
-    }
+  on(...args: Parameters<BrowserWindow["on"]>) {
+    this.window.on(...args);
+  }
 
-    getBound() {
-        return {
-            ...this.windowState
-        }
-    }
+  close() {
+    this.window.close();
+  }
 }

@@ -1,6 +1,7 @@
 import { BrowserWindow } from "electron";
 import path from "path";
 import { fetchLatestBC } from "./fetchLatestBC";
+import { packageFile } from "../main/utility";
 
 export async function createFetchBCVersionWindow() {
   const win = new BrowserWindow({
@@ -19,6 +20,7 @@ export async function createFetchBCVersionWindow() {
       sandbox: true,
       preload: path.join(__dirname, "loading_preload.js"),
     },
+    icon: packageFile("Logo.ico"),
   });
 
   try {

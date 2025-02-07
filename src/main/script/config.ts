@@ -1,9 +1,9 @@
 import settings from "electron-settings";
 import { SettingTag } from "./Constants";
 
-const config_storage = new Map<string, ConfigItem>(
-  ((settings.getSync(SettingTag) as ConfigItem[] | null) || []).map(
-    (c) => [c.name, c] as [string, ConfigItem]
+const config_storage = new Map<string, ScriptConfigItem>(
+  ((settings.getSync(SettingTag) as ScriptConfigItem[] | null) || []).map(
+    (c) => [c.name, c] as [string, ScriptConfigItem]
   )
 );
 
@@ -33,12 +33,12 @@ export class ScriptConfig {
     saveConfig();
   }
 
-  static async saveConfig(config: ConfigItem) {
+  static async saveConfig(config: ScriptConfigItem) {
     config_storage.set(config.name, config);
     await saveConfig();
   }
 
-  static getConfig(name: string, url: string | null = null): ConfigItem {
+  static getConfig(name: string, url: string | null = null): ScriptConfigItem {
     let ret = config_storage.get(name);
     if (ret) return ret;
     ret = {

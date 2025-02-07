@@ -17,7 +17,13 @@ interface ScriptResourceItem {
   content: string;
 }
 
-interface ConfigItem {
+interface ScriptConfigItem {
   name: string;
   setting: ScriptSetting;
+}
+
+interface ScriptMenuItem {
+  id: number;
+  scriptName: string;
+  menuName: string;
 }

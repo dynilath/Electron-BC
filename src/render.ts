@@ -68,8 +68,6 @@ Bridge.instance.register().then((ticket) => loginExt(ticket));
     updateLang(BCInterface.TranslationLanguage);
   };
 
-  emitLang();
-
   let oldTranslationLoad = BCInterface.TranslationLoad;
   BCInterface.TranslationLoad = () => {
     oldTranslationLoad();

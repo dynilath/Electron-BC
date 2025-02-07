@@ -44,22 +44,15 @@ function registerHandler(
   handlers.set(event, func);
   ipcMain.on(event, func);
 }
-
-interface MenuItems {
-  id: number;
-  scriptName: string;
-  menuName: string;
-}
-
 const stash = new Map<number, ScriptState>();
 
 export class ScriptState {
   scripts: ScriptResourceItem[] = [];
 
-  handlers: Map<MyEvent, (...args: any[]) => any> = new Map();
-  newScriptHandler: AnyFunction;
+  private handlers: Map<MyEvent, (...args: any[]) => any> = new Map();
+  private newScriptHandler: AnyFunction;
 
-  menuItems: MenuItems[] = [];
+  menuItems: ScriptMenuItem[] = [];
 
   async loadScriptResource() {
     this.scripts = await ScriptResource.load();
@@ -131,10 +124,6 @@ export class ScriptState {
     this.webContents.send("invoke-menu-command", id);
   }
 
-  async loadOneScript(script: ScriptResourceItem) {
-    loadScripts(this.webContents, [script]);
-  }
-
   async toggleConfig(scriptName: string) {
     const script = this.scripts.find((i) => i.meta.name === scriptName);
     if (!script) return;
@@ -144,7 +133,7 @@ export class ScriptState {
       name: script.meta.name,
       setting: script.setting,
     });
-    if (script.setting.enabled) await this.loadOneScript(script);
+    if (script.setting.enabled) await loadScripts(this.webContents, [script]);
     else {
       this.menuItems = this.menuItems.filter(
         (i) => i.scriptName !== scriptName

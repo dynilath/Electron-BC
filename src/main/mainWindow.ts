@@ -6,16 +6,12 @@ import { ContentLoadState } from "../handler";
 import { windowOpenRequest } from "./protocol";
 import { checkAndAnounce } from "./anouncer";
 import { i18nText } from "../i18n";
-import { makeMenu, popupMenu } from "./menu";
+import { popupMenu } from "./AppMenu/menu";
 import { ScriptState } from "./script/state";
 import { checkCacheVersion } from "./AssetCache/preloadCache";
 import { MyPrompt } from "./MyPrompt";
 import { AssetCache } from "./AssetCache";
-import EventEmitter from "events";
-
-interface MenuReloadEvent {
-  reloaded: [Electron.Menu];
-}
+import { MyAppMenu } from "./AppMenu";
 
 const icon = packageFile("Logo.ico");
 
@@ -44,36 +40,31 @@ function mainWindowAfterLoad(
 
   const scriptState = new ScriptState(webContents);
 
-  const menuReloadEvents = new EventEmitter<MenuReloadEvent>();
+  const appMenu = new MyAppMenu({
+    BCVersion: bcVersion,
+    refreshPage: () => readyState.reload(),
+    mainWindow,
+    scriptState,
+    i18n,
+  });
 
-  const reloadMenu = () => {
-    const menu = makeMenu(
-      bcVersion,
-      () => reloadMenu(),
-      () => readyState.reload(),
-      mainWindow,
-      scriptState,
-      i18n
-    );
-    mainWindow.setMenu(menu);
-    menuReloadEvents.emit("reloaded", menu);
-  };
+  const reloadMenu = () => appMenu.emit("reload");
 
-  const reloadMenuEvent = async (
-    event: Electron.IpcMainEvent,
-    webID?: number
-  ) => {
+  const mReloadMenu = async (event: Electron.IpcMainEvent, webID?: number) => {
     if (webID === undefined || webID === webContents.id) reloadMenu();
   };
 
-  const loadScriptURL = async (event: Electron.IpcMainEvent, url: string) => {
+  const mLoadScriptURL = async (event: Electron.IpcMainEvent, url: string) => {
     if (event.sender.id === webContents.id)
-      menuReloadEvents.once("reloaded", (menu) => {
+      appMenu.once("reloaded", (menu) => {
         popupMenu("script", menu, mainWindow);
       });
   };
 
-  const languageChange = async (event: Electron.IpcMainEvent, lang: string) => {
+  const mLanguageChange = async (
+    event: Electron.IpcMainEvent,
+    lang: string
+  ) => {
     if (event.sender.id === webContents.id) {
       console.log("language-change", lang);
       i18ntext.update(lang);
@@ -111,14 +102,14 @@ function mainWindowAfterLoad(
   );
 
   reloadMenu();
-  ipcMain.on("reload-menu", reloadMenuEvent);
-  ipcMain.on("load-script-url", loadScriptURL);
-  ipcMain.on("language-change", languageChange);
+  ipcMain.on("reload-menu", mReloadMenu);
+  ipcMain.on("load-script-url", mLoadScriptURL);
+  ipcMain.on("language-change", mLanguageChange);
 
   mainWindow.on("close", () => {
-    ipcMain.removeListener("reload-menu", reloadMenuEvent);
-    ipcMain.removeListener("load-script-url", loadScriptURL);
-    ipcMain.removeListener("language-change", languageChange);
+    ipcMain.removeListener("reload-menu", mReloadMenu);
+    ipcMain.removeListener("load-script-url", mLoadScriptURL);
+    ipcMain.removeListener("language-change", mLanguageChange);
     scriptState.dispose();
   });
 

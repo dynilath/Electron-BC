@@ -21,7 +21,13 @@ function createDatabase() {
   });
 }
 
-const access = new PendingAccess(createDatabase());
+let access: PendingAccess<ClassicLevel<string, CacheItem>> | undefined =
+  undefined;
+
+export async function initAccess() {
+  access = new PendingAccess(createDatabase());
+  await access.aquire();
+}
 
 export async function storeAsset(
   key: string,
@@ -29,7 +35,7 @@ export async function storeAsset(
   data: Buffer,
   type: string | null
 ) {
-  const db = await access.aquire();
+  const db = await access!.aquire();
 
   return db
     .put(key, {
@@ -54,7 +60,7 @@ export async function requestAsset(
   key: string,
   version: string
 ): Promise<CachedResponse> {
-  const db = await access.aquire();
+  const db = await access!.aquire();
   const data = await db.get(key);
   if (data && data.version === version) {
     return {
@@ -69,12 +75,12 @@ export async function requestAsset(
 }
 
 export async function aquire() {
-  const db = await access.aquire();
+  const db = await access!.aquire();
   return db;
 }
 
 export async function clear() {
-  const db = await access.aquire();
+  const db = await access!.aquire();
   return db.clear();
 }
 
@@ -83,13 +89,13 @@ export async function relocate(
   copyStart: () => void,
   copyConfirm: () => boolean | PromiseLike<boolean>
 ) {
-  const olddb = access.invalidate();
+  const olddb = access!.invalidate();
   copyStart();
   if (olddb) await olddb.close();
   await relocateCachePath(newPath, copyConfirm);
-  access.release(createDatabase());
+  access!.release(createDatabase());
 }
 
 export function available() {
-  return access.test();
+  return access!.test();
 }

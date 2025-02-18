@@ -5,6 +5,7 @@ export function fetchLatestBC(): Promise<BCVersion> {
     net
       .fetch("https://bondageprojects.com/club_game/", {
         bypassCustomProtocolHandlers: true,
+        cache: "no-store",
       })
       .then(async (response) => {
         if (!response.ok)

@@ -58,21 +58,29 @@ export class MyProtocol {
     }
 
     // Cache for Echo's mod
-    if (request.url.startsWith("https://emdsa2.github.io/-mod/")) {
-      const [resource, args] = request.url.substring(30).split("?", 2);
-      if (resource.endsWith(".png")) {
-        const v_start = args.indexOf("v=");
-        const version = args.substring(
-          v_start + 2,
-          Math.min(v_start + 9, args.length)
-        );
-        return requestAssetResponse(
-          request.url,
-          `EchoMod://${resource}`,
-          version
-        );
-      }
-    }
+    [
+      "https://emdsa2.github.io/-mod/",
+      "https://sugarchain-studio.github.io/echo-clothing-ext/",
+      "https://sugarchain-studio.github.io/echo-activity-ext/",
+    ]
+      .filter((url) => request.url.startsWith(url))
+      .forEach((url) => {
+        const [resource, args] = request.url
+          .substring(url.length)
+          .split("?", 2);
+        if (resource.endsWith(".png")) {
+          const v_start = args.indexOf("v=");
+          const version = args.substring(
+            v_start + 2,
+            Math.min(v_start + 9, args.length)
+          );
+          return requestAssetResponse(
+            request.url,
+            `EchoMod://${resource}`,
+            version
+          );
+        }
+      });
 
     return net.fetch(request, { bypassCustomProtocolHandlers: true });
   }

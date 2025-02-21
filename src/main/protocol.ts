@@ -48,7 +48,7 @@ export class MyProtocol {
 
       const idx = assetKey.lastIndexOf(".");
       const ext = idx === -1 ? "" : assetKey.substring(idx);
-      if ([".png", ".jpg", ".mp3", ".txt", ".csv"].includes(ext)) {
+      if ([".png", ".jpg", ".mp3", ".txt"].includes(ext)) {
         return requestAssetResponse(
           request.url,
           assetKey,

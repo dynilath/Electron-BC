@@ -82,6 +82,7 @@ async function saveCacheVersion(version: string) {
 export async function checkCacheVersion(bcVer: BCVersion) {
   const currentVersion = await cacheVersion();
   const ret = !currentVersion || currentVersion !== bcVer.version;
-  saveCacheVersion(bcVer.version);
+  console.log(`Cache version check: ${currentVersion} -> ${bcVer.version}`);
+  await saveCacheVersion(bcVer.version);
   return ret;
 }

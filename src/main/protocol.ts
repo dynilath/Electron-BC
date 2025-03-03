@@ -40,7 +40,7 @@ export class MyProtocol {
     }
   }
 
-  private async httpsHandler(request: Request) {
+  private async bcResourceHandler(request:Request) {
     if (this.bcStatus && request.url.startsWith(this.bcStatus.url)) {
       const assetKey = request.url.substring(
         request.url.lastIndexOf("BondageClub/") + 12
@@ -56,7 +56,9 @@ export class MyProtocol {
         );
       }
     }
+  }
 
+  private async echoResourceHandler(request:Request) {
     // Cache for Echo's mod
     const urls = [
       "https://emdsa2.github.io/-mod/",
@@ -83,8 +85,18 @@ export class MyProtocol {
         );
       }
     }
+  }
 
-    return net.fetch(request, { bypassCustomProtocolHandlers: true });
+
+
+  private async httpsHandler(request: Request) {
+    const bc_res = await this.bcResourceHandler(request);
+    if(bc_res) return bc_res;
+
+    const echo_res = await this.echoResourceHandler(request);
+    if(echo_res) return echo_res;
+
+    return net.fetch(request, { bypassCustomProtocolHandlers: true});
   }
 
   constructor(bcStatus?: ProtocolSetting) {

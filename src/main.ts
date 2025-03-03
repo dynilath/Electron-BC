@@ -8,6 +8,7 @@ import { createFetchBCVersionWindow } from "./loading";
 import { MainWindowProvider } from "./main/mainWindow";
 import settings from "electron-settings";
 import { AssetCache } from "./main/AssetCache";
+import { DNSConfig } from "./main/dns";
 
 const DeltaUpdater = require("@electron-delta/updater");
 
@@ -36,6 +37,7 @@ app.whenReady().then(async () => {
   Credential.init();
   MyPrompt.init();
   AssetCache.init();
+  DNSConfig.init();
 
   const result = await createFetchBCVersionWindow();
   if (!result) return;

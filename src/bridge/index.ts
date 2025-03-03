@@ -49,6 +49,7 @@ export interface EBCContext {
     callback?: () => void
   ) => number;
   unregisterMenuCommand: (id: number) => void;
+  onGetServer: (callback: ()=> string) => void;
 }
 
 function testSetting(key: SettingsKey): Promise<void> {
@@ -182,6 +183,11 @@ export function createCtxBridge(): EBCContext {
     unregisterMenuCommand: (id: number) => {
       ipcRenderer.send("remove-menu-command", id);
       menuCommands.delete(id);
+    },
+    onGetServer: (callback: () => string) => {
+      ipcRenderer.on("get-server", () => {
+        ipcRenderer.send("get-server-reply", callback());
+      });
     },
   };
 }

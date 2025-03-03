@@ -62,6 +62,11 @@ Bridge.instance.onReload(() => location.reload());
 
 Bridge.instance.register().then((ticket) => loginExt(ticket));
 
+Bridge.instance.onGetServer(()=> {
+  console.log("GetServer");
+  return BCInterface.CommonGetServer()
+});
+
 (async () => {
   const emitLang = () => {
     Bridge.instance.languageChange(BCInterface.TranslationLanguage);

@@ -4,6 +4,7 @@ import { MyAppMenuConstructorOption } from "./type";
 import { builtinMenu } from "./builtins";
 import { aboutMenu } from "./about";
 import { cacheMenu } from "./cache";
+import { DoH } from "../DoH";
 
 export function makeMenu(options: MyAppMenuConstructorOption) {
   const { refreshPage, mainWindow, i18n } = options;
@@ -35,6 +36,15 @@ export function makeMenu(options: MyAppMenuConstructorOption) {
           type: "separator",
         },
         ...cacheMenu(options),
+        {
+          type: "separator",
+        },
+        {
+          label: i18n("MenuItem::Tools::OpenDoHConfigFile"),
+          sublabel: i18n("MenuItem::Tools::DoHConfigTips"),
+          type: "normal",
+          click: () => DoH.openConfigFile(),
+        },
         {
           type: "separator",
         },

@@ -10,6 +10,8 @@ type TextTag =
   | "MenuItem::Tools::Refresh"
   | "MenuItem::Tools::FullScreen"
   | "MenuItem::Tools::Exit"
+  | "MenuItem::Tools::OpenDoHConfigFile"
+  | "MenuItem::Tools::DoHConfigTips"
   | "MenuItem::Script"
   | "MenuItem::Script::InstallTips"
   | "MenuItem::Script::NeedRefresh"

@@ -11,6 +11,10 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Tools::Refresh": "Refresh Page",
   "MenuItem::Tools::FullScreen": "Full Screen Mode",
   "MenuItem::Tools::Exit": "Exit",
+
+  "MenuItem::Tools::OpenDoHConfigFile": "Open DoH Config File",
+  "MenuItem::Tools::DoHConfigTips": "DNS over HTTPS Config",
+
   "MenuItem::Script": "Script",
   "MenuItem::Script::NeedRefresh": "Need Refresh to Apply Changes",
   "MenuItem::Script::SubMenu::Switch": "Switch Script",

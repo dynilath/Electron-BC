@@ -9,6 +9,10 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Tools::Refresh": "刷新页面",
   "MenuItem::Tools::FullScreen": "全屏模式",
   "MenuItem::Tools::Exit": "退出",
+
+  "MenuItem::Tools::OpenDoHConfigFile": "打开DoH配置文件",
+  "MenuItem::Tools::DoHConfigTips": "DNS over HTTPS 配置",
+
   "MenuItem::Script": "脚本",
   "MenuItem::Script::Load From URL": "从网址加载",
   "MenuItem::Script::NeedRefresh": "需要刷新以应用更改",

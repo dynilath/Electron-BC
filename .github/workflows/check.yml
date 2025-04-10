@@ -17,7 +17,7 @@ env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
 jobs:
-  release:
+  check:
     runs-on: ${{ matrix.os }}
 
     strategy:

@@ -19,7 +19,7 @@ importers:
         version: 4.0.11
       electron-settings:
         specifier: ^4.0.4
-        version: 4.0.4(electron@35.1.5)
+        version: 4.0.4(electron@35.1.4)
       electron-updater:
         specifier: 6.3.9
         version: 6.3.9
@@ -45,6 +45,9 @@ importers:
       '@types/semver':
         specifier: ^7.7.0
         version: 7.7.0
+      '@vercel/webpack-asset-relocator-loader':
+        specifier: ^1.7.4
+        version: 1.7.4
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -58,8 +61,8 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0(@types/node@22.14.0)(typescript@5.8.3)
       electron:
-        specifier: ^35.1.5
-        version: 35.1.5
+        specifier: ^35.1.4
+        version: 35.1.4
       electron-builder:
         specifier: 26.0.12
         version: 26.0.12(electron-builder-squirrel-windows@25.1.7)
@@ -75,6 +78,9 @@ importers:
       marked:
         specifier: ^14.1.4
         version: 14.1.4
+      semver:
+        specifier: ^7.7.1
+        version: 7.7.1
       style-loader:
         specifier: ^4.0.0
         version: 4.0.0(webpack@5.99.5)
@@ -163,8 +169,8 @@ packages:
     resolution: {integrity: sha512-Qkzpg2s9GnVV2I2BjRksUi43U5e6+zaQMcjoJy0C+C5oxaKl+fmckGDQFtRpZpZV0NQekuZZ+tGz7EA9TVnQtQ==}
     engines: {node: '>=12'}
 
-  '@electron/node-gyp@https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2':
-    resolution: {tarball: https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2}
+  '@electron/node-gyp@git+https://github.com/electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2':
+    resolution: {commit: 06b29aafb7708acef8b3669835c8a7857ebc92d2, repo: https://github.com/electron/node-gyp.git, type: git}
     version: 10.2.0-electron.1
     engines: {node: '>=12.13.0'}
     hasBin: true
@@ -372,6 +378,9 @@ packages:
 
   '@types/yauzl@2.10.3':
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
+
+  '@vercel/webpack-asset-relocator-loader@1.7.4':
+    resolution: {integrity: sha512-RFFite6v51Qhj/eERru3qwUNCLybnceSChI5yiu9bhLpTemWbKPORAOExOgpO2W7IE/0UEh3aX6wTSHgDE/fdQ==}
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -1101,8 +1110,8 @@ packages:
   electron-updater@6.3.9:
     resolution: {integrity: sha512-2PJNONi+iBidkoC5D1nzT9XqsE8Q1X28Fn6xRQhO3YX8qRRyJ3mkV4F1aQsuRnYPqq6Hw+E51y27W75WgDoofw==}
 
-  electron@35.1.5:
-    resolution: {integrity: sha512-LolvbKKQUSCGvEwbEQNt1cxD1t+YYClDNwBIjn4d28KM8FSqUn9zJuf6AbqNA7tVs9OFl/EQpmg/m4lZV1hH8g==}
+  electron@35.1.4:
+    resolution: {integrity: sha512-8HjE2wqxY//T09Of8k1eTpK/NeTG2FkTyRD+fyKXmec4wZVscGgZcmWFC0HYN4ktyHAjtplpxdFXjtqRnvzBMg==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -2991,7 +3000,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@electron/node-gyp@https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2':
+  '@electron/node-gyp@git+https://github.com/electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2':
     dependencies:
       env-paths: 2.2.1
       exponential-backoff: 3.1.2
@@ -3048,7 +3057,7 @@ snapshots:
 
   '@electron/rebuild@3.7.0':
     dependencies:
-      '@electron/node-gyp': https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2
+      '@electron/node-gyp': git+https://github.com/electron/node-gyp.git#06b29aafb7708acef8b3669835c8a7857ebc92d2
       '@malept/cross-spawn-promise': 2.0.0
       chalk: 4.1.2
       debug: 4.4.0
@@ -3275,6 +3284,10 @@ snapshots:
     dependencies:
       '@types/node': 22.14.0
     optional: true
+
+  '@vercel/webpack-asset-relocator-loader@1.7.4':
+    dependencies:
+      resolve: 1.22.10
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:
@@ -4234,9 +4247,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  electron-settings@4.0.4(electron@35.1.5):
+  electron-settings@4.0.4(electron@35.1.4):
     dependencies:
-      electron: 35.1.5
+      electron: 35.1.4
       lodash: 4.17.21
       mkdirp: 1.0.4
       write-file-atomic: 3.0.3
@@ -4270,7 +4283,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  electron@35.1.5:
+  electron@35.1.4:
     dependencies:
       '@electron/get': 2.0.3
       '@types/node': 22.14.0

@@ -1,4 +1,4 @@
-const fs = require("fs-extra");
+const fs = require("fs");
 const marked = require("marked");
 const path = require("path");
 
@@ -59,15 +59,9 @@ fs.readFile(sourcePath, "utf8", (err, data) => {
 </body>
 </html>`;
 
-    fs.outputFile(targetPath, htmlTemplate, (err) => {
-      if (err) {
-        console.error(`Error writing ${targetPath}:`, err);
-        process.exit(1);
-      }
-
-      console.log(
-        `${targetPath} has been generated successfully with GitHub style.`
-      );
-    });
+    fs.writeFileSync(targetPath, htmlTemplate, "utf8");
+    console.log(
+      `${targetPath} has been generated successfully with GitHub style.`
+    );
   });
 });

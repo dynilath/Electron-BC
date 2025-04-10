@@ -10,6 +10,14 @@ export function aboutMenu({
     label: i18n("MenuItem::About"),
     submenu: [
       {
+        label: BCVersion.url,
+        type: "normal",
+        enabled: false,
+      },
+      {
+        type: "separator",
+      },
+      {
         label: i18n("MenuItem::About::BCVersion"),
         type: "normal",
         enabled: false,

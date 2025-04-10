@@ -75,14 +75,15 @@ async function cacheVersion() {
   return config?.version;
 }
 
-async function saveCacheVersion(version: string) {
-  await settings.set(SettingTag, { version });
+function saveCacheVersion(version: string) {
+  settings.setSync(SettingTag, { version });
+  console.log(`Cache version saved: ${version}`);
 }
 
 export async function checkCacheVersion(bcVer: BCVersion) {
   const currentVersion = await cacheVersion();
   const ret = !currentVersion || currentVersion !== bcVer.version;
   console.log(`Cache version check: ${currentVersion} -> ${bcVer.version}`);
-  await saveCacheVersion(bcVer.version);
+  saveCacheVersion(bcVer.version);
   return ret;
 }

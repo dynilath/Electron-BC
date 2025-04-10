@@ -33,26 +33,23 @@ jobs:
       - name: Fetch full history
         run: git fetch --unshallow --recurse-submodules=no
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
-          cache: yarn
+          cache: pnpm
 
       - name: Run install
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Run compile
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: compile:prod
+        run: pnpm run compile:prod
 
       - name: Run changelog
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: changelog
+        run: pnpm run changelog
 
       - name: Show changelog.md
         run: cat CHANGELOG.md

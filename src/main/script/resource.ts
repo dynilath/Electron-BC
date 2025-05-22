@@ -4,7 +4,6 @@ import { readMeta } from "./meta";
 import { ScriptConfig } from "./config";
 import path from "path";
 import { ipcMain } from "electron";
-import { reloadAllMenu } from "../reloadAllMenu";
 import EventEmitter from "events";
 
 async function scriptFiles() {
@@ -94,3 +93,5 @@ export class ScriptResource {
   static updateScripts = updateScripts;
   static init = init;
 }
+
+export { saveScriptFile };

@@ -2,6 +2,7 @@ import { ipcMain } from "electron";
 import { ScriptResource } from "./resource";
 import { ScriptConfig } from "./config";
 import { reloadAllMenu } from "../reloadAllMenu";
+import { ScriptMenuItem, ScriptResourceItem } from "./types";
 
 function loadOneScriptRaw(
   webContents: Electron.WebContents,

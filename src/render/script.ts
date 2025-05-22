@@ -1,4 +1,5 @@
 import { EBCContext } from "../bridge";
+import { ScriptResourceItem } from "../main/script/types";
 import { Log } from "./log";
 
 export function evalScript(context: EBCContext, script: ScriptResourceItem) {

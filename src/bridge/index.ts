@@ -1,6 +1,7 @@
 import { ipcRenderer } from "electron";
 import { SettingsKey } from "../settings";
 import { randomString } from "../utility";
+import { ScriptResourceItem } from "../main/script/types";
 
 export interface UserInfo {
   user: string;

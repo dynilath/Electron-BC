@@ -1,5 +1,6 @@
 import settings from "electron-settings";
-import { SettingTag } from "./Constants";
+import { SettingTag } from "./constants";
+import { ScriptConfigItem } from "./types";
 
 const config_storage = new Map<string, ScriptConfigItem>(
   ((settings.getSync(SettingTag) as ScriptConfigItem[] | null) || []).map(

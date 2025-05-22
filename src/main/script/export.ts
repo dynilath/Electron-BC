@@ -1,5 +1,6 @@
 import { ScriptConfig } from "./config";
 import { saveScriptFile } from "./resource";
+import { ScriptMeta, ScriptResourceItem, ScriptSetting } from "./types";
 
 export interface ExportedScriptData {
   meta: ScriptMeta;

@@ -1,28 +1,28 @@
-interface ScriptSetting {
+export interface ScriptSetting {
   enabled: boolean;
   url: string | null;
   lastUpdate: number;
 }
 
-interface ScriptMeta {
+export interface ScriptMeta {
   name: string;
   author?: string;
   version?: string;
 }
 
-interface ScriptResourceItem {
+export interface ScriptResourceItem {
   setting: ScriptSetting;
   file: string;
   meta: ScriptMeta;
   content: string;
 }
 
-interface ScriptConfigItem {
+export interface ScriptConfigItem {
   name: string;
   setting: ScriptSetting;
 }
 
-interface ScriptMenuItem {
+export interface ScriptMenuItem {
   id: number;
   scriptName: string;
   menuName: string;

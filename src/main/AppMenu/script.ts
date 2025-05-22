@@ -9,6 +9,7 @@ import path from "path";
 import { exportScript, importScript, ExportedScriptData } from "../script/export";
 import { packageFile } from "../utility";
 import zlib from "zlib";
+import { ScriptResourceItem } from "../script/types";
 
 export function scriptMenu({
   refreshPage,

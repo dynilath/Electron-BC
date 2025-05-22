@@ -1,3 +1,5 @@
+import { ScriptMeta } from "./types";
+
 export function readMeta(scriptContent: string): ScriptMeta | undefined {
   const match =
     /^\s*\/\/\s*==UserScript==\s*([\s\S\/@]+?)\/\/\s*==\/UserScript==/.exec(

@@ -5,10 +5,8 @@ import { ScriptResource } from "../script/resource";
 import { MyAppMenuConstructorOption } from "./type";
 import { dialog } from "electron";
 import fs from "fs";
-import path from "path";
-import { exportScript, importScript, ExportedScriptData } from "../script/export";
+import { exportScript, ExportedScriptData, exportScriptPackageBuffer, importScriptPackageBuffer } from "../script/export";
 import { packageFile } from "../utility";
-import zlib from "zlib";
 import { ScriptResourceItem } from "../script/types";
 
 export function scriptMenu({
@@ -79,8 +77,7 @@ export function scriptMenu({
             filters: [{ name: "EBC Script Package", extensions: ["ebcscriptpkg"] }],
           });
           if (filePath) {
-            const json = JSON.stringify(scriptData);
-            const compressed = zlib.gzipSync(Buffer.from(json, "utf8"));
+            const compressed = exportScriptPackageBuffer(scriptData);
             fs.writeFileSync(filePath, compressed);
           }
         },
@@ -97,11 +94,7 @@ export function scriptMenu({
           if (filePaths && filePaths[0]) {
             try {
               const compressed = fs.readFileSync(filePaths[0]);
-              const json = zlib.gunzipSync(compressed).toString("utf8");
-              const importData: ExportedScriptData[] = JSON.parse(json);
-              for (const s of importData) {
-                await importScript(s);
-              }
+              await importScriptPackageBuffer(compressed);
               const result = await dialog.showMessageBox({
                 icon: packageFile("Logo.ico"),
                 type: "info",

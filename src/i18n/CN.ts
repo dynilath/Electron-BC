@@ -25,6 +25,7 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Script::Unknown": "未知",
   "MenuItem::Script::ExportPackageEnabled": "导出启用的脚本为脚本包",
   "MenuItem::Script::ImportPackage": "导入脚本包",
+  "MenuItem::Script::ImportPackageFromURL": "从网址导入脚本包",
   "MenuItem::Script::ImportSuccess": "导入完成！点击确认以刷新页面。",
   "ContextMenu::Cut": "剪切",
   "ContextMenu::Copy": "复制",

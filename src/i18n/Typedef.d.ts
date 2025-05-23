@@ -25,6 +25,7 @@ type TextTag =
   | "MenuItem::Script::Unknown"
   | "MenuItem::Script::ExportPackageEnabled"
   | "MenuItem::Script::ImportPackage"
+  | "MenuItem::Script::ImportPackageFromURL"
   | "MenuItem::Script::ImportSuccess"
   | "MenuItem::BuiltIns"
   | "MenuItem::BuiltIns::Intro"

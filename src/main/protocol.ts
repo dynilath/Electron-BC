@@ -72,7 +72,7 @@ export class MyProtocol {
 
       if (args === undefined) break;
 
-      if (resource.endsWith(".png")) {
+      if (resource.endsWith(".png") || resource.endsWith(".jpg") || resource.endsWith(".webp")) {
         const v_start = args.indexOf("v=");
         const version = args.substring(
           v_start + 2,

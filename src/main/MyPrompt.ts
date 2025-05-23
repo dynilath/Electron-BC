@@ -1,54 +1,74 @@
-import { ipcMain } from "electron";
-import { randomString } from "../utility";
+import { ipcMain } from 'electron'
+import { showPrompt, PromptOptions } from '../prompt'
+import { i18nText } from '../i18n'
 
 interface PromptExecutor {
-  confirm: () => void;
-  cancel?: () => void;
+  confirm: () => void
+  cancel?: () => void
 }
 
-const promptList = new Map<string, PromptExecutor>();
+const promptList = new Map<string, PromptExecutor>()
 
-function initConfirmCancelPrompt() {
-  ipcMain.on(
-    "confirm-cancel-prompt-reply",
-    (event, key: string, confirm: boolean) => {
-      const executor = promptList.get(key);
-      if (executor) {
-        if (confirm) executor.confirm();
-        else if (executor.cancel) executor.cancel();
-        promptList.delete(key);
-      }
-    }
-  );
-}
-
-function sendConfirmCancelPrompt(
-  webContents: Electron.WebContents,
+async function sendConfirmCancelPrompt (
+  i18n: (tag: TextTag) => string,
   message: TextTag,
   confirm: () => void,
   cancel?: () => void
 ) {
-  const key = randomString();
-  promptList.set(key, { confirm, cancel });
-  webContents.send("confirm-cancel-prompt", message, key);
+  const result = await showPrompt({
+    type: 'confirmCancel',
+    message: i18n(message),
+    confirmText: i18n('Alert::Confirm'),
+    cancelText: i18n('Alert::Cancel')
+  })
+
+  if (result) {
+    if (result.ok) {
+      confirm()
+    } else if (cancel) {
+      cancel()
+    }
+  }
 }
 
-function infoPrompt(webContents: Electron.WebContents, message: string) {
-  webContents.send("info-prompt", message);
+async function infoPrompt (i18n: (tag: TextTag) => string, message: string) {
+  const result = await showPrompt({
+    type: 'info',
+    title: message,
+    message: '',
+    confirmText: i18n('Alert::Confirm')
+  })
 }
 
-function showPromptLoadurl(
-  webContents: Electron.WebContents,
+async function showPromptLoadurl (
+  i18n: (tag: TextTag) => string,
   suggestion?: string
 ) {
-  webContents.send("show-prompt-loadurl", suggestion);
+  const result = await showPrompt({
+    type: 'input',
+    inputPlaceholder: 'https://example.com/script.user.js',
+    inputType: 'userscript',
+    inputError: i18n('Alert::LoadUrl::PleaseInputCorrectUrl'),
+    title: i18n('Alert::LoadUrl::InputScriptURL'),
+    defaultValue: suggestion,
+    confirmText: i18n('Alert::Confirm'),
+    cancelText: i18n('Alert::Cancel')
+  })
+
+  if (result && result.ok) {
+    ipcMain.emit('load-script-url', result.value)
+  }
 }
 
-export class MyPrompt {
-  static init = initConfirmCancelPrompt;
-  static confirmCancel = sendConfirmCancelPrompt;
-  static info = infoPrompt;
-  static loadUrl = showPromptLoadurl;
+ipcMain.on('web-alert', (event, data) => {
+  const i18nObj = new i18nText()
+  i18nObj.language = data.language || 'EN'
+  infoPrompt(tag => i18nObj.get(tag), data.message)
+})
 
-  static error = infoPrompt;
+export const MyPrompt = {
+  confirmCancel: sendConfirmCancelPrompt,
+  info: infoPrompt,
+  loadUrl: showPromptLoadurl,
+  error: infoPrompt
 }

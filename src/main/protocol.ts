@@ -1,4 +1,4 @@
-import { net, protocol, shell, WindowOpenHandlerResponse } from "electron";
+import { ipcMain, net, protocol, shell, WindowOpenHandlerResponse } from "electron";
 import { readFileSync } from "fs";
 import path from "path";
 import { AssetCache } from "./AssetCache";
@@ -126,7 +126,7 @@ export function windowOpenRequest(
   }
 
   if (url.endsWith(".user.js")) {
-    MyPrompt.loadUrl(webContents, url);
+    ipcMain.emit("load-user-script", url);
     return { action: "deny" };
   }
 

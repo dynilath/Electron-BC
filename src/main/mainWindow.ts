@@ -27,7 +27,7 @@ function mainWindowAfterLoad(
   readyState.loaded().then(async () => {
     const shouldUpdate = await checkCacheVersion(bcVersion);
     if (shouldUpdate) {
-      MyPrompt.confirmCancel(webContents, "Alert::Cache::UpdateConfirm", () => {
+      MyPrompt.confirmCancel(i18n,"Alert::Cache::UpdateConfirm", () => {
         AssetCache.preloadCache(bcVersion.url, bcVersion.version).then(() => {
           ipcMain.emit("reload-menu");
         });

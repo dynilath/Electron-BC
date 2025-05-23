@@ -3,7 +3,7 @@ import { reloadAllMenu } from "../reloadAllMenu";
 import { openScriptFolder } from "../script";
 import { ScriptResource } from "../script/resource";
 import { MyAppMenuConstructorOption } from "./type";
-import { dialog } from "electron";
+import { dialog, ipcMain } from "electron";
 import fs from "fs";
 import { exportScript, ExportedScriptData, exportScriptPackageBuffer, importScriptPackageBuffer } from "../script/export";
 import { packageFile } from "../utility";
@@ -37,6 +37,12 @@ export function scriptMenu({
     },\n ${sURL}: ${script.setting.url ?? sUnknown}`;
   };
 
+  ipcMain.on("load-user-script", (event, url) => {
+    if (event.sender.id === mainWindow.webContents.id) {
+      MyPrompt.loadUrl(i18n, url);
+    }
+  })
+
   return {
     label: i18n("MenuItem::Script"),
     id: "script" as AppMenuIds,
@@ -45,7 +51,7 @@ export function scriptMenu({
         label: i18n("MenuItem::Script::Load From URL"),
         type: "normal",
         sublabel: i18n("MenuItem::Script::InstallTips"),
-        click: () => MyPrompt.loadUrl(mainWindow.webContents),
+        click: () => MyPrompt.loadUrl(i18n),
       },
       {
         label: i18n("MenuItem::Script::Open Script Folder"),

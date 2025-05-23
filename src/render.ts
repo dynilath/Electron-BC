@@ -11,51 +11,10 @@ initGlobal();
 
 (window as any).Dexie = Dexie;
 
-Bridge.instance.onPromptLoadUrl((suggestion) => {
-  // from https://stackoverflow.com/questions/3809401 with '.js' added
-  const urlRegex =
-    /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,32}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)\.js$/;
-
-  Swal.fire({
-    title: i18n("Alert::LoadUrl::InputScriptURL"),
-    confirmButtonText: i18n("Alert::Confirm"),
-    cancelButtonText: i18n("Alert::Cancel"),
-    input: "text",
-    inputPlaceholder: "https://example.com/script.user.js",
-    showCancelButton: true,
-    ...(suggestion ? { inputValue: suggestion } : {}),
-    inputValidator: (value) => {
-      if (!value || !urlRegex.test(value))
-        return i18n("Alert::LoadUrl::PleaseInputCorrectUrl");
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      Bridge.instance.loadScriptUrl(result.value as string);
-    }
-  });
-});
 
 Bridge.instance.onLoadScriptV2((script) => {
   Log.info("Load-Script : " + JSON.stringify(script.meta));
   evalScript(Bridge.instance, script);
-});
-
-Bridge.instance.onInfoPrompt((message) => {
-  Swal.fire({
-    html: message,
-    confirmButtonText: i18n("Alert::Confirm"),
-  });
-});
-
-Bridge.instance.onConfirmCancelPrompt((message, key) => {
-  Swal.fire({
-    html: i18n(message),
-    showCancelButton: true,
-    confirmButtonText: i18n("Alert::Confirm"),
-    cancelButtonText: i18n("Alert::Cancel"),
-  }).then((result) => {
-    Bridge.instance.confirmCancelPromptReply(key, result.isConfirmed);
-  });
 });
 
 Bridge.instance.onReload(() => location.reload());
@@ -84,10 +43,6 @@ Bridge.instance.onGetServer(()=> {
   );
 
   window.alert = (message?: string) => {
-    Swal.fire({
-      title: i18n("Alert::Title"),
-      text: message,
-      confirmButtonText: i18n("Alert::Confirm"),
-    });
+    Bridge.instance.alert(BCInterface.TranslationLanguage, message);
   };
 })();

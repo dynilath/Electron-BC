@@ -1,4 +1,5 @@
 const path = require("path");
+const { library } = require("webpack");
 
 module.exports = [
   {
@@ -59,6 +60,47 @@ module.exports = [
       filename: "loading_preload.js",
       path: path.resolve(__dirname, "build"),
       libraryTarget: "commonjs2",
+    },
+    resolve: {
+      extensions: [".ts", ".js"],
+    },
+    module: {
+      rules: [
+        {
+          test: /\.ts$/,
+          use: "ts-loader",
+          exclude: /node_modules/,
+        },
+      ],
+    },
+  },
+  {
+    entry: "./src/prompt/preload.ts",
+    target: "electron-preload",
+    output: {
+      filename: "prompt_preload.js",
+      path: path.resolve(__dirname, "build"),
+      libraryTarget: "commonjs2",
+    },
+    resolve: {
+      extensions: [".ts", ".js"],
+    },
+    module: {
+      rules: [
+        {
+          test: /\.ts$/,
+          use: "ts-loader",
+          exclude: /node_modules/,
+        },
+      ],
+    },
+  },
+  {
+    entry: "./src/prompt/render.ts",
+    target: "web",
+    output: {
+      filename: "prompt_render.js",
+      path: path.resolve(__dirname, "build"),
     },
     resolve: {
       extensions: [".ts", ".js"],

@@ -1,10 +1,8 @@
-import Swal from "sweetalert2";
 import { UserInfo } from "../bridge";
 import { BCInterface, Bridge } from "./globals";
 import { sleep, waitValue } from "./utils";
 import { Suggestions } from "./suggestion";
 import { Log } from "./log";
-import { i18n } from "../i18n";
 
 export async function loginExt(ticket: string) {
   const userinfo: Partial<UserInfo> = {};
@@ -37,32 +35,7 @@ export async function loginExt(ticket: string) {
   };
 
   const onLogin = async (user: string, pass: string) => {
-    Bridge.instance.clientLogin(ticket, { user, pass }).then((saveResult) => {
-      if (saveResult.state === "nochange") return;
-      Swal.fire({
-        title: i18n("Alert::Credential::Title"),
-        text: (saveResult.state == "changed"
-          ? i18n("Alert::Credential::Change")
-          : i18n("Alert::Credential::New")
-        ).replace("USERNAME", saveResult.user),
-        confirmButtonText: i18n("Alert::Confirm"),
-        cancelButtonText: i18n("Alert::Cancel"),
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Bridge.instance.saveUserPass(ticket).then((user) => {
-            Log.info("Account saved: ", user);
-            Swal.fire({
-              title: i18n("Alert::Credential::Title"),
-              text: i18n("Alert::Credential::Saved").replace(
-                "USERNAME",
-                saveResult.user
-              ),
-              confirmButtonText: i18n("Alert::Confirm"),
-            });
-          });
-        }
-      });
-    }, console.error);
+    Bridge.instance.clientLogined(ticket, { user, pass });
   };
 
   (async () => {

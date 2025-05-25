@@ -1,10 +1,25 @@
-import { app, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 
 import keytar from "keytar";
 import { SaveUserPassResult, UserInfo } from "../bridge";
 import { randomString } from "../utility";
+import EventEmitter from "node:events";
+import { MyPrompt, PromptParent } from "./MyPrompt";
 
 const serviceName = app.name;
+
+type LoginState = "nochange" | "new" | "changed";
+
+interface EventMap {
+  "client-logined": [
+    event: Electron.IpcMainEvent,
+    state: LoginState,
+    user: string,
+    pass: string
+  ];
+}
+
+const loginEvents = new EventEmitter<EventMap>();
 
 function initCredentialHandler() {
   ipcMain.handle(
@@ -29,18 +44,20 @@ function initCredentialHandler() {
 
   const tempCredentialMap = new Map<string, { user: string; pass: string }>();
 
-  ipcMain.handle(
-    "credential-client-login",
-    async (event, { user, pass }): Promise<SaveUserPassResult> => {
-      const handle = randomString();
-      tempCredentialMap.set(handle, { user, pass });
+  ipcMain.on("credential-client-login", async (event, { user, pass }) => {
+    const handle = randomString();
+    tempCredentialMap.set(handle, { user, pass });
 
-      const oldPass = await keytar.getPassword(serviceName, user);
-      if (oldPass == pass) return { state: "nochange", user, handle };
-      if (oldPass === null) return { state: "new", user, handle };
-      return { state: "changed", user, handle };
-    }
-  );
+    const oldPass = await keytar.getPassword(serviceName, user);
+    const state =
+      oldPass === pass ? "nochange" : oldPass === null ? "new" : "changed";
+
+    loginEvents.emit("client-logined", event, state, user, pass);
+
+    // if (oldPass == pass) return { state: "nochange", user, handle };
+    // if (oldPass === null) return { state: "new", user, handle };
+    // return { state: "changed", user, handle };
+  });
 
   ipcMain.handle("credential-save", (event, handle) => {
     const saved = tempCredentialMap.get(handle);
@@ -62,6 +79,29 @@ function initCredentialHandler() {
   });
 }
 
-export class Credential {
-  static init = initCredentialHandler;
+function createOnLoginListener(parent: PromptParent) {
+  loginEvents.on("client-logined", (event, state, user, pass) => {
+    if (event.sender.id !== parent.window.webContents.id) return;
+    MyPrompt.confirmCancel(
+      parent,
+      (state == "changed"
+        ? parent.i18n("Alert::Credential::Change")
+        : parent.i18n("Alert::Credential::New")
+      ).replace("USERNAME", user),
+      () => {
+        keytar.setPassword(serviceName, user, pass);
+        MyPrompt.confirmCancel(
+          parent,
+          parent.i18n("Alert::Credential::Saved").replace("USERNAME", user),
+          () => {}
+        );
+      }
+    );
+  });
 }
+
+export const Credential = {
+  init: initCredentialHandler,
+  loginEvents,
+  createOnLoginListener,
+};

@@ -8,6 +8,7 @@ import { createFetchBCVersionWindow } from "./loading";
 import { MainWindowProvider } from "./main/mainWindow";
 import settings from "electron-settings";
 import { AssetCache } from "./main/AssetCache";
+import { i18nText } from "./i18n";
 
 const DeltaUpdater = require("@electron-delta/updater");
 
@@ -31,10 +32,11 @@ app.whenReady().then(async () => {
     console.error(error);
   }
 
+  const i18nObj = new i18nText();
+
   ScriptResource.init();
   MyProtocol.init();
   Credential.init();
-  MyPrompt.init();
   AssetCache.init();
 
   const result = await createFetchBCVersionWindow();

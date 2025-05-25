@@ -1,5 +1,4 @@
-import Swal from "sweetalert2";
-import { initGlobal, i18n, updateLang } from "./i18n";
+import { initGlobal, updateLang } from "./i18n";
 import { BCInterface, Bridge } from "./render/globals";
 import { waitValue } from "./render/utils";
 import Dexie from "dexie";
@@ -11,7 +10,6 @@ initGlobal();
 
 (window as any).Dexie = Dexie;
 
-
 Bridge.instance.onLoadScriptV2((script) => {
   Log.info("Load-Script : " + JSON.stringify(script.meta));
   evalScript(Bridge.instance, script);
@@ -21,9 +19,9 @@ Bridge.instance.onReload(() => location.reload());
 
 Bridge.instance.register().then((ticket) => loginExt(ticket));
 
-Bridge.instance.onGetServer(()=> {
+Bridge.instance.onGetServer(() => {
   console.log("GetServer");
-  return BCInterface.CommonGetServer()
+  return BCInterface.CommonGetServer();
 });
 
 (async () => {

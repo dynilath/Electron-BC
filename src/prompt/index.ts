@@ -4,9 +4,10 @@ import path from 'path';
 export type PromptType = 'input' | 'confirmCancel' | 'info';
 
 export interface PromptOptions {
+  parent: BrowserWindow;
   type: PromptType;
   inputPlaceholder?: string;
-  inputType?: 'userscript' | 'url';
+  inputType?: "userscript" | "url";
   inputError?: string;
   title?: string;
   message?: string;
@@ -26,7 +27,7 @@ export function showPrompt(options: PromptOptions): Promise<any> {
       frame: false,
       minimizable: false,
       maximizable: false,
-      parent: BrowserWindow.getFocusedWindow() || undefined,
+      parent: options.parent,
       modal: true,
       show: false,
       webPreferences: {
@@ -37,19 +38,19 @@ export function showPrompt(options: PromptOptions): Promise<any> {
     });
     win.webContents.toggleDevTools();
     win.removeMenu();
-    win.loadFile(path.join(app.getAppPath(), 'resource/prompt.html'));
-    win.once('ready-to-show', () => win.show());
-    win.webContents.once('did-finish-load', () => {
-      win.webContents.send('prompt-data', options);
+    win.loadFile(path.join(app.getAppPath(), "resource/prompt.html"));
+    win.once("ready-to-show", () => win.show());
+    win.webContents.once("did-finish-load", () => {
+      win.webContents.send("prompt-data", options);
     });
     const handler = (_e: any, result: any) => {
       resolve(result);
-      ipcMain.removeListener('prompt-result', handler);
+      ipcMain.removeListener("prompt-result", handler);
       win.close();
     };
-    ipcMain.on('prompt-result', handler);
+    ipcMain.on("prompt-result", handler);
 
-    ipcMain.on('log', (_e: any, data: any) => {
+    ipcMain.on("log", (_e: any, data: any) => {
       console.log("render log", data);
     });
   });

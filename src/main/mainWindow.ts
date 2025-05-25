@@ -27,12 +27,16 @@ function mainWindowAfterLoad(
   readyState.loaded().then(async () => {
     const shouldUpdate = await checkCacheVersion(bcVersion);
     if (shouldUpdate) {
-      MyPrompt.confirmCancel(i18n,"Alert::Cache::UpdateConfirm", () => {
-        AssetCache.preloadCache(bcVersion.url, bcVersion.version).then(() => {
+      MyPrompt.confirmCancel(
+        { window: mainWindow, i18n },
+        i18n("Alert::Cache::UpdateConfirm"),
+        () => {
+          AssetCache.preloadCache(bcVersion.url, bcVersion.version).then(() => {
+            ipcMain.emit("reload-menu");
+          });
           ipcMain.emit("reload-menu");
-        });
-        ipcMain.emit("reload-menu");
-      });
+        }
+      );
     }
   });
 
@@ -114,7 +118,7 @@ function mainWindowAfterLoad(
   });
 
   webContents.on("dom-ready", async () => {
-    checkAndAnounce(webContents);
+    checkAndAnounce({ window: mainWindow, i18n });
     await readyState.loaded();
     await scriptState.loadScript();
     reloadMenu();

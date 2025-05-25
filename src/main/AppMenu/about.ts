@@ -4,8 +4,9 @@ import { openChangelog } from "../changelog";
 
 export function aboutMenu({
   BCVersion,
-  i18n,
+  parent,
 }: MyAppMenuConstructorOption): Electron.MenuItemConstructorOptions {
+  const { i18n } = parent;
   return {
     label: i18n("MenuItem::About"),
     submenu: [

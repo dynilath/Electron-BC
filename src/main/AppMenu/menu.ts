@@ -7,7 +7,9 @@ import { cacheMenu } from "./cache";
 import { DoH } from "../DoH";
 
 export function makeMenu(options: MyAppMenuConstructorOption) {
-  const { refreshPage, mainWindow, i18n } = options;
+  const { refreshPage, parent } = options;
+
+  const { window, i18n } = parent;
 
   return Menu.buildFromTemplate([
     {
@@ -24,13 +26,13 @@ export function makeMenu(options: MyAppMenuConstructorOption) {
           label: i18n("MenuItem::Tools::FullScreen"),
           type: "normal",
           accelerator: "F11",
-          click: () => mainWindow.setFullScreen(!mainWindow.isFullScreen()),
+          click: () => window.setFullScreen(!window.isFullScreen()),
         },
         {
           label: i18n("MenuItem::Tools::DevTools"),
           type: "normal",
           accelerator: "F12",
-          click: () => mainWindow.webContents.toggleDevTools(),
+          click: () => window.webContents.toggleDevTools(),
         },
         {
           type: "separator",
@@ -52,7 +54,7 @@ export function makeMenu(options: MyAppMenuConstructorOption) {
           label: i18n("MenuItem::Tools::Exit"),
           type: "normal",
           accelerator: "Alt+F4",
-          click: () => mainWindow.close(),
+          click: () => window.close(),
         },
       ],
     },

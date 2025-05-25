@@ -8,7 +8,7 @@ export class MyAppMenu extends EventEmitter<MyAppMenuEvent> {
 
     this.on("reload", () => {
       const menu = makeMenu(this.options);
-      this.options.mainWindow.setMenu(menu);
+      this.options.parent.window.setMenu(menu);
       this.emit("reloaded", menu);
     });
   }

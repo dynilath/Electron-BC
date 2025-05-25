@@ -12,6 +12,7 @@ import { checkCacheVersion } from "./AssetCache/preloadCache";
 import { MyPrompt } from "./MyPrompt";
 import { AssetCache } from "./AssetCache";
 import { MyAppMenu } from "./AppMenu";
+import { Credential } from "./credential";
 
 const icon = packageFile("Logo.ico");
 
@@ -47,9 +48,8 @@ function mainWindowAfterLoad(
   const appMenu = new MyAppMenu({
     BCVersion: bcVersion,
     refreshPage: () => readyState.reload(),
-    mainWindow,
+    parent: { window: mainWindow, i18n },
     scriptState,
-    i18n,
   });
 
   const reloadMenu = () => appMenu.emit("reload");
@@ -105,15 +105,22 @@ function mainWindowAfterLoad(
     }
   );
 
+  const onLogined = Credential.createOnLoginListener({
+    window: mainWindow,
+    i18n,
+  });
+
   reloadMenu();
   ipcMain.on("reload-menu", mReloadMenu);
   ipcMain.on("load-script-url", mLoadScriptURL);
   ipcMain.on("language-change", mLanguageChange);
+  ipcMain.on("credential-client-login", onLogined);
 
   mainWindow.on("close", () => {
     ipcMain.removeListener("reload-menu", mReloadMenu);
     ipcMain.removeListener("load-script-url", mLoadScriptURL);
     ipcMain.removeListener("language-change", mLanguageChange);
+    ipcMain.removeListener("credential-client-login", onLogined);
     scriptState.dispose();
   });
 

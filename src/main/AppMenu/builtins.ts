@@ -3,8 +3,9 @@ import { reloadAllMenu } from "../reloadAllMenu";
 import { MyAppMenuConstructorOption } from "./type";
 
 export function builtinMenu({
-  i18n,
+  parent,
 }: MyAppMenuConstructorOption): Electron.MenuItemConstructorOptions {
+  const { i18n } = parent;
   return {
     label: i18n("MenuItem::BuiltIns"),
     submenu: [

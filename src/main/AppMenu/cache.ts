@@ -1,91 +1,92 @@
-import { dialog, shell } from 'electron'
-import { AssetCache } from '../AssetCache'
-import { getCachePath } from '../AssetCache/cachePath'
-import { MyAppMenuConstructorOption } from './type'
-import { reloadAllMenu } from '../reloadAllMenu'
-import { MyPrompt } from '../MyPrompt'
+import { dialog, shell } from "electron";
+import { AssetCache } from "../AssetCache";
+import { getCachePath } from "../AssetCache/cachePath";
+import { MyAppMenuConstructorOption } from "./type";
+import { reloadAllMenu } from "../reloadAllMenu";
+import { MyPrompt } from "../MyPrompt";
 
-export function cacheMenu ({
+export function cacheMenu({
   BCVersion,
-  mainWindow,
-  i18n
+  parent,
 }: MyAppMenuConstructorOption): Electron.MenuItemConstructorOptions[] {
   return [
     {
-      label: i18n('MenuItem::Tools::OpenCacheDir'),
-      type: 'normal',
+      label: parent.i18n("MenuItem::Tools::OpenCacheDir"),
+      type: "normal",
       click: () => {
-        shell.openPath(AssetCache.cacheDir())
-      }
+        shell.openPath(AssetCache.cacheDir());
+      },
     },
     {
-      label: i18n('MenuItem::Tools::RelocateCacheDir'),
-      type: 'normal',
+      label: parent.i18n("MenuItem::Tools::RelocateCacheDir"),
+      type: "normal",
       enabled: AssetCache.available(),
       click: () => {
-        ;(async () => {
+        (async () => {
           try {
-            const result = await dialog.showOpenDialog(mainWindow, {
-              properties: ['openDirectory'],
-              defaultPath: getCachePath()
-            })
+            const result = await dialog.showOpenDialog(parent.window, {
+              properties: ["openDirectory"],
+              defaultPath: getCachePath(),
+            });
 
-            if (result.canceled) return
+            if (result.canceled) return;
 
             await AssetCache.relocate(
               result.filePaths[0],
               () => reloadAllMenu(),
               () =>
-                new Promise(resolve => {
+                new Promise((resolve) => {
                   MyPrompt.confirmCancel(
-                    i18n,
-                    'Alert::Cache::RelocateConfirm',
+                    parent,
+                    "Alert::Cache::RelocateConfirm",
                     () => resolve(true),
                     () => resolve(false)
-                  )
+                  );
                 })
-            )
-            reloadAllMenu()
+            );
+            reloadAllMenu();
           } catch (e: any) {
-            console.log(e)
-            MyPrompt.error(i18n, e)
+            console.log(e);
+            MyPrompt.error(parent, e);
           }
-        })()
-      }
+        })();
+      },
     },
     {
-      label: i18n('MenuItem::Tools::StartUICacheUpdate'),
-      type: 'normal',
+      label: parent.i18n("MenuItem::Tools::StartUICacheUpdate"),
+      type: "normal",
       enabled: AssetCache.canPreloadCache() && AssetCache.available(),
       ...(AssetCache.canPreloadCache()
         ? {}
         : {
-            sublabel: i18n('MenuItem::Tools::StartUICacheUpdate::Loading')
+            sublabel: parent.i18n(
+              "MenuItem::Tools::StartUICacheUpdate::Loading"
+            ),
           }),
       click: () => {
         AssetCache.preloadCache(BCVersion.url, BCVersion.version).then(() =>
           reloadAllMenu()
-        )
-        reloadAllMenu()
-      }
+        );
+        reloadAllMenu();
+      },
     },
     {
-      label: i18n('MenuItem::Tools::ProximateCacheSize'),
+      label: parent.i18n("MenuItem::Tools::ProximateCacheSize"),
       sublabel: AssetCache.fileSizeStr(),
-      type: 'normal',
+      type: "normal",
       click: () => {
-        AssetCache.clearSizeResult()
-        reloadAllMenu()
-      }
+        AssetCache.clearSizeResult();
+        reloadAllMenu();
+      },
     },
     {
-      label: i18n('MenuItem::Tools::ClearCache'),
-      type: 'normal',
+      label: parent.i18n("MenuItem::Tools::ClearCache"),
+      type: "normal",
       click: () => {
-        MyPrompt.confirmCancel(i18n, 'Alert::Cache::ClearConfirm', () => {
-          AssetCache.clearCache()
-        })
-      }
-    }
-  ]
+        MyPrompt.confirmCancel(parent, "Alert::Cache::ClearConfirm", () => {
+          AssetCache.clearCache();
+        });
+      },
+    },
+  ];
 }

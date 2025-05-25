@@ -80,7 +80,7 @@ function initCredentialHandler() {
 }
 
 function createOnLoginListener(parent: PromptParent) {
-  loginEvents.on("client-logined", (event, state, user, pass) => {
+  return ((event, state, user, pass) => {
     if (event.sender.id !== parent.window.webContents.id) return;
     MyPrompt.confirmCancel(
       parent,
@@ -97,7 +97,7 @@ function createOnLoginListener(parent: PromptParent) {
         );
       }
     );
-  });
+  }) as (...args: EventMap["client-logined"]) => void;
 }
 
 export const Credential = {

@@ -11,10 +11,11 @@ import { ScriptResourceItem } from "../script/types";
 
 export function scriptMenu({
   refreshPage,
-  mainWindow,
+  parent,
   scriptState,
-  i18n,
 }: MyAppMenuConstructorOption): Electron.MenuItemConstructorOptions {
+  const { i18n, window } = parent;
+
   const scriptMenu = scriptState.menuItems.reduce((pv, cv) => {
     if (!pv[cv.scriptName]) {
       pv[cv.scriptName] = [];
@@ -38,10 +39,10 @@ export function scriptMenu({
   };
 
   ipcMain.on("load-user-script", (event, url) => {
-    if (event.sender.id === mainWindow.webContents.id) {
-      MyPrompt.loadUrl(i18n, url);
+    if (event.sender.id === window.webContents.id) {
+      MyPrompt.loadUrl(parent, url);
     }
-  })
+  });
 
   return {
     label: i18n("MenuItem::Script"),
@@ -51,7 +52,7 @@ export function scriptMenu({
         label: i18n("MenuItem::Script::Load From URL"),
         type: "normal",
         sublabel: i18n("MenuItem::Script::InstallTips"),
-        click: () => MyPrompt.loadUrl(i18n),
+        click: () => MyPrompt.loadUrl(parent),
       },
       {
         label: i18n("MenuItem::Script::Open Script Folder"),
@@ -70,17 +71,25 @@ export function scriptMenu({
         label: i18n("MenuItem::Script::ExportPackageEnabled"),
         type: "normal",
         click: async () => {
-          const enabledScripts = scriptState.scripts.filter((s) => s.setting.enabled);
+          const enabledScripts = scriptState.scripts.filter(
+            (s) => s.setting.enabled
+          );
           const scriptData: ExportedScriptData[] = await Promise.all(
             enabledScripts.map((s) => exportScript(s))
           );
           const now = new Date();
           const pad = (n: number) => n.toString().padStart(2, "0");
-          const fileName = `script-package-${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.ebcscriptpkg`;
+          const fileName = `script-package-${now.getFullYear()}${pad(
+            now.getMonth() + 1
+          )}${pad(now.getDate())}-${pad(now.getHours())}${pad(
+            now.getMinutes()
+          )}${pad(now.getSeconds())}.ebcscriptpkg`;
           const { filePath } = await dialog.showSaveDialog({
             title: i18n("MenuItem::Script::ExportPackageEnabled"),
             defaultPath: fileName,
-            filters: [{ name: "EBC Script Package", extensions: ["ebcscriptpkg"] }],
+            filters: [
+              { name: "EBC Script Package", extensions: ["ebcscriptpkg"] },
+            ],
           });
           if (filePath) {
             const compressed = exportScriptPackageBuffer(scriptData);
@@ -94,7 +103,9 @@ export function scriptMenu({
         click: async () => {
           const { filePaths } = await dialog.showOpenDialog({
             title: i18n("MenuItem::Script::ImportPackage"),
-            filters: [{ name: "EBC Script Package", extensions: ["ebcscriptpkg"] }],
+            filters: [
+              { name: "EBC Script Package", extensions: ["ebcscriptpkg"] },
+            ],
             properties: ["openFile"],
           });
           if (filePaths && filePaths[0]) {
@@ -107,14 +118,17 @@ export function scriptMenu({
                 message: i18n("MenuItem::Script::ImportSuccess"),
                 buttons: [i18n("Alert::Confirm"), i18n("Alert::Cancel")],
               });
-              if(result.response === 0) {
+              if (result.response === 0) {
                 refreshPage();
               }
             } catch (err: any) {
               await dialog.showMessageBox({
                 icon: packageFile("Logo.ico"),
                 type: "error",
-                message: i18n("MenuItem::Script::ImportPackage") + "\n" + (err?.message || err),
+                message:
+                  i18n("MenuItem::Script::ImportPackage") +
+                  "\n" +
+                  (err?.message || err),
                 buttons: [i18n("Alert::Confirm")],
               });
             }

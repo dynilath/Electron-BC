@@ -1,26 +1,11 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 
 import keytar from "keytar";
-import { SaveUserPassResult, UserInfo } from "../bridge";
-import { randomString } from "../utility";
-import EventEmitter from "node:events";
+import { UserInfo } from "../bridge";
 import { MyPrompt } from "./MyPrompt";
 import { PromptParent } from "../prompt/types";
 
 const serviceName = app.name;
-
-type LoginState = "nochange" | "new" | "changed";
-
-interface EventMap {
-  "client-logined": [
-    event: Electron.IpcMainEvent,
-    state: LoginState,
-    user: string,
-    pass: string
-  ];
-}
-
-const loginEvents = new EventEmitter<EventMap>();
 
 function initCredentialHandler() {
   ipcMain.handle(
@@ -45,21 +30,6 @@ function initCredentialHandler() {
 
   const tempCredentialMap = new Map<string, { user: string; pass: string }>();
 
-  ipcMain.on("credential-client-logined", async (event, { user, pass }) => {
-    const handle = randomString();
-    tempCredentialMap.set(handle, { user, pass });
-
-    const oldPass = await keytar.getPassword(serviceName, user);
-    const state =
-      oldPass === pass ? "nochange" : oldPass === null ? "new" : "changed";
-
-    loginEvents.emit("client-logined", event, state, user, pass);
-
-    // if (oldPass == pass) return { state: "nochange", user, handle };
-    // if (oldPass === null) return { state: "new", user, handle };
-    // return { state: "changed", user, handle };
-  });
-
   ipcMain.handle("credential-save", (event, handle) => {
     const saved = tempCredentialMap.get(handle);
     if (saved) {
@@ -82,8 +52,12 @@ function initCredentialHandler() {
 
 function createOnLoginListener(parent: PromptParent) {
   const { i18n } = parent;
-  return ((event, state, user, pass) => {
+  return (async (event, { user, pass }) => {
+    const oldPass = await keytar.getPassword(serviceName, user);
+    const state =
+      oldPass === pass ? "nochange" : oldPass === null ? "new" : "changed";
     if (event.sender.id !== parent.window.webContents.id) return;
+    if (state == "nochange") return;
     MyPrompt.confirmCancel(
       parent,
       (state == "changed"
@@ -99,11 +73,10 @@ function createOnLoginListener(parent: PromptParent) {
         );
       }
     );
-  }) as (...args: EventMap["client-logined"]) => void;
+  }) as Parameters<typeof ipcMain.handle>[1];
 }
 
 export const Credential = {
   init: initCredentialHandler,
-  loginEvents,
   createOnLoginListener,
 };

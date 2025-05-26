@@ -104,9 +104,7 @@ export function createCtxBridge(): EBCContext {
     clientLogined: (ticket: string, userinfo) =>
       testTicket(ticket)
         .then(() => testSetting("credentialSupport"))
-        .then(() => {
-          ipcRenderer.invoke("credential-client-logined", userinfo);
-        }),
+        .then(() => ipcRenderer.invoke("credential-client-logined", userinfo)),
     saveUserPass: (ticket: string): Promise<string> =>
       testTicket(ticket)
         .then(() => testSetting("credentialSupport"))

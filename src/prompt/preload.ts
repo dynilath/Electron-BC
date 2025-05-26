@@ -11,6 +11,9 @@ contextBridge.exposeInMainWorld("PromptAPI", {
   log: (data: string) => {
     ipcRenderer.send("log", data);
   },
+  resizeWindow: (width: number, height: number) => {
+    ipcRenderer.send("prompt-resize", { width, height });
+  },
 });
 
 declare global {
@@ -19,6 +22,7 @@ declare global {
       onPrompt: (cb: (data: PromptOptions) => void) => void;
       sendResult: (result: PromptResult) => void;
       log: (data: string) => void;
+      resizeWindow: (width: number, height: number) => void;
     };
   }
 }

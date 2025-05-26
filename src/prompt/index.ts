@@ -32,16 +32,33 @@ export function showPrompt(
     win.webContents.once("did-finish-load", () => {
       win.webContents.send("prompt-data", options);
     });
-    const handler: Parameters<typeof ipcMain.on>[1] = (_e, result) => {
+    const cb_result: Parameters<typeof ipcMain.on>[1] = (_e, result) => {
       if (_e.sender.id !== win.webContents.id) return;
       resolve(result);
       win.close();
     };
-    ipcMain.once("prompt-result", handler);
+    ipcMain.on("prompt-result", cb_result);
 
-    ipcMain.on("log", (_e, data) => {
+    const cb_log: Parameters<(typeof ipcMain)["on"]>[1] = (_e, data) => {
       if (_e.sender.id !== win.webContents.id) return;
       console.log("render log", data);
+    };
+
+    ipcMain.on("log", cb_log);
+
+    const cb_resize: Parameters<(typeof ipcMain)["on"]>[1] = (
+      e,
+      { width, height }
+    ) => {
+      if (e.sender.id !== win.webContents.id) return;
+      win.setSize(width, height);
+      win.center();
+    };
+    ipcMain.on("prompt-resize", cb_resize);
+    win.once("closed", () => {
+      ipcMain.removeListener("prompt-result", cb_result);
+      ipcMain.removeListener("log", cb_log);
+      ipcMain.removeListener("prompt-resize", cb_resize);
     });
   });
 }

@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const buttons = document.getElementById('promptButtons')!
 
   window.PromptAPI.onPrompt(data => {
-    title.textContent = data.title || ''
+    title.textContent = data.title || "";
     content.innerHTML = data.content || "";
     input.style.display = data.type === "input" ? "" : "none";
     input.value = data.defaultValue || "";
@@ -40,56 +40,75 @@ document.addEventListener('DOMContentLoaded', () => {
 
     showIf(title, !!data.title);
     showIf(content, !!data.content);
-    showIf(input, data.type === 'input')
+    showIf(input, data.type === "input");
 
-    if (data.type === 'input') {
+    // 计算并调整窗口大小以适应内容
+    setTimeout(() => {
+      const titleHeight =
+        title.style.display !== "none" ? title.scrollHeight + 20 : 0;
+      const contentHeight =
+        content.style.display !== "none" ? content.scrollHeight + 20 : 0;
+      const inputHeight =
+        input.style.display !== "none" ? input.offsetHeight + 20 : 0;
+      const buttonsHeight = buttons.offsetHeight + 20;
+
+      const totalHeight = Math.max(
+        120,
+        titleHeight + contentHeight + inputHeight + buttonsHeight + 40
+      );
+      const totalWidth = Math.max(320, Math.min(600, content.scrollWidth + 60));
+
+      window.PromptAPI.resizeWindow(totalWidth, totalHeight);
+    }, 50);
+
+    if (data.type === "input") {
       const confirmBtn = createButton(
-        data.confirmText || 'OK',
-        'confirm',
+        data.confirmText || "OK",
+        "confirm",
         () => {
-          if (data.inputType === 'userscript') {
-            const error = userScriptRegex.test(input.value)
+          if (data.inputType === "userscript") {
+            const error = userScriptRegex.test(input.value);
             if (!error) {
               if (data.inputError) {
-                inputLabel.textContent = data.inputError
-                inputLabel.style.display = ''
+                inputLabel.textContent = data.inputError;
+                inputLabel.style.display = "";
               }
-              input.focus()
-              return
+              input.focus();
+              return;
             }
           }
-          defaultConfirm(input.value)
+          defaultConfirm(input.value);
         }
-      )
+      );
       const cancelBtn = createButton(
-        data.cancelText || 'Cancel',
-        'cancel',
+        data.cancelText || "Cancel",
+        "cancel",
         defaultCancel
-      )
-      buttons.appendChild(confirmBtn)
-      buttons.appendChild(cancelBtn)
-      input.onkeydown = e => {
-        if (e.key === 'Enter') confirmBtn.click()
-        if (e.key === 'Escape') cancelBtn.click()
-      }
-      input.focus()
-    } else if (data.type === 'confirmCancel') {
+      );
+      buttons.appendChild(confirmBtn);
+      buttons.appendChild(cancelBtn);
+      input.onkeydown = (e) => {
+        if (e.key === "Enter") confirmBtn.click();
+        if (e.key === "Escape") cancelBtn.click();
+      };
+      input.focus();
+    } else if (data.type === "confirmCancel") {
       const confirmBtn = createButton(
-        data.confirmText || 'OK',
-        'confirm',
+        data.confirmText || "OK",
+        "confirm",
         defaultConfirm
-      )
+      );
       const cancelBtn = createButton(
-        data.cancelText || 'Cancel',
-        'cancel',
+        data.cancelText || "Cancel",
+        "cancel",
         defaultCancel
-      )
-      buttons.appendChild(confirmBtn)
-      buttons.appendChild(cancelBtn)
-    } else if (data.type === 'info') {
+      );
+      buttons.appendChild(confirmBtn);
+      buttons.appendChild(cancelBtn);
+    } else if (data.type === "info") {
       buttons.appendChild(
-        createButton(data.confirmText || 'OK', 'confirm', defaultConfirm)
-      )
+        createButton(data.confirmText || "OK", "confirm", defaultConfirm)
+      );
     }
   })
 })

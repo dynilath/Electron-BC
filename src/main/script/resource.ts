@@ -81,7 +81,7 @@ async function updateScripts () {
 }
 
 function init () {
-  ipcMain.on('load-script-url', async (event, url: string) => {
+  ipcMain.on('load-script-url', async (id, url) => {
     const ret = await ScriptResource.loadScriptFromUrl(url)
     scriptEventEmmiter.emit('new-script', ret)
   })

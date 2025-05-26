@@ -27,6 +27,7 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Script::ImportPackage": "导入脚本包",
   "MenuItem::Script::ImportPackageFromURL": "从网址导入脚本包",
   "MenuItem::Script::ImportSuccess": "导入完成！点击确认以刷新页面。",
+  "MenuItem::Script::ImportFailed": "导入失败: $reason",
   "ContextMenu::Cut": "剪切",
   "ContextMenu::Copy": "复制",
   "ContextMenu::Paste": "粘贴",
@@ -55,6 +56,9 @@ const translation: Record<TextTag, string> = {
   "MenuItem::BuiltIns::AutoRelog": "自动重连",
   "MenuItem::BuiltIns::AutoRelog::Info": "断线自动重连，需要启用凭据支持",
   "MenuItem::Script::InstallTips": "可以点击游戏中的脚本链接来安装脚本",
+  "Alert::LoadPackage::InputPackageURL": "输入脚本包网址",
+  "Alert::LoadPackage::PleaseInputCorrectUrl":
+    "请输入正确的网址，格式应该类似于 'https://example.com/script-package.ebcspkg'",
   "Alert::Cache::ClearConfirm": "确认清除缓存？",
   "Alert::Cache::ClearConfirmTips":
     '<p style="font-style:italic;">备注：由于缓存工作的特性，清除缓存后可能需要经过一些时间缓存文件体积才会减小。如果需要立即释放磁盘空间，请关闭程序后手动删除缓存目录。</p>',

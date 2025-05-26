@@ -30,6 +30,7 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Script::ImportPackageFromURL": "Import Script Package from URL",
   "MenuItem::Script::ImportSuccess":
     "Import completed! Click confirm to refresh.",
+  "MenuItem::Script::ImportFailed": "Import failed: $reason",
   "ContextMenu::Cut": "Cut",
   "ContextMenu::Copy": "Copy",
   "ContextMenu::Paste": "Paste",
@@ -60,6 +61,9 @@ const translation: Record<TextTag, string> = {
     "Relog on disconnect, requires credential support",
   "MenuItem::Script::InstallTips":
     "Can also install scripts by clicking links in game",
+  "Alert::LoadPackage::InputPackageURL": "Input script package URL",
+  "Alert::LoadPackage::PleaseInputCorrectUrl":
+    "Please input correct url, which should be like 'https://example.com/script-package.ebcspkg'",
   "Alert::Cache::ClearConfirm": "Confirm to clear cache?",
   "Alert::Cache::ClearConfirmTips":
     '<p style="font-style:italic;">Note: Due to the nature of cache work, it may take some time for cache file size to reduce after clearing. If you need to release disk space immediately, please close the program and manually delete the cache directory.</p>',

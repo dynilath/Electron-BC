@@ -64,9 +64,27 @@ async function showPromptLoadurl(parent: PromptParent, suggestion?: string) {
   }
 }
 
+async function showPromptLoadPackage(parent: PromptParent) {
+  const { window, i18n } = parent;
+  const result = await showPrompt(window, {
+    type: "input",
+    inputPlaceholder: "https://example.com/package.ebcspkg",
+    inputType: "ebcspackage",
+    inputError: i18n("Alert::LoadPackage::PleaseInputCorrectUrl"),
+    title: i18n("Alert::LoadPackage::InputPackageURL"),
+    confirmText: i18n("Alert::Confirm"),
+    cancelText: i18n("Alert::Cancel"),
+  });
+
+  if (result && result.ok) {
+    parent.window.webContents.emit("load-script-package", result.value);
+  }
+}
+
 export const MyPrompt = {
   confirmCancel: sendConfirmCancelPrompt,
   info: infoPrompt,
   loadUrl: showPromptLoadurl,
+  loadPackage: showPromptLoadPackage,
   error: infoPrompt,
 };

@@ -5,8 +5,12 @@ import { ScriptResource } from "../script/resource";
 import { MyAppMenuConstructorOption } from "./type";
 import { dialog, ipcMain } from "electron";
 import fs from "fs";
-import { exportScript, ExportedScriptData, exportScriptPackageBuffer, importScriptPackageBuffer } from "../script/export";
-import { packageFile } from "../utility";
+import {
+  exportScript,
+  ExportedScriptData,
+  exportScriptPackageBuffer,
+  importScriptPackageBuffer,
+} from "../script/export";
 import { ScriptResourceItem } from "../script/types";
 
 export function scriptMenu({
@@ -39,8 +43,31 @@ export function scriptMenu({
   };
 
   ipcMain.on("load-user-script", (event, url) => {
-    if (event.sender.id === window.webContents.id) {
-      MyPrompt.loadUrl(parent, url);
+    if (event.sender.id !== window.webContents.id) return;
+    MyPrompt.loadUrl(parent, url);
+  });
+
+  ipcMain.on("load-script-package", async (event, url) => {
+    if (event.sender.id !== window.webContents.id) return;
+    try {
+      const response = await fetch(url);
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+      const buffer = Buffer.from(await response.arrayBuffer());
+      await importScriptPackageBuffer(buffer);
+      await MyPrompt.confirmCancel(
+        parent,
+        i18n("MenuItem::Script::ImportSuccess"),
+        () => refreshPage()
+      );
+    } catch (err: any) {
+      MyPrompt.error(
+        parent,
+        i18n("MenuItem::Script::ImportFailed").replace(
+          "$reason",
+          err?.message ?? err
+        )
+      );
     }
   });
 
@@ -83,13 +110,11 @@ export function scriptMenu({
             now.getMonth() + 1
           )}${pad(now.getDate())}-${pad(now.getHours())}${pad(
             now.getMinutes()
-          )}${pad(now.getSeconds())}.ebcscriptpkg`;
+          )}${pad(now.getSeconds())}.ebcspkg`;
           const { filePath } = await dialog.showSaveDialog({
             title: i18n("MenuItem::Script::ExportPackageEnabled"),
             defaultPath: fileName,
-            filters: [
-              { name: "EBC Script Package", extensions: ["ebcscriptpkg"] },
-            ],
+            filters: [{ name: "EBC Script Package", extensions: ["ebcspkg"] }],
           });
           if (filePath) {
             const compressed = exportScriptPackageBuffer(scriptData);
@@ -98,39 +123,36 @@ export function scriptMenu({
         },
       },
       {
+        label: i18n("MenuItem::Script::ImportPackageFromURL"),
+        type: "normal",
+        click: () => MyPrompt.loadPackage(parent),
+      },
+      {
         label: i18n("MenuItem::Script::ImportPackage"),
         type: "normal",
         click: async () => {
           const { filePaths } = await dialog.showOpenDialog({
             title: i18n("MenuItem::Script::ImportPackage"),
-            filters: [
-              { name: "EBC Script Package", extensions: ["ebcscriptpkg"] },
-            ],
+            filters: [{ name: "EBC Script Package", extensions: ["ebcspkg"] }],
             properties: ["openFile"],
           });
           if (filePaths && filePaths[0]) {
             try {
               const compressed = fs.readFileSync(filePaths[0]);
               await importScriptPackageBuffer(compressed);
-              const result = await dialog.showMessageBox({
-                icon: packageFile("Logo.ico"),
-                type: "info",
-                message: i18n("MenuItem::Script::ImportSuccess"),
-                buttons: [i18n("Alert::Confirm"), i18n("Alert::Cancel")],
-              });
-              if (result.response === 0) {
-                refreshPage();
-              }
+              MyPrompt.confirmCancel(
+                parent,
+                i18n("MenuItem::Script::ImportSuccess"),
+                async () => refreshPage()
+              );
             } catch (err: any) {
-              await dialog.showMessageBox({
-                icon: packageFile("Logo.ico"),
-                type: "error",
-                message:
-                  i18n("MenuItem::Script::ImportPackage") +
-                  "\n" +
-                  (err?.message || err),
-                buttons: [i18n("Alert::Confirm")],
-              });
+              MyPrompt.error(
+                parent,
+                i18n("MenuItem::Script::ImportFailed").replace(
+                  "$reason",
+                  err?.message ?? err
+                )
+              );
             }
           }
         },

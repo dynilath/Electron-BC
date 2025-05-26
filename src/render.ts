@@ -36,8 +36,8 @@ Bridge.instance.onGetServer(() => {
     emitLang();
   };
 
-  waitValue(() => document.getElementById("LanguageDropdown-select")).then(
-    (element) => element.addEventListener("change", () => emitLang())
+  waitValue(() => document.getElementById("LanguageDropdown")).then((element) =>
+    element.addEventListener("change", () => emitLang())
   );
 
   window.alert = (message?: string) => {

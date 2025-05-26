@@ -53,5 +53,6 @@ type TextTag =
   | "Alert::Credential::New"
   | "Alert::Credential::Saved"
   | "Alert::Cache::ClearConfirm"
+  | "Alert::Cache::ClearConfirmTips"
   | "Alert::Cache::UpdateConfirm"
   | "Alert::Cache::RelocateConfirm";

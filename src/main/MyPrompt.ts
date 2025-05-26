@@ -1,31 +1,30 @@
-import { BrowserWindow, ipcMain } from "electron";
-import { showPrompt, PromptOptions } from "../prompt";
-import { i18nText } from "../i18n";
+import { showPrompt } from "../prompt";
+import { PromptOptions, PromptParent } from "../prompt/types";
 
-interface PromptExecutor {
-  confirm: () => void;
-  cancel?: () => void;
+type TextContent = string | Pick<PromptOptions, "title" | "content">;
+
+function resolveTextContent(
+  text: TextContent
+): Pick<PromptOptions, "title" | "content"> {
+  if (typeof text === "string") {
+    return { content: text };
+  } else {
+    return text;
+  }
 }
-
-export interface PromptParent {
-  window: BrowserWindow;
-  i18n: (tag: TextTag) => string;
-}
-
-const promptList = new Map<string, PromptExecutor>();
 
 async function sendConfirmCancelPrompt(
   parent: PromptParent,
-  message: string,
+  text: TextContent,
   confirm: () => void,
   cancel?: () => void
 ) {
-  const result = await showPrompt({
-    parent: parent.window,
+  const { window, i18n } = parent;
+  const result = await showPrompt(window, {
     type: "confirmCancel",
-    message,
-    confirmText: parent.i18n("Alert::Confirm"),
-    cancelText: parent.i18n("Alert::Cancel"),
+    ...resolveTextContent(text),
+    confirmText: i18n("Alert::Confirm"),
+    cancelText: i18n("Alert::Cancel"),
   });
 
   if (result) {
@@ -37,39 +36,33 @@ async function sendConfirmCancelPrompt(
   }
 }
 
-async function infoPrompt(parent: PromptParent, message: string) {
-  await showPrompt({
-    parent: parent.window,
+async function infoPrompt(parent: PromptParent, text: TextContent) {
+  const { window, i18n } = parent;
+
+  await showPrompt(window, {
+    ...resolveTextContent(text),
     type: "info",
-    title: message,
-    message: "",
-    confirmText: parent.i18n("Alert::Confirm"),
+    confirmText: i18n("Alert::Confirm"),
   });
 }
 
 async function showPromptLoadurl(parent: PromptParent, suggestion?: string) {
-  const result = await showPrompt({
-    parent: parent.window,
+  const { window, i18n } = parent;
+  const result = await showPrompt(window, {
     type: "input",
     inputPlaceholder: "https://example.com/script.user.js",
     inputType: "userscript",
-    inputError: parent.i18n("Alert::LoadUrl::PleaseInputCorrectUrl"),
-    title: parent.i18n("Alert::LoadUrl::InputScriptURL"),
+    inputError: i18n("Alert::LoadUrl::PleaseInputCorrectUrl"),
+    title: i18n("Alert::LoadUrl::InputScriptURL"),
     defaultValue: suggestion,
-    confirmText: parent.i18n("Alert::Confirm"),
-    cancelText: parent.i18n("Alert::Cancel"),
+    confirmText: i18n("Alert::Confirm"),
+    cancelText: i18n("Alert::Cancel"),
   });
 
   if (result && result.ok) {
     parent.window.webContents.emit("load-script-url", result.value);
   }
 }
-
-ipcMain.on("web-alert", (event, data) => {
-  const i18nObj = new i18nText();
-  i18nObj.language = data.language || "EN";
-  // infoPrompt
-});
 
 export const MyPrompt = {
   confirmCancel: sendConfirmCancelPrompt,

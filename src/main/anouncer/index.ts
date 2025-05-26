@@ -2,8 +2,8 @@ import { app } from "electron";
 import anounce1 from "./anounce1";
 import settings from "electron-settings";
 import semver from "semver";
-import { MyPrompt, PromptParent } from "../MyPrompt";
-import { i18nText } from "../../i18n";
+import { MyPrompt } from "../MyPrompt";
+import { PromptParent } from "../../prompt/types";
 
 const SettingTag = "VersionAnouncerConfig";
 
@@ -27,10 +27,9 @@ async function queryAnounce() {
 }
 
 export async function checkAndAnounce(parent: PromptParent) {
-  const lang = app.getLocale().startsWith("zh") ? "CN" : "EN";
-
-  const i18nObj = new i18nText();
-  i18nObj.language = lang;
+  const lang = app.getPreferredSystemLanguages()[0].startsWith("zh")
+    ? "CN"
+    : "EN";
 
   const anounce = await queryAnounce();
   if (anounce) {

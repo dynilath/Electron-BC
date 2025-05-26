@@ -28,7 +28,8 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Script::ExportPackageEnabled": "Export Enabled Scripts As Package",
   "MenuItem::Script::ImportPackage": "Import Script Package",
   "MenuItem::Script::ImportPackageFromURL": "Import Script Package from URL",
-  "MenuItem::Script::ImportSuccess": "Import completed! Click confirm to refresh.",
+  "MenuItem::Script::ImportSuccess":
+    "Import completed! Click confirm to refresh.",
   "ContextMenu::Cut": "Cut",
   "ContextMenu::Copy": "Copy",
   "ContextMenu::Paste": "Paste",
@@ -59,8 +60,9 @@ const translation: Record<TextTag, string> = {
     "Relog on disconnect, requires credential support",
   "MenuItem::Script::InstallTips":
     "Can also install scripts by clicking links in game",
-  "Alert::Cache::ClearConfirm":
-    '<p>Confirm to clear cache?</p><p style="font-style:italic;">Note: Due to the nature of cache work, it may take some time for cache file size to reduce after clearing. If you need to release disk space immediately, please close the program and manually delete the cache directory.</p>',
+  "Alert::Cache::ClearConfirm": "Confirm to clear cache?",
+  "Alert::Cache::ClearConfirmTips":
+    '<p style="font-style:italic;">Note: Due to the nature of cache work, it may take some time for cache file size to reduce after clearing. If you need to release disk space immediately, please close the program and manually delete the cache directory.</p>',
   "MenuItem::Tools::StartUICacheUpdate": "Preload UI Resources",
   "Alert::Cache::UpdateConfirm":
     '<p>Version update found, click confirm to start caching UI related resources immediately.</p><p style="font-style:italic;">Note: Initial loading will consume network traffic, preloading can avoid image loading delay in game. If you cancel loading now, you can also start loading via menu later.</p>',

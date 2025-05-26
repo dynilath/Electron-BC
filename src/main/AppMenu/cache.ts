@@ -9,16 +9,17 @@ export function cacheMenu({
   BCVersion,
   parent,
 }: MyAppMenuConstructorOption): Electron.MenuItemConstructorOptions[] {
+  const { i18n } = parent;
   return [
     {
-      label: parent.i18n("MenuItem::Tools::OpenCacheDir"),
+      label: i18n("MenuItem::Tools::OpenCacheDir"),
       type: "normal",
       click: () => {
         shell.openPath(AssetCache.cacheDir());
       },
     },
     {
-      label: parent.i18n("MenuItem::Tools::RelocateCacheDir"),
+      label: i18n("MenuItem::Tools::RelocateCacheDir"),
       type: "normal",
       enabled: AssetCache.available(),
       click: () => {
@@ -53,15 +54,13 @@ export function cacheMenu({
       },
     },
     {
-      label: parent.i18n("MenuItem::Tools::StartUICacheUpdate"),
+      label: i18n("MenuItem::Tools::StartUICacheUpdate"),
       type: "normal",
       enabled: AssetCache.canPreloadCache() && AssetCache.available(),
       ...(AssetCache.canPreloadCache()
         ? {}
         : {
-            sublabel: parent.i18n(
-              "MenuItem::Tools::StartUICacheUpdate::Loading"
-            ),
+            sublabel: i18n("MenuItem::Tools::StartUICacheUpdate::Loading"),
           }),
       click: () => {
         AssetCache.preloadCache(BCVersion.url, BCVersion.version).then(() =>
@@ -71,7 +70,7 @@ export function cacheMenu({
       },
     },
     {
-      label: parent.i18n("MenuItem::Tools::ProximateCacheSize"),
+      label: i18n("MenuItem::Tools::ProximateCacheSize"),
       sublabel: AssetCache.fileSizeStr(),
       type: "normal",
       click: () => {
@@ -80,12 +79,19 @@ export function cacheMenu({
       },
     },
     {
-      label: parent.i18n("MenuItem::Tools::ClearCache"),
+      label: i18n("MenuItem::Tools::ClearCache"),
       type: "normal",
       click: () => {
-        MyPrompt.confirmCancel(parent, "Alert::Cache::ClearConfirm", () => {
-          AssetCache.clearCache();
-        });
+        MyPrompt.confirmCancel(
+          parent,
+          {
+            title: i18n("Alert::Cache::ClearConfirm"),
+            content: i18n("Alert::Cache::ClearConfirmTips"),
+          },
+          () => {
+            AssetCache.clearCache();
+          }
+        );
       },
     },
   ];

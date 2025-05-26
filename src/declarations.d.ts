@@ -16,7 +16,7 @@ type MyEvent =
   | "language-change"
   | "setting-test"
   | "page-loaded"
-  | "credential-client-login"
+  | "credential-client-logined"
   | "credential-save"
   | "credential-relog"
   | "comfirm-cancel-prompt"

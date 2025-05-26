@@ -25,21 +25,21 @@ function createButton (
 
 document.addEventListener('DOMContentLoaded', () => {
   const title = document.getElementById('promptTitle')!
-  const message = document.getElementById('promptMessage')!
+  const content = document.getElementById("promptMessage")!;
   const input = document.getElementById('promptInput')! as HTMLInputElement
   const inputLabel = document.getElementById('promptInputLabel')!
   const buttons = document.getElementById('promptButtons')!
 
   window.PromptAPI.onPrompt(data => {
     title.textContent = data.title || ''
-    message.innerHTML = data.message || ''
-    input.style.display = data.type === 'input' ? '' : 'none'
-    input.value = data.defaultValue || ''
-    input.placeholder = data.inputPlaceholder || ''
-    buttons.innerHTML = ''
+    content.innerHTML = data.content || "";
+    input.style.display = data.type === "input" ? "" : "none";
+    input.value = data.defaultValue || "";
+    input.placeholder = data.inputPlaceholder || "";
+    buttons.innerHTML = "";
 
-    showIf(title, !!data.title)
-    showIf(message, !!data.message)
+    showIf(title, !!data.title);
+    showIf(content, !!data.content);
     showIf(input, data.type === 'input')
 
     if (data.type === 'input') {

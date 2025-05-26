@@ -114,13 +114,13 @@ function mainWindowAfterLoad(
   ipcMain.on("reload-menu", mReloadMenu);
   ipcMain.on("load-script-url", mLoadScriptURL);
   ipcMain.on("language-change", mLanguageChange);
-  ipcMain.on("credential-client-login", onLogined);
+  ipcMain.on("credential-client-logined", onLogined);
 
   mainWindow.on("close", () => {
     ipcMain.removeListener("reload-menu", mReloadMenu);
     ipcMain.removeListener("load-script-url", mLoadScriptURL);
     ipcMain.removeListener("language-change", mLanguageChange);
-    ipcMain.removeListener("credential-client-login", onLogined);
+    ipcMain.removeListener("credential-client-logined", onLogined);
     scriptState.dispose();
   });
 

@@ -4,7 +4,8 @@ import keytar from "keytar";
 import { SaveUserPassResult, UserInfo } from "../bridge";
 import { randomString } from "../utility";
 import EventEmitter from "node:events";
-import { MyPrompt, PromptParent } from "./MyPrompt";
+import { MyPrompt } from "./MyPrompt";
+import { PromptParent } from "../prompt/types";
 
 const serviceName = app.name;
 
@@ -44,7 +45,7 @@ function initCredentialHandler() {
 
   const tempCredentialMap = new Map<string, { user: string; pass: string }>();
 
-  ipcMain.on("credential-client-login", async (event, { user, pass }) => {
+  ipcMain.on("credential-client-logined", async (event, { user, pass }) => {
     const handle = randomString();
     tempCredentialMap.set(handle, { user, pass });
 
@@ -80,19 +81,20 @@ function initCredentialHandler() {
 }
 
 function createOnLoginListener(parent: PromptParent) {
+  const { i18n } = parent;
   return ((event, state, user, pass) => {
     if (event.sender.id !== parent.window.webContents.id) return;
     MyPrompt.confirmCancel(
       parent,
       (state == "changed"
-        ? parent.i18n("Alert::Credential::Change")
-        : parent.i18n("Alert::Credential::New")
+        ? i18n("Alert::Credential::Change")
+        : i18n("Alert::Credential::New")
       ).replace("USERNAME", user),
       () => {
         keytar.setPassword(serviceName, user, pass);
         MyPrompt.confirmCancel(
           parent,
-          parent.i18n("Alert::Credential::Saved").replace("USERNAME", user),
+          i18n("Alert::Credential::Saved").replace("USERNAME", user),
           () => {}
         );
       }

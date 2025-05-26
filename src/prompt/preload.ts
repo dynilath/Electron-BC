@@ -1,22 +1,23 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import { PromptOptions, PromptResult } from "./types";
 
-contextBridge.exposeInMainWorld('PromptAPI', {
+contextBridge.exposeInMainWorld("PromptAPI", {
   onPrompt: (cb: (data: any) => void) => {
-    ipcRenderer.on('prompt-data', (_e, data) => cb(data));
+    ipcRenderer.on("prompt-data", (_e, data) => cb(data));
   },
   sendResult: (result: any) => {
-    ipcRenderer.send('prompt-result', result);
+    ipcRenderer.send("prompt-result", result);
   },
   log: (data: string) => {
-    ipcRenderer.send('log', data);
+    ipcRenderer.send("log", data);
   },
 });
 
 declare global {
   interface Window {
     PromptAPI: {
-      onPrompt: (cb: (data: any) => void) => void;
-      sendResult: (result: any) => void;
+      onPrompt: (cb: (data: PromptOptions) => void) => void;
+      sendResult: (result: PromptResult) => void;
       log: (data: string) => void;
     };
   }

@@ -1,22 +1,11 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
+import { PromptOptions } from "./types";
 
-export type PromptType = 'input' | 'confirmCancel' | 'info';
-
-export interface PromptOptions {
-  parent: BrowserWindow;
-  type: PromptType;
-  inputPlaceholder?: string;
-  inputType?: "userscript" | "url";
-  inputError?: string;
-  title?: string;
-  message?: string;
-  defaultValue?: string;
-  confirmText?: string;
-  cancelText?: string;
-}
-
-export function showPrompt(options: PromptOptions): Promise<any> {
+export function showPrompt(
+  parent: BrowserWindow,
+  options: PromptOptions
+): Promise<any> {
   return new Promise((resolve) => {
     const win = new BrowserWindow({
       width: 480,
@@ -27,7 +16,7 @@ export function showPrompt(options: PromptOptions): Promise<any> {
       frame: false,
       minimizable: false,
       maximizable: false,
-      parent: options.parent,
+      parent: parent,
       modal: true,
       show: false,
       webPreferences: {
@@ -36,21 +25,22 @@ export function showPrompt(options: PromptOptions): Promise<any> {
         nodeIntegration: false,
       },
     });
-    win.webContents.toggleDevTools();
+    // win.webContents.toggleDevTools();
     win.removeMenu();
     win.loadFile(path.join(app.getAppPath(), "resource/prompt.html"));
     win.once("ready-to-show", () => win.show());
     win.webContents.once("did-finish-load", () => {
       win.webContents.send("prompt-data", options);
     });
-    const handler = (_e: any, result: any) => {
+    const handler: Parameters<typeof ipcMain.on>[1] = (_e, result) => {
+      if (_e.sender.id !== win.webContents.id) return;
       resolve(result);
-      ipcMain.removeListener("prompt-result", handler);
       win.close();
     };
-    ipcMain.on("prompt-result", handler);
+    ipcMain.once("prompt-result", handler);
 
-    ipcMain.on("log", (_e: any, data: any) => {
+    ipcMain.on("log", (_e, data) => {
+      if (_e.sender.id !== win.webContents.id) return;
       console.log("render log", data);
     });
   });

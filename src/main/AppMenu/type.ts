@@ -1,4 +1,4 @@
-import { PromptParent } from "../MyPrompt";
+import { PromptParent } from "../../prompt/types";
 import { ScriptState } from "../script/state";
 
 export interface MyAppMenuConstructorOption {

@@ -1,10 +1,14 @@
 import { BrowserWindow } from "electron";
 
 
+export type PromptType = "input" | "confirmCancel" | "info";
+
+export type PromptInputType = "userscript" | "ebcspackage" | "url";
+
 export interface PromptOptions {
   type: PromptType;
   inputPlaceholder?: string;
-  inputType?: "userscript" | "url";
+  inputType?: PromptInputType;
   inputError?: string;
   title?: string;
   content?: string;
@@ -12,8 +16,6 @@ export interface PromptOptions {
   confirmText?: string;
   cancelText?: string;
 }
-
-export type PromptType = "input" | "confirmCancel" | "info";
 
 export interface PromptResult {
   ok: boolean;

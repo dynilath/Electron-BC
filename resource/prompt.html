@@ -22,40 +22,45 @@
       overflow: hidden;
     }
     .prompt-container {
-      width: 100vw;
-      height: 100vh;
-      max-width: 100vw;
-      max-height: 100vh;
+      width: calc(100vw - 20px);
+      height: calc(100vh - 20px);
+      max-width: calc(100vw - 20px);
+      max-height: calc(100vh - 20px);
       background: #fff;
-      border-radius: 0;
-      box-shadow: none;
-      padding: 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      padding: 10px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
     }
     .prompt-title {
       font-size: 1.6em;
       font-weight: bold;
-      margin-bottom: 8px;
+      margin: 0;
+      padding: 0 20px;
+      text-align: center;
     }
     .prompt-message {
       font-size: 1.1em;
-      margin-bottom: 8px;
+      margin: 0;
+      padding: 0 20px;
       text-align: center;
-      max-width: 80vw;
+      max-width: calc(80vw - 40px);
       word-break: break-all;
+      line-height: 1.5;
     }
     .prompt-input {
-      width: 60vw;
-      max-width: 600px;
+      width: calc(60vw - 40px);
+      max-width: 560px;
       min-width: 200px;
       padding: 12px;
       font-size: 1.1em;
       border: 1px solid #ccc;
       border-radius: 4px;
+      margin: 0;
     }
     .prompt-buttons {
       display: flex;

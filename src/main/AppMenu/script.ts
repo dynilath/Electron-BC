@@ -95,7 +95,8 @@ export function scriptMenu({
         type: "separator",
       },
       {
-        label: i18n("MenuItem::Script::ExportPackageEnabled"),
+        label: i18n("MenuItem::Script::ExportPackage"),
+        sublabel: i18n("MenuItem::Script::ExportPackageTips"),
         type: "normal",
         click: async () => {
           const enabledScripts = scriptState.scripts.filter(
@@ -112,7 +113,7 @@ export function scriptMenu({
             now.getMinutes()
           )}${pad(now.getSeconds())}.ebcspkg`;
           const { filePath } = await dialog.showSaveDialog({
-            title: i18n("MenuItem::Script::ExportPackageEnabled"),
+            title: i18n("MenuItem::Script::ExportPackage"),
             defaultPath: fileName,
             filters: [{ name: "EBC Script Package", extensions: ["ebcspkg"] }],
           });
@@ -121,11 +122,6 @@ export function scriptMenu({
             fs.writeFileSync(filePath, compressed);
           }
         },
-      },
-      {
-        label: i18n("MenuItem::Script::ImportPackageFromURL"),
-        type: "normal",
-        click: () => MyPrompt.loadPackage(parent),
       },
       {
         label: i18n("MenuItem::Script::ImportPackage"),
@@ -156,6 +152,11 @@ export function scriptMenu({
             }
           }
         },
+      },
+      {
+        label: i18n("MenuItem::Script::ImportPackageFromURL"),
+        type: "normal",
+        click: () => MyPrompt.loadPackage(parent),
       },
       {
         type: "separator",

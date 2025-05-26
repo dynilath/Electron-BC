@@ -25,7 +25,9 @@ const translation: Record<TextTag, string> = {
   "MenuItem::Script::Version": "Version",
   "MenuItem::Script::URL": "URL",
   "MenuItem::Script::Unknown": "Unknown",
-  "MenuItem::Script::ExportPackageEnabled": "Export Enabled Scripts As Package",
+  "MenuItem::Script::ExportPackage": "Export Script Package",
+  "MenuItem::Script::ExportPackageTips":
+    "Export enabled scripts as a package file.",
   "MenuItem::Script::ImportPackage": "Import Script Package",
   "MenuItem::Script::ImportPackageFromURL": "Import Script Package from URL",
   "MenuItem::Script::ImportSuccess":

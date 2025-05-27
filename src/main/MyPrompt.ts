@@ -78,7 +78,7 @@ async function showPromptLoadPackage (parent: PromptParent) {
   })
 
   if (result && result.ok) {
-    parent.window.webContents.emit('load-script-package', result.value)
+    ipcMain.emit('load-script-package', parent.window.webContents.id, result.value)
   }
 }
 

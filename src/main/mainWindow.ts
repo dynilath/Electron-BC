@@ -58,9 +58,11 @@ function mainWindowAfterLoad (
     if (webID === undefined || webID === webContents.id) reloadMenu()
   }
 
+  // When an event is emitted by ipcMain.emit, the first argument is not the event context,
+  // but the typing system does not allow us to omit it, thus we use `any` for the first argument.
   const mLoadScriptURL = async (
-    event: Electron.IpcMainEvent,
-    { id, url }: { id: number; url: string }
+    id: any,
+    url: string
   ) => {
     if (id === webContents.id) {
       appMenu.once('reloaded', menu => {

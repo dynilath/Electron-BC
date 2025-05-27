@@ -3,3 +3,5 @@ dist
 build
 .env
 CHANGELOG.md
+/.vscode
+/.idea

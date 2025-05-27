@@ -1,66 +1,65 @@
-import { app, powerSaveBlocker } from "electron";
-import { autoUpdater } from "electron-updater";
-import { Credential } from "./main/credential";
-import { MyProtocol } from "./main/protocol";
-import { MyPrompt } from "./main/MyPrompt";
-import { ScriptResource } from "./main/script/resource";
-import { createFetchBCVersionWindow } from "./loading";
-import { MainWindowProvider } from "./main/mainWindow";
-import settings from "electron-settings";
-import { AssetCache } from "./main/AssetCache";
-import { i18nText } from "./i18n";
+import { app, powerSaveBlocker } from 'electron'
+import { autoUpdater } from 'electron-updater'
+import { Credential } from './main/credential'
+import { MyProtocol } from './main/protocol'
+import { ScriptResource } from './main/script/resource'
+import { createFetchBCVersionWindow } from './loading'
+import { MainWindowProvider } from './main/mainWindow'
+import settings from 'electron-settings'
+import { AssetCache } from './main/AssetCache'
+import { i18nText } from './i18n'
 
-const DeltaUpdater = require("@electron-delta/updater");
+const DeltaUpdater = require('@electron-delta/updater')
 
-let mainWindowProvider: MainWindowProvider | undefined;
+let mainWindowProvider: MainWindowProvider | undefined
 
-console.log("Setting file:", settings.file());
+console.log('Setting file:', settings.file())
 
 app.whenReady().then(async () => {
   if (!app.requestSingleInstanceLock()) {
-    app.quit();
-    return;
+    app.quit()
+    return
   }
 
   const deltaUpdater = new DeltaUpdater({
     autoUpdater,
-  });
+  })
 
   try {
-    await deltaUpdater.boot({ splashScreen: true });
+    await deltaUpdater.boot({ splashScreen: true })
   } catch (error) {
-    console.error(error);
+    console.error(error)
   }
 
-  const i18nObj = new i18nText();
+  const i18nObj = new i18nText()
 
-  ScriptResource.init();
-  MyProtocol.init();
-  Credential.init();
-  AssetCache.init();
+  ScriptResource.init()
+  MyProtocol.init()
+  Credential.init()
+  AssetCache.init()
 
-  const result = await createFetchBCVersionWindow();
-  if (!result) return;
+  const result = await createFetchBCVersionWindow()
+  if (!result) return
 
-  MyProtocol.setBCStatus(result);
+  MyProtocol.setBCStatus(result)
 
-  mainWindowProvider = new MainWindowProvider(result);
+  mainWindowProvider = new MainWindowProvider(result)
 
-  mainWindowProvider.createWindow();
+  mainWindowProvider.createWindow()
 
-  powerSaveBlocker.start("prevent-display-sleep");
+  powerSaveBlocker.start('prevent-display-sleep')
 
   if (app.isPackaged) {
-    setInterval(() => autoUpdater.checkForUpdatesAndNotify(), 60000);
+    setInterval(() => autoUpdater.checkForUpdatesAndNotify(), 60000)
   }
-});
+})
 
-app.on("second-instance", () => {
-  mainWindowProvider?.createWindow();
-});
+app.on('second-instance', () => {
+  mainWindowProvider?.createWindow()
+})
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
   }
-});
+})

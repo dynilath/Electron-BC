@@ -1,0 +1,44 @@
+# Prettier configuration for BC-Electron project
+
+# Basic formatting
+singleQuote: true
+quoteProps: "as-needed"
+trailingComma: "es5"
+tabWidth: 2
+useTabs: false
+
+# Line wrapping
+printWidth: 80
+endOfLine: "lf"
+
+# Bracket spacing
+bracketSpacing: true
+bracketSameLine: false
+
+# Arrow functions
+arrowParens: "avoid"
+
+# HTML/JSX (if any)
+htmlWhitespaceSensitivity: "css"
+
+# File-specific overrides
+overrides:
+  - files: "*.md"
+    options:
+      printWidth: 100
+      proseWrap: "preserve"
+  
+  - files: "*.json"
+    options:
+      printWidth: 120
+      tabWidth: 2
+  
+  - files: "*.yml"
+    options:
+      printWidth: 120
+      tabWidth: 2
+  
+  - files: "*.html"
+    options:
+      printWidth: 120
+      tabWidth: 2

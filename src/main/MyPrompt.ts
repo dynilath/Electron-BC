@@ -25,7 +25,7 @@ async function sendConfirmCancelPrompt (
     type: 'confirmCancel',
     ...resolveTextContent(text),
     confirmText: i18n('Alert::Confirm'),
-    cancelText: i18n('Alert::Cancel')
+    cancelText: i18n('Alert::Cancel'),
   })
 
   if (result) {
@@ -43,7 +43,7 @@ async function infoPrompt (parent: PromptParent, text: TextContent) {
   await showPrompt(window, {
     ...resolveTextContent(text),
     type: 'info',
-    confirmText: i18n('Alert::Confirm')
+    confirmText: i18n('Alert::Confirm'),
   })
 }
 
@@ -57,7 +57,7 @@ async function showPromptLoadurl (parent: PromptParent, suggestion?: string) {
     title: i18n('Alert::LoadUrl::InputScriptURL'),
     defaultValue: suggestion,
     confirmText: i18n('Alert::Confirm'),
-    cancelText: i18n('Alert::Cancel')
+    cancelText: i18n('Alert::Cancel'),
   })
 
   if (result && result.ok) {
@@ -74,11 +74,15 @@ async function showPromptLoadPackage (parent: PromptParent) {
     inputError: i18n('Alert::LoadPackage::PleaseInputCorrectUrl'),
     title: i18n('Alert::LoadPackage::InputPackageURL'),
     confirmText: i18n('Alert::Confirm'),
-    cancelText: i18n('Alert::Cancel')
+    cancelText: i18n('Alert::Cancel'),
   })
 
   if (result && result.ok) {
-    ipcMain.emit('load-script-package', parent.window.webContents.id, result.value)
+    ipcMain.emit(
+      'load-script-package',
+      parent.window.webContents.id,
+      result.value
+    )
   }
 }
 
@@ -87,5 +91,5 @@ export const MyPrompt = {
   info: infoPrompt,
   loadUrl: showPromptLoadurl,
   loadPackage: showPromptLoadPackage,
-  error: infoPrompt
+  error: infoPrompt,
 }

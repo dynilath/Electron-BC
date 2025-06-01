@@ -104,9 +104,13 @@ export function createCtxBridge (): EBCContext {
     clientLogined: (ticket: string, userinfo) =>
       testTicket(ticket)
         .then(() => testSetting('credentialSupport'))
-        .then(() => ipcRenderer.invoke('credential-client-logined', userinfo))
-        .then(handle => {
-          session.userHandle = handle
+        .then(() => {
+          ipcRenderer.on('credential-client-logined-reply', (e, user, handle) => {
+            if(user !== userinfo.user) return;
+            session.userHandle = handle
+            ipcRenderer.removeAllListeners('credential-client-logined-reply')
+          });
+          ipcRenderer.send('credential-client-logined', userinfo);
         }),
     saveUserPass: (ticket: string): Promise<string> =>
       testTicket(ticket)

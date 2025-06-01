@@ -120,7 +120,7 @@ function mainWindowAfterLoad (
   ipcMain.on('reload-menu', mReloadMenu)
   ipcMain.on('load-script-url', mLoadScriptURL)
   ipcMain.on('language-change', mLanguageChange)
-  ipcMain.handle('credential-client-logined', onLogined)
+  ipcMain.on('credential-client-logined', onLogined)
 
   mainWindow.on('close', () => {
     ipcMain.off('reload-menu', mReloadMenu)

@@ -80,8 +80,12 @@ function createOnLoginListener (parent: PromptParent) {
         }
       )
     }
-    return handle
-  }) as Parameters<typeof ipcMain.handle>[1]
+    parent.window.webContents.send(
+      'credential-client-logined-reply',
+      user,
+      handle
+    )
+  }) as Parameters<typeof ipcMain.on>[1]
 }
 
 export const Credential = {

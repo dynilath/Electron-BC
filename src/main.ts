@@ -31,8 +31,6 @@ app.whenReady().then(async () => {
     console.error(error)
   }
 
-  const i18nObj = new i18nText()
-
   ScriptResource.init()
   MyProtocol.init()
   Credential.init()

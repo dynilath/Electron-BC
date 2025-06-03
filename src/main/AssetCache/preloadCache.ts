@@ -52,8 +52,8 @@ export async function preloadCache(url_prefix: string, verion: string) {
         const data = await db.get(assetPath);
         if (!data || data?.version !== verion) {
           console.log(`Preloading ${url}`);
-          const { buffer, type } = await fetchAsset(url);
-          storeAsset(assetPath, verion, buffer, type);
+          const { content, type } = await fetchAsset(url);
+          storeAsset(assetPath, verion, Buffer.from(await content.arrayBuffer()), type);
         }
       } else {
         processList.push({ container: value, path: `${assetPath}/` });

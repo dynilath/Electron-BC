@@ -4,7 +4,7 @@ import { getCachePath, relocateCachePath } from "./cachePath";
 import { PendingAccess } from "../utility";
 
 interface CachedResponse {
-  buffer: Buffer;
+  content: Blob;
   type: string | null;
 }
 
@@ -51,8 +51,7 @@ export async function storeAsset(
 
 export async function fetchAsset(url: string): Promise<CachedResponse> {
   const response = await net.fetch(url, { bypassCustomProtocolHandlers: true });
-  const buffer = Buffer.from(await response.arrayBuffer());
-  return { buffer, type: response.headers.get("Content-Type") };
+  return { content: await response.blob(), type: response.headers.get("Content-Type") };
 }
 
 export async function requestAsset(
@@ -64,13 +63,13 @@ export async function requestAsset(
   const data = await db.get(key);
   if (data && data.version === version) {
     return {
-      buffer: Buffer.from(data.base64Data, "base64"),
+      content: new Blob([Buffer.from(data.base64Data, "base64")]),
       type: data.type,
     };
   } else {
-    const { buffer, type } = await fetchAsset(url);
-    storeAsset(key, version, buffer, type);
-    return { buffer, type };
+    const { content, type } = await fetchAsset(url);
+    storeAsset(key, version, Buffer.from(await content.arrayBuffer()), type);
+    return { content, type };
   }
 }
 

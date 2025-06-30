@@ -1,17 +1,25 @@
-import settings from "electron-settings";
-import { SettingTag } from "./constants";
-import { ScriptConfigItem } from "./types";
+import settings from 'electron-settings'
+import { SettingTag } from './constants'
+import { ScriptConfigItem } from './types'
 
-const config_storage = new Map<string, ScriptConfigItem>(
-  ((settings.getSync(SettingTag) as ScriptConfigItem[] | null) || []).map(
-    (c) => [c.name, c] as [string, ScriptConfigItem]
-  )
-);
+let config_storage: Map<string, ScriptConfigItem> | null = null
 
-async function saveConfig() {
+function config() {
+  if (config_storage) return config_storage
+  else {
+    config_storage = new Map<string, ScriptConfigItem>(
+      ((settings.getSync(SettingTag) as ScriptConfigItem[] | null) || []).map(
+        c => [c.name, c] as [string, ScriptConfigItem]
+      )
+    )
+    return config_storage
+  }
+}
+
+async function saveConfig () {
   return settings.set(
     SettingTag,
-    Array.from(config_storage.values(), (v) => {
+    Array.from(config().values(), v => {
       return {
         name: v.name,
         setting: {
@@ -19,29 +27,27 @@ async function saveConfig() {
           url: v.setting.url,
           lastUpdate: v.setting.lastUpdate,
         },
-      };
+      }
     })
-  );
+  )
 }
 
-export class ScriptConfig {
-  static shrinkConfig(names: string[]) {
-    const unused = [] as string[];
-    config_storage.forEach((v, k) => {
-      if (!names.includes(k)) unused.push(k);
-    });
-    unused.forEach((k) => config_storage.delete(k));
-    saveConfig();
-  }
-
-  static async saveConfig(config: ScriptConfigItem) {
-    config_storage.set(config.name, config);
-    await saveConfig();
-  }
-
-  static getConfig(name: string, url: string | null = null): ScriptConfigItem {
-    let ret = config_storage.get(name);
-    if (ret) return ret;
+export const ScriptConfig = {
+  shrinkConfig: (names: string[]) => {
+    const unused = [] as string[]
+    config().forEach((v, k) => {
+      if (!names.includes(k)) unused.push(k)
+    })
+    unused.forEach(k => config().delete(k))
+    saveConfig()
+  },
+  saveConfig: async (item: ScriptConfigItem) => {
+    config().set(item.name, item)
+    await saveConfig()
+  },
+  getConfig: (name: string, url: string | null = null): ScriptConfigItem => {
+    let ret = config().get(name)
+    if (ret) return ret
     ret = {
       name,
       setting: {
@@ -49,9 +55,9 @@ export class ScriptConfig {
         url,
         lastUpdate: Date.now(),
       },
-    };
-    config_storage.set(name, ret);
-    saveConfig();
-    return ret;
-  }
+    }
+    config().set(name, ret)
+    saveConfig()
+    return ret
+  },
 }

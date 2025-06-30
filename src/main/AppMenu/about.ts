@@ -16,6 +16,13 @@ export function aboutMenu ({
         label: i18n('MenuItem::About::ChooseBCURL'),
         type: 'submenu',
         submenu: [
+          {
+            label: i18n('MenuItem::About::ChooseBCURLInfo1'),
+            sublabel: i18n('MenuItem::About::ChooseBCURLInfo2'),
+            type: 'normal',
+            enabled: false,
+          },
+          {type: 'separator'},
           ...(BCURLPreference.choices.map(v => ({
             label: v.url,
             type: 'radio',
@@ -29,6 +36,7 @@ export function aboutMenu ({
           { type: 'separator' },
           {
             label: i18n('MenuItem::About::InputURL'),
+            sublabel: i18n('MenuItem::About::InputURLInfo'),
             type: 'normal',
             click: async () => {
               const result = await MyPrompt.input(parent, {

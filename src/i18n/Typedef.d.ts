@@ -38,6 +38,8 @@ type TextTag =
   | "MenuItem::About"
   | "MenuItem::About::BCVersion"
   | "MenuItem::About::ChooseBCURL"
+  | "MenuItem::About::ChooseBCURLInfo1"
+  | "MenuItem::About::ChooseBCURLInfo2"
   | "MenuItem::About::InputURL"
   | "MenuItem::About::InputURLInfo"
   | "MenuItem::About::Version"

@@ -47,6 +47,27 @@ async function infoPrompt (parent: PromptParent, text: TextContent) {
   })
 }
 
+async function showPromptInput (
+  parent: PromptParent,
+  options: Omit<PromptOptions, 'type'> & { inputType?: string }) {
+  const { window, i18n } = parent
+  const result = await showPrompt(window, {
+    type: 'input',
+    inputPlaceholder: options.inputPlaceholder || '',
+    inputType: options.inputType,
+    inputError: options.inputError,
+    title: options.title,
+    content: options.content,
+    defaultValue: options.defaultValue,
+    confirmText: options.confirmText || i18n('Alert::Confirm'),
+    cancelText: options.cancelText || i18n('Alert::Cancel'),
+  })
+  if (result && result.ok) {
+    return result.value
+  }
+  return undefined
+}
+
 async function showPromptLoadurl (parent: PromptParent, suggestion?: string) {
   const { window, i18n } = parent
   const result = await showPrompt(window, {
@@ -92,4 +113,5 @@ export const MyPrompt = {
   loadUrl: showPromptLoadurl,
   loadPackage: showPromptLoadPackage,
   error: infoPrompt,
+  input: showPromptInput,
 }

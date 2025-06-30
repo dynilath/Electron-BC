@@ -13,8 +13,8 @@ export interface ProtocolSetting {
 export class BCResourceHandler
   implements ResourceHandler<{ assetKey: string }>
 {
-  bcStatus?: ProtocolSetting
-  constructor (bcStatus?: ProtocolSetting) {
+  bcStatus?: ProtocolSetting[]
+  constructor (bcStatus?: ProtocolSetting[]) {
     this.bcStatus = bcStatus
   }
 
@@ -22,12 +22,15 @@ export class BCResourceHandler
     return request.url.substring(request.url.lastIndexOf('BondageClub/') + 12)
   }
 
-  setBCStatus (bcStatus: ProtocolSetting) {
+  setBCStatus (bcStatus: ProtocolSetting[]) {
     this.bcStatus = bcStatus
   }
 
   willHandle (request: Request) {
-    if (this.bcStatus && request.url.startsWith(this.bcStatus.url)) {
+    if (
+      this.bcStatus &&
+      this.bcStatus.some(s => request.url.startsWith(s.url))
+    ) {
       const assetKey = this.assetKey(request)
       const idx = assetKey.lastIndexOf('.')
       const ext = idx === -1 ? '' : assetKey.substring(idx)
@@ -41,7 +44,11 @@ export class BCResourceHandler
     request: Request,
     { assetKey }: { assetKey: string }
   ): Promise<Response> {
-    return requestAssetResponse(request.url, assetKey, this.bcStatus!.version)
+    return requestAssetResponse(
+      request.url,
+      assetKey,
+      this.bcStatus![0].version
+    )
   }
 }
 

@@ -33,7 +33,7 @@ export async function createFetchBCVersionWindow() {
 
     win.webContents.send("fetching-bc-done", result);
     win.close();
-    return result;
+    return results;
   } catch (error) {
     win.webContents.send("error", error);
   }

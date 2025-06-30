@@ -10,16 +10,23 @@ let choices: BCVersion[] = []
 
 let choice: BCVersion | undefined = undefined
 
-function setChoice () {
-  const config = settings.getSync(SettingTag) as ConfigType | undefined
-  if (config && config.preferredPrefix) {
-    const preferred = choices.find(v =>
-      v.version.startsWith(config.preferredPrefix)
-    )
-    if (preferred) {
-      choice = preferred
-      return
+function setChoice (prefix?: string) {
+  const preferred = (() => {
+    if (prefix) {
+      return choices.find(v => v.url.startsWith(prefix))
     }
+    const config = settings.getSync(SettingTag) as ConfigType | undefined
+    if (config && config.preferredPrefix) {
+      const preferred = choices.find(v =>
+        v.url.startsWith(config.preferredPrefix)
+      )
+      return preferred
+    }
+  })()
+
+  if (preferred) {
+    choice = preferred
+    return
   }
 
   choice = choices[0]
@@ -42,7 +49,14 @@ export const BCURLPreference = {
     settings.setSync(SettingTag, {
       preferredPrefix: prefix,
     })
-    setChoice()
+    setChoice(prefix)
+  },
+  setCustomURL: (url: string) => {
+    const version = `${url.match(/R\d+/)?.[0] || 'Custom'}-${-Math.random().toString(36).substring(2)}`
+    choice = {
+      url,
+      version
+    }
   },
   get choice (): BCVersion {
     return choice as BCVersion

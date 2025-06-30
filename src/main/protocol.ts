@@ -7,8 +7,12 @@ import {
 } from 'electron'
 import { readFileSync } from 'fs'
 import path from 'path'
-import { BCResourceHandler, EchoResourceHandler, MPAResourceHandler, ProtocolSetting } from './request'
-
+import {
+  BCResourceHandler,
+  EchoResourceHandler,
+  MPAResourceHandler,
+  ProtocolSetting,
+} from './request'
 
 export class MyProtocol {
   bcResource: BCResourceHandler
@@ -30,29 +34,29 @@ export class MyProtocol {
   }
 
   private async httpsHandler (request: Request) {
-    const bc_res_ctx = this.bcResource.willHandle(request);
+    const bc_res_ctx = this.bcResource.willHandle(request)
     if (bc_res_ctx) {
       return this.bcResource.handle(request, bc_res_ctx)
     }
 
-    const echo_res_ctx = this.echoResource.willHandle(request);
+    const echo_res_ctx = this.echoResource.willHandle(request)
     if (echo_res_ctx) {
       return this.echoResource.handle(request, echo_res_ctx)
     }
 
-    const mpa_res_ctx = this.mpaResource.willHandle(request);
+    const mpa_res_ctx = this.mpaResource.willHandle(request)
     if (mpa_res_ctx) {
       return this.mpaResource.handle(request, mpa_res_ctx)
     }
 
-    console.log(`Fetching ${request.url} via net.fetch`)
+    // console.log(`Fetching ${request.url} via net.fetch`)
     return net.fetch(request, { bypassCustomProtocolHandlers: true })
   }
 
-  constructor (readonly bcStatus?: ProtocolSetting) {
-    this.bcResource = new BCResourceHandler(bcStatus);
-    this.echoResource = new EchoResourceHandler();
-    this.mpaResource = new MPAResourceHandler();
+  constructor (readonly bcStatus?: ProtocolSetting[]) {
+    this.bcResource = new BCResourceHandler(bcStatus)
+    this.echoResource = new EchoResourceHandler()
+    this.mpaResource = new MPAResourceHandler()
 
     protocol.handle('ebc', req => this.ebcHandler(req))
     protocol.handle('https', req => this.httpsHandler(req))
@@ -60,7 +64,7 @@ export class MyProtocol {
 
   private static instance: MyProtocol | null = null
 
-  static setBCStatus (bcStatus: ProtocolSetting) {
+  static setBCStatus (bcStatus: ProtocolSetting[]) {
     if (this.instance) this.instance.bcResource.setBCStatus(bcStatus)
   }
 

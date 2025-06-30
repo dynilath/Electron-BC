@@ -36,10 +36,10 @@ app.whenReady().then(async () => {
   Credential.init()
   AssetCache.init()
 
-  const result = await createFetchBCVersionWindow()
-  if (!result) return
+  const results = await createFetchBCVersionWindow()
+  if (!results) return
 
-  MyProtocol.setBCStatus(result)
+  MyProtocol.setBCStatus(results)
 
   mainWindowProvider = new MainWindowProvider()
 

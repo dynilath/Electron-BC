@@ -1,4 +1,5 @@
 import { ipcMain } from "electron";
+import { BCURLPreference } from "./urlprefer";
 
 const LoadedEvent = "page-loaded";
 
@@ -32,7 +33,7 @@ export class ContentLoadState {
 
   reload() {
     this._loaded = false;
-    this.webContents.send("reload");
+    this.webContents.loadURL(BCURLPreference.choice.url);
     console.log("Reload page");
     return new Promise<void>((resolve) => {
       ipcMain.once(LoadedEvent, handler(this.webContents, resolve));

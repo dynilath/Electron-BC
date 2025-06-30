@@ -47,6 +47,10 @@ const translation: Record<TextTag, string> = {
   "MenuItem::About::ChangeLog": "Show Electron-BC Change Log",
   "MenuItem::About::GitHub": "Visit GitHub Repo",
   "MenuItem::About::BCVersion": "BondageClub Version",
+  "MenuItem::About::ChooseBCURL": "Choose BondageClub URL",
+  "MenuItem::About::InputURL": "Input BondageClub URL",
+  "MenuItem::About::InputURLInfo":
+    "⚠️ Non-BondageClub URLs may not work properly",
   "MenuItem::About::Version": "Electron-BC Version",
   "Alert::Credential::Title": "Credential Support",
   "Alert::Credential::Change": "Save the password change for user USERNAME?",

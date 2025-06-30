@@ -2,6 +2,7 @@ import { BrowserWindow } from "electron";
 import path from "path";
 import { fetchLatestBC } from "./fetchLatestBC";
 import { packageFile } from "../main/utility";
+import { BCURLPreference } from "../urlprefer";
 
 export async function createFetchBCVersionWindow() {
   const win = new BrowserWindow({
@@ -27,7 +28,9 @@ export async function createFetchBCVersionWindow() {
     win.loadFile("resource/loading.html");
     win.webContents.send("fetching-bc-start");
 
-    const result = await fetchLatestBC();
+    const results = await fetchLatestBC();
+    const result = BCURLPreference.choose(results);
+
     win.webContents.send("fetching-bc-done", result);
     win.close();
     return result;

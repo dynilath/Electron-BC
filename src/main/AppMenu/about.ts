@@ -1,6 +1,7 @@
 import { app, shell } from "electron";
 import { MyAppMenuConstructorOption } from "./type";
 import { openChangelog } from "../changelog";
+import { BCURLPreference } from "../../urlprefer";
 
 export function aboutMenu({
   BCVersion,
@@ -12,8 +13,17 @@ export function aboutMenu({
     submenu: [
       {
         label: BCVersion.url,
-        type: "normal",
+        type: "submenu",
         enabled: false,
+        submenu: BCURLPreference.choices.map((v) => ({
+          label: v.version,
+          type: "normal",
+          click: () => {
+            BCURLPreference.setPreferredPrefix(v);
+            app.relaunch();
+            app.exit(0);
+          },
+        })),
       },
       {
         type: "separator",

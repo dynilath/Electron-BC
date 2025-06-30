@@ -41,7 +41,7 @@ app.whenReady().then(async () => {
 
   MyProtocol.setBCStatus(result)
 
-  mainWindowProvider = new MainWindowProvider(result)
+  mainWindowProvider = new MainWindowProvider()
 
   mainWindowProvider.createWindow()
 

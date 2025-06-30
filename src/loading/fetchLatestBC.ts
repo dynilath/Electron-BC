@@ -1,7 +1,7 @@
 import { net } from "electron";
 
-export function fetchLatestBC(): Promise<BCVersion> {
-  return new Promise<BCVersion>((resolve, reject) => {
+export function fetchLatestBC(): Promise<BCVersion[]> {
+  return new Promise<BCVersion[]>((resolve, reject) => {
     net
       .fetch("https://bondageprojects.com/club_game/", {
         bypassCustomProtocolHandlers: true,
@@ -14,15 +14,22 @@ export function fetchLatestBC(): Promise<BCVersion> {
         const html = await response.text();
 
         const matches = html.match(
-          /https:\/\/[^']+bondage[^']+\.com\/(R\d+)\/BondageClub\//g
+          /onclick="window\.location='(https:\/\/www.bondage[^']+)'/g
         );
 
-        if (!matches) throw new Error("No valid bc version found");
-        else {
-          const url = matches[0];
-          const version = url.match(/R\d+/)![0];
-          resolve({ url, version });
+        if (!matches || matches.length === 0) {
+          throw new Error("No valid bc versions found");
         }
+
+        const versions: BCVersion[] = matches.map((match) => {
+          const url = match.match(/'(https:\/\/www\.bondage[^']+)'/)?.[1];
+          const version = url?.match(/R\d+/)?.[0];
+          if (url && version) {
+            return { url, version };
+          }
+          return undefined;
+        }).filter(Boolean) as BCVersion[];
+        resolve(versions);
       })
       .catch(reject);
   });

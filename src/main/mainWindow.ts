@@ -13,11 +13,11 @@ import { MyPrompt } from './MyPrompt'
 import { AssetCache } from './AssetCache'
 import { MyAppMenu } from './AppMenu'
 import { Credential } from './credential'
+import { BCURLPreference } from '../urlprefer'
 
 const icon = packageFile('Logo.ico')
 
 function mainWindowAfterLoad (
-  bcVersion: BCVersion,
   mainWindow: BrowserWindow,
   readyState: ContentLoadState
 ) {
@@ -26,6 +26,7 @@ function mainWindowAfterLoad (
   const i18n = (tag: TextTag) => i18ntext.get(tag)
 
   readyState.loaded().then(async () => {
+    const bcVersion = BCURLPreference.choice
     const shouldUpdate = await checkCacheVersion(bcVersion)
     if (shouldUpdate) {
       MyPrompt.confirmCancel(
@@ -46,10 +47,9 @@ function mainWindowAfterLoad (
   const scriptState = new ScriptState(webContents)
 
   const appMenu = new MyAppMenu({
-    BCVersion: bcVersion,
     refreshPage: () => readyState.reload(),
     parent: { window: mainWindow, i18n },
-    scriptState
+    scriptState,
   })
 
   const reloadMenu = () => appMenu.emit('reload')
@@ -60,10 +60,7 @@ function mainWindowAfterLoad (
 
   // When an event is emitted by ipcMain.emit, the first argument is not the event context,
   // but the typing system does not allow us to omit it, thus we use `any` for the first argument.
-  const mLoadScriptURL = async (
-    id: any,
-    url: string
-  ) => {
+  const mLoadScriptURL = async (id: any, url: string) => {
     if (id === webContents.id) {
       appMenu.once('reloaded', menu => {
         popupMenu('script', menu, mainWindow)
@@ -87,18 +84,18 @@ function mainWindowAfterLoad (
       {
         label: i18n('ContextMenu::Cut'),
         role: 'cut',
-        accelerator: 'CmdOrCtrl+X'
+        accelerator: 'CmdOrCtrl+X',
       },
       {
         label: i18n('ContextMenu::Copy'),
         role: 'copy',
-        accelerator: 'CmdOrCtrl+C'
+        accelerator: 'CmdOrCtrl+C',
       },
       {
         label: i18n('ContextMenu::Paste'),
         role: 'paste',
-        accelerator: 'CmdOrCtrl+V'
-      }
+        accelerator: 'CmdOrCtrl+V',
+      },
     ])
 
   webContents.session.webRequest.onBeforeSendHeaders(
@@ -113,7 +110,7 @@ function mainWindowAfterLoad (
 
   const onLogined = Credential.createOnLoginListener({
     window: mainWindow,
-    i18n
+    i18n,
   })
 
   reloadMenu()
@@ -151,7 +148,7 @@ function mainWindowAfterLoad (
       makeContextMenu().popup({
         window,
         x: params.x,
-        y: params.y
+        y: params.y,
       })
     })
     window.setIcon(icon)
@@ -162,34 +159,34 @@ function mainWindowAfterLoad (
   })
 }
 
-async function makeMainWindow (bcVersion: BCVersion, winName: string) {
+async function makeMainWindow (winName: string) {
   const win = new StateKeptWindow(winName, {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
     },
-    icon
+    icon,
   })
 
   const webContents = win.webContents
 
-  const { url, version } = bcVersion
+  const { url } = BCURLPreference.choice
 
   const readyState = new ContentLoadState(webContents)
 
   win.loadURL(url)
 
-  mainWindowAfterLoad({ url, version }, win.window, readyState)
+  mainWindowAfterLoad(win.window, readyState)
 }
 
 export class MainWindowProvider {
   winCounter = 0
 
-  constructor (readonly bcVersion: BCVersion) {}
+  constructor () {}
 
   async createWindow () {
     const winName = this.winCounter === 0 ? 'main' : `main-${this.winCounter}`
-    await makeMainWindow(this.bcVersion, winName)
+    await makeMainWindow(winName)
   }
 }

@@ -73,6 +73,10 @@ const translation: Record<TextTag, string> = {
     '<p>发现版本更新，点击确认立即开始缓存用户界面相关资源。</p><p style="font-style:italic;">备注：首次加载会消耗网络流量，提前加载可以避免游戏中的图片加载延迟。如果现在取消加载，之后也可以通过菜单启动加载。</p>',
   "Alert::Cache::RelocateConfirm":
     "<p>新缓存目录为空，旧缓存数据可以移动到新目录。<br>移动时会读写硬盘、且无法使用缓存，是否移动？</p><p>（取消则不移动，保留原缓存并在新缓存目录创建空缓存）</p>",
+  
+  "Preload::FetchingBCVersion": "正在获取BondageClub版本信息...",
+  "Preload::FetchingBCVersionResult": "BondageClub版本: {version}",
+  "Preload::FetchingBCVersionFallback": "使用替代版本号: {version}",
 };
 
 export default translation;

@@ -64,4 +64,7 @@ type TextTag =
   | "Alert::Cache::ClearConfirm"
   | "Alert::Cache::ClearConfirmTips"
   | "Alert::Cache::UpdateConfirm"
-  | "Alert::Cache::RelocateConfirm";
+  | "Alert::Cache::RelocateConfirm"
+  | "Preload::FetchingBCVersion"
+  | "Preload::FetchingBCVersionResult"
+  | "Preload::FetchingBCVersionFallback";

@@ -66,12 +66,17 @@
     };
 
     window.addEventListener("fetching-bc-start", () => {
-        addLog(electron.i18n("正在获得BC版本"));
+        addLog(electron.i18n("Preload::FetchingBCVersion"));
     });
 
     window.addEventListener("fetching-bc-done", (info) => {
         const [bcv] = info.detail;
-        addLog(electron.i18n("BC版本: {version}").replace("{version}", bcv.version));
+        addLog(electron.i18n("Preload::FetchingBCVersionResult").replace("{version}", bcv.version));
+    });
+
+    window.addEventListener("fetching-bc-fb", (info) => {
+        const [bcv] = info.detail;
+        addLog(electron.i18n("Preload::FetchingBCVersionFallback").replace("{version}", bcv.version));
     });
 
     window.addEventListener("error", (info) => {

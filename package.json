@@ -10,7 +10,7 @@
     "compile:prod": "webpack --mode production",
     "changelog": "pnpm run changelog-md && pnpm run changelog-html",
     "gh-release": "node ./scripts/.gh-release.js",
-    "dev": "pnpm run compile:dev && electron .",
+    "dev": "pnpm run compile:dev && electron --trace-warnings .",
     "build": "pnpm run compile:prod && electron-builder",
     "dist": "electron-builder --windows nsis:x64 --publish always",
     "changelog-md": "conventional-changelog -p angular -r 5 -o CHANGELOG.md",
@@ -19,25 +19,25 @@
   },
   "devDependencies": {
     "@electron-delta/builder": "^0.1.17",
-    "@types/node": "^22.15.23",
-    "@types/semver": "^7.7.0",
-    "@vercel/webpack-asset-relocator-loader": "^1.7.4",
-    "axios": "^1.8.4",
+    "@types/node": "^24.5.2",
+    "@types/semver": "^7.7.1",
+    "@vercel/webpack-asset-relocator-loader": "^1.10.0",
+    "axios": "^1.12.2",
     "conventional-changelog-cli": "^5.0.0",
     "css-loader": "^7.1.2",
     "cz-conventional-changelog": "^3.3.0",
-    "electron": "^35.1.4",
+    "electron": "^38.1.2",
     "electron-builder": "26.0.12",
-    "eslint": "^9.27.0",
+    "eslint": "^9.36.0",
     "github-markdown-css": "^5.8.1",
     "html-loader": "^5.1.0",
-    "marked": "^14.1.4",
+    "marked": "^16.3.0",
     "semver": "^7.7.2",
     "style-loader": "^4.0.0",
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.8.3",
-    "webpack": "^5.99.9",
-    "webpack-cli": "^5.1.4"
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.2",
+    "webpack": "^5.101.3",
+    "webpack-cli": "^6.0.1"
   },
   "build": {
     "appId": "bondage-club.electron-app",
@@ -59,13 +59,13 @@
   },
   "dependencies": {
     "@electron-delta/updater": "^0.1.17",
-    "classic-level": "^2.0.0",
-    "dexie": "^4.0.11",
+    "classic-level": "^3.0.0",
+    "dexie": "^4.2.0",
     "electron-settings": "^4.0.4",
-    "electron-updater": "6.3.9",
+    "electron-updater": "6.6.2",
     "keytar": "^7.9.0",
     "lz-string": "^1.5.0",
-    "yaml": "^2.8.0"
+    "yaml": "^2.8.1"
   },
   "packageManager": "pnpm@10.7.1+sha512.2d92c86b7928dc8284f53494fb4201f983da65f0fb4f0d40baafa5cf628fa31dae3e5968f12466f17df7e97310e30f343a648baea1b9b350685dafafffdf5808"
 }

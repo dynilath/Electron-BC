@@ -33,7 +33,9 @@ export class ContentLoadState {
 
   reload () {
     this._loaded = false
-    this.webContents.loadURL(BCURLPreference.choice.url)
+    this.webContents.loadURL(BCURLPreference.choice.url, {
+      extraHeaders: 'pragma: no-cache\n',
+    })
     console.log('Reload page')
     return new Promise<void>(resolve => {
       ipcMain.once(LoadedEvent, handler(this.webContents, resolve))

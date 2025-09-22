@@ -1,84 +1,84 @@
-import { ipcMain } from "electron";
-import { ScriptResource } from "./resource";
-import { ScriptConfig } from "./config";
-import { reloadAllMenu } from "../reloadAllMenu";
-import { ScriptMenuItem, ScriptResourceItem } from "./types";
+import { ipcMain } from 'electron'
+import { ScriptResource } from './resource'
+import { ScriptConfig } from './config'
+import { reloadAllMenu } from '../reloadAllMenu'
+import { ScriptMenuItem, ScriptResourceItem } from './types'
 
-function loadOneScriptRaw(
+function loadOneScriptRaw (
   webContents: Electron.WebContents,
   script: ScriptResourceItem
 ) {
-  webContents.send("load-script-v2", script);
-  console.log("Script[Load] : " + JSON.stringify({ name: script.meta.name }));
+  webContents.send('load-script-v2', script)
+  console.log('Script[Load] : ' + JSON.stringify({ name: script.meta.name }))
 }
 
-function loadScripts(
+function loadScripts (
   webContents: Electron.WebContents,
   scripts: ScriptResourceItem[]
 ) {
-  const loadFlag = new Set(scripts.map((i) => i.meta.name));
+  const loadFlag = new Set(scripts.map(i => i.meta.name))
 
-  return new Promise<void>((accepted) => {
+  return new Promise<void>(accepted => {
     const loadDone = (event: Electron.IpcMainEvent, name: string) => {
       if (event.sender.id === webContents.id) {
-        loadFlag.delete(name);
+        loadFlag.delete(name)
         if (loadFlag.size === 0) {
-          accepted();
-          ipcMain.removeListener("load-script-done-v2", loadDone);
+          accepted()
+          ipcMain.removeListener('load-script-done-v2', loadDone)
         }
       }
-    };
-    ipcMain.on("load-script-done-v2", (event, name: string) =>
+    }
+    ipcMain.on('load-script-done-v2', (event, name: string) =>
       loadDone(event, name)
-    );
-    scripts.forEach((i) => loadOneScriptRaw(webContents, i));
-  });
+    )
+    scripts.forEach(i => loadOneScriptRaw(webContents, i))
+  })
 }
 
-type AnyFunction = (...args: any[]) => any;
+type AnyFunction = (...args: any[]) => any
 
-function registerHandler(
+function registerHandler (
   event: MyEvent,
   func: AnyFunction,
   handlers: Map<MyEvent, AnyFunction>
 ) {
-  handlers.set(event, func);
-  ipcMain.on(event, func);
+  handlers.set(event, func)
+  ipcMain.on(event, func)
 }
-const stash = new Map<number, ScriptState>();
+const stash = new Map<number, ScriptState>()
 
 export class ScriptState {
-  scripts: ScriptResourceItem[] = [];
+  scripts: ScriptResourceItem[] = []
 
-  private handlers: Map<MyEvent, (...args: any[]) => any> = new Map();
-  private newScriptHandler: AnyFunction;
+  private handlers: Map<MyEvent, (...args: any[]) => any> = new Map()
+  private newScriptHandler: AnyFunction
 
-  menuItems: ScriptMenuItem[] = [];
+  menuItems: ScriptMenuItem[] = []
 
-  async loadScriptResource() {
-    this.scripts = await ScriptResource.load();
-    this.needRefresh = false;
-    return this.scripts;
+  async loadScriptResource () {
+    this.scripts = await ScriptResource.load()
+    this.needRefresh = false
+    return this.scripts
   }
 
-  needRefresh = true;
+  needRefresh = true
 
-  loaded = false;
+  loaded = false
 
-  constructor(readonly webContents: Electron.WebContents) {
-    this.loadScriptResource();
+  constructor (readonly webContents: Electron.WebContents) {
+    this.loadScriptResource()
 
-    const old = stash.get(webContents.id);
-    if (old) old.dispose();
-    stash.set(webContents.id, this);
+    const old = stash.get(webContents.id)
+    if (old) old.dispose()
+    stash.set(webContents.id, this)
 
     this.newScriptHandler = async (script: ScriptResourceItem) => {
-      this.scripts.push(script);
-      await loadScripts(this.webContents, [script]);
-      reloadAllMenu();
-    };
+      this.scripts.push(script)
+      await loadScripts(this.webContents, [script])
+      reloadAllMenu()
+    }
 
-    ScriptResource.event.on("new-script", this.newScriptHandler);
+    ScriptResource.event.on('new-script', this.newScriptHandler)
 
     const GM_registerMenuCommand = (
       event: Electron.IpcMainEvent,
@@ -87,69 +87,67 @@ export class ScriptState {
       menuName: string
     ) => {
       if (this.webContents.id === event.sender.id) {
-        this.menuItems.push({ id, scriptName, menuName });
-        if (this.loaded) ipcMain.emit("reload-menu", webContents.id);
+        this.menuItems.push({ id, scriptName, menuName })
+        if (this.loaded) ipcMain.emit('reload-menu', webContents.id)
       }
-    };
+    }
 
     const GM_unregisterMenuCommand = (
       event: Electron.IpcMainEvent,
       mid: number
     ) => {
       if (this.webContents.id === event.sender.id) {
-        const index = this.menuItems.findIndex((i) => i.id === mid);
-        if (index >= 0) this.menuItems.splice(index, 1);
-        if (this.loaded) ipcMain.emit("reload-menu", webContents.id);
+        const index = this.menuItems.findIndex(i => i.id === mid)
+        if (index >= 0) this.menuItems.splice(index, 1)
+        if (this.loaded) ipcMain.emit('reload-menu', webContents.id)
       }
-    };
+    }
 
     registerHandler(
-      "register-menu-command",
+      'register-menu-command',
       GM_registerMenuCommand,
       this.handlers
-    );
+    )
 
     registerHandler(
-      "remove-menu-command",
+      'remove-menu-command',
       GM_unregisterMenuCommand,
       this.handlers
-    );
+    )
   }
 
-  dispose() {
-    this.handlers.forEach((func, event) => ipcMain.removeListener(event, func));
-    ScriptResource.event.removeListener("new-script", this.newScriptHandler);
+  dispose () {
+    this.handlers.forEach((func, event) => ipcMain.removeListener(event, func))
+    ScriptResource.event.removeListener('new-script', this.newScriptHandler)
   }
 
-  invokeMenu(id: number) {
-    this.webContents.send("invoke-menu-command", id);
+  invokeMenu (id: number) {
+    this.webContents.send('invoke-menu-command', id)
   }
 
-  async toggleConfig(scriptName: string) {
-    const script = this.scripts.find((i) => i.meta.name === scriptName);
-    if (!script) return;
+  async toggleConfig (scriptName: string) {
+    const script = this.scripts.find(i => i.meta.name === scriptName)
+    if (!script) return
 
-    script.setting.enabled = !script.setting.enabled;
+    script.setting.enabled = !script.setting.enabled
     ScriptConfig.saveConfig({
       name: script.meta.name,
       setting: script.setting,
-    });
-    if (script.setting.enabled) await loadScripts(this.webContents, [script]);
+    })
+    if (script.setting.enabled) await loadScripts(this.webContents, [script])
     else {
-      this.menuItems = this.menuItems.filter(
-        (i) => i.scriptName !== scriptName
-      );
-      this.needRefresh = true;
+      this.menuItems = this.menuItems.filter(i => i.scriptName !== scriptName)
+      this.needRefresh = true
     }
   }
 
-  async loadScript() {
-    this.menuItems = [];
+  async loadScript () {
+    this.menuItems = []
     const scripts = (await this.loadScriptResource()).filter(
-      (i) => i.setting.enabled
-    );
-    const waitLoad = loadScripts(this.webContents, scripts);
-    this.loaded = true;
-    await waitLoad;
+      i => i.setting.enabled
+    )
+    const waitLoad = loadScripts(this.webContents, scripts)
+    this.loaded = true
+    await waitLoad
   }
 }

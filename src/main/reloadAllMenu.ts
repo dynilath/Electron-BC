@@ -1,5 +1,5 @@
-import { ipcMain } from "electron";
+import { ipcMain } from 'electron'
 
-export function reloadAllMenu() {
-  ipcMain.emit("reload-menu");
+export function reloadAllMenu () {
+  ipcMain.emit('reload-menu')
 }

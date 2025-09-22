@@ -1,0 +1,4 @@
+ignoredBuiltDependencies:
+  - classic-level
+onlyBuiltDependencies:
+  - electron

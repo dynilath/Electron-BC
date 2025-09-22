@@ -50,7 +50,7 @@ export class MyProtocol {
     }
 
     // console.log(`Fetching ${request.url} via net.fetch`)
-    return net.fetch(request, { bypassCustomProtocolHandlers: true })
+    return net.fetch(request, { bypassCustomProtocolHandlers: true, redirect:"follow" })
   }
 
   constructor (readonly bcStatus?: ProtocolSetting[]) {

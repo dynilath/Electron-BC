@@ -5,8 +5,11 @@ on:
     branches:
       - release
 
+permissions:
+  contents: write
+
 env:
-  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   release:
@@ -27,7 +30,7 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:

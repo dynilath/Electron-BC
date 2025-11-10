@@ -1,6 +1,6 @@
-const axios = require("axios").default;
-const { setEnv } = require("./.set-env.js");
-const TAG_NAME = `v${require("../package.json").version}`;
+const axios = require('axios').default;
+const { setEnv } = require('./.set-env.js');
+const TAG_NAME = `v${require('../package.json').version}`;
 
 setEnv();
 
@@ -9,25 +9,23 @@ function checkTagExists(tag) {
   const config = {
     headers: {
       Authorization: `token ${process.env.GH_TOKEN}`,
-      Accept: "application/vnd.github+json",
+      Accept: 'application/vnd.github+json',
     },
   };
 
   return new Promise(async (resolve, reject) =>
     axios
       .get(url, config)
-      .then((response) => {
-        const target = response.data.find(
-          (release) => release.tag_name === tag
-        );
+      .then(response => {
+        const target = response.data.find(release => release.tag_name === tag);
 
-        if (!target) reject("Release does not exist");
+        if (!target) reject('Release does not exist');
         else return target;
       })
-      .then((target) => axios.get(target.url, config))
-      .then((response) => {
+      .then(target => axios.get(target.url, config))
+      .then(response => {
         const { draft } = response.data;
-        if (!draft) reject("Release is not a draft");
+        if (!draft) reject('Release is not a draft');
         else resolve(response.data);
       })
       .catch(reject)
@@ -39,39 +37,64 @@ async function cleanReleases() {
   const config = {
     headers: {
       Authorization: `token ${process.env.GH_TOKEN}`,
-      Accept: "application/vnd.github+json",
+      Accept: 'application/vnd.github+json',
     },
   };
 
   const monthsAgo = new Date();
   monthsAgo.setMonth(monthsAgo.getMonth() - 3);
 
-  return axios.get(url, config).then((response) => {
-    const oldReleases = response.data.filter((release) => {
+  return axios.get(url, config).then(response => {
+    const oldReleases = response.data.filter(release => {
       const releaseDate = new Date(release.published_at);
       return releaseDate < monthsAgo;
     });
 
     return Promise.all(
-      oldReleases.forEach((release) => axios.delete(release.url, config))
+      oldReleases.forEach(release => axios.delete(release.url, config))
     );
   });
 }
 
-async function createRelease({ tag_name, name, url }) {
+async function createRelease(release) {
+  const { tag_name, name, url, html_url, assets } = release;
+
+  // Try to find the Windows Setup executable from assets
+  let setupAsset = Array.isArray(assets)
+    ? assets.find(
+        asset =>
+          asset.name.endsWith('.exe') &&
+          asset.name.includes('Setup') &&
+          !asset.name.toLowerCase().includes('delta')
+      )
+    : undefined;
+
+  // Fallback: any .exe that is not a delta package
+  if (!setupAsset && Array.isArray(assets)) {
+    setupAsset = assets.find(
+      asset =>
+        asset.name.endsWith('.exe') &&
+        !asset.name.toLowerCase().includes('delta')
+    );
+  }
+
+  const setupLine = setupAsset
+    ? `- Windows Setup: [${setupAsset.name}](${setupAsset.browser_download_url})`
+    : `- Windows Setup: not included in this release`;
+
   const body = {
-    tag_name: tag_name,
-    name: name,
-    body: `Release for version ${name}`,
+    tag_name,
+    name,
+    body: `Release ${name}\n\n${setupLine}`,
     draft: false,
     prerelease: false,
-    make_newest: "legacy",
+    make_newest: 'legacy',
   };
 
   const config = {
     headers: {
       Authorization: `token ${process.env.GH_TOKEN}`,
-      Accept: "application/vnd.github+json",
+      Accept: 'application/vnd.github+json',
     },
   };
 
@@ -82,6 +105,6 @@ async function createRelease({ tag_name, name, url }) {
 
 (async () => {
   await checkTagExists(TAG_NAME)
-    .then((data) => createRelease(data))
+    .then(data => createRelease(data))
     .then(console.log, console.error);
 })();

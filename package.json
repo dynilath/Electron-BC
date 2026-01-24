@@ -9,13 +9,11 @@
     "compile:dev": "webpack --mode development",
     "compile:prod": "webpack --mode production",
     "changelog": "pnpm run changelog-md && pnpm run changelog-html",
-    "gh-release": "node ./scripts/.gh-release.js",
     "dev": "pnpm run compile:dev && electron --trace-warnings .",
-    "build": "pnpm run compile:prod && electron-builder",
-    "dist": "electron-builder --windows nsis:x64 --publish always",
+    "build": "pnpm run compile:prod && electron-builder --linux --x64",
+    "dist": "electron-builder",
     "changelog-md": "conventional-changelog -p angular -r 5 -o CHANGELOG.md",
-    "changelog-html": "node ./scripts/.changelog.js CHANGELOG.md build/changelog.html",
-    "push-release": "git checkout -q release && git merge -q --ff-only master && git push && git checkout -q master"
+    "changelog-html": "node ./scripts/.changelog.js CHANGELOG.md build/changelog.html"
   },
   "devDependencies": {
     "@electron-delta/builder": "^0.1.17",
@@ -41,10 +39,15 @@
   },
   "build": {
     "appId": "bondage-club.electron-app",
-    "extends": null,
-    "icon": "Logo.ico",
+    "productName": "Electron Bondage Club",
+    "linux": {
+      "category": "Game",
+      "target": [
+        "AppImage"
+      ]
+    },
+    "icon": "Logo.png",
     "afterAllArtifactBuild": ".electron-delta.js",
-    "publish": "github",
     "nsis": {
       "allowToChangeInstallationDirectory": true,
       "oneClick": false,
@@ -52,7 +55,7 @@
       "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "files": [
-      "./Logo.ico",
+      "./Logo.png",
       "build/**",
       "resource/**"
     ]

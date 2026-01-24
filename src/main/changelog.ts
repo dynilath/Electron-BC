@@ -1,6 +1,6 @@
 import { BrowserWindow, shell } from 'electron';
-import * as path from "path";
-import { packageFile } from "./utility";
+import * as path from 'path';
+import { packageFile } from './utility';
 
 let changelogWindow: BrowserWindow | undefined;
 
@@ -17,22 +17,22 @@ export function openChangelog() {
       nodeIntegration: true,
       contextIsolation: false,
     },
-    icon: packageFile("Logo.ico"),
+    icon: packageFile('Logo.png'),
   });
 
   changelogWindow.setMenu(null);
 
-  changelogWindow.loadFile("build/changelog.html");
-  changelogWindow.setTitle("Electron-BC Change Log");
+  changelogWindow.loadFile('build/changelog.html');
+  changelogWindow.setTitle('Electron-BC Change Log');
 
-  changelogWindow.on("closed", () => {
+  changelogWindow.on('closed', () => {
     changelogWindow = undefined;
   });
   changelogWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
-    return { action: "deny" };
+    return { action: 'deny' };
   });
-  changelogWindow.webContents.on("will-navigate", (event, url) => {
+  changelogWindow.webContents.on('will-navigate', (event, url) => {
     if (changelogWindow && url !== changelogWindow.webContents.getURL()) {
       event.preventDefault();
       shell.openExternal(url);

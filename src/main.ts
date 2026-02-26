@@ -7,9 +7,6 @@ import { createFetchBCVersionWindow } from './loading';
 import { MainWindowProvider } from './main/mainWindow';
 import settings from 'electron-settings';
 import { AssetCache } from './main/AssetCache';
-import { i18nText } from './i18n';
-
-const DeltaUpdater = require('@electron-delta/updater');
 
 let mainWindowProvider: MainWindowProvider | undefined;
 
@@ -21,15 +18,7 @@ app.whenReady().then(async () => {
     return;
   }
 
-  const deltaUpdater = new DeltaUpdater({
-    autoUpdater,
-  });
-
-  try {
-    await deltaUpdater.boot({ splashScreen: true });
-  } catch (error) {
-    console.error(error);
-  }
+  autoUpdater.checkForUpdatesAndNotify();
 
   ScriptResource.init();
   MyProtocol.init();

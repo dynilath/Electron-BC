@@ -26,8 +26,8 @@
     "conventional-changelog-cli": "^5.0.0",
     "css-loader": "^7.1.2",
     "cz-conventional-changelog": "^3.3.0",
-    "electron": "^38.1.2",
-    "electron-builder": "26.0.12",
+    "electron": "^40.6.1",
+    "electron-builder": "^26.8.1",
     "eslint": "^9.36.0",
     "github-markdown-css": "^5.8.1",
     "html-loader": "^5.1.0",
@@ -43,13 +43,11 @@
     "appId": "bondage-club.electron-app",
     "extends": null,
     "icon": "Logo.png",
-    "afterAllArtifactBuild": ".electron-delta.js",
     "publish": "github",
     "nsis": {
       "allowToChangeInstallationDirectory": true,
       "oneClick": false,
-      "allowElevation": true,
-      "artifactName": "${productName}-Setup-${version}.${ext}"
+      "allowElevation": true
     },
     "files": [
       "./Logo.png",

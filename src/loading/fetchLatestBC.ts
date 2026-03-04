@@ -24,11 +24,11 @@ export function fallback(): BCVersion[] {
     },
     {
       version,
-      url: `https://www.bondage-europe.com/${version}/`,
+      url: `https://www.bondage-europe.com/${version}/BondageClub/`,
     },
     {
       version,
-      url: `https://www.bondageprojects.elementfx.com/${version}/`,
+      url: `https://www.bondage-asia.com/club/${version}/`,
     },
   ];
 }

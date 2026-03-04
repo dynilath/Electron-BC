@@ -78,8 +78,13 @@ async function createRelease(release) {
     );
   }
 
+  // remove "untagged-1234abcde" prefix if it exists
+  const nUrl = setupAsset
+    ? setupAsset.browser_download_url.replace(/untagged-\d+[a-z]+/, '')
+    : '';
+
   const setupLine = setupAsset
-    ? `- Windows Setup: [${setupAsset.name}](${setupAsset.browser_download_url})`
+    ? `- Windows Setup: [${setupAsset.name}](${nUrl})`
     : `- Windows Setup: not included in this release`;
 
   const body = {

@@ -51,6 +51,7 @@ export async function createFetchBCVersionWindow() {
 
   const fb_results = await fallback();
   const result = BCURLPreference.choose(fb_results);
+  BCURLPreference.isFallback = true;
   webContentsSend(win, 'fetching-bc-fb', result);
   await sleep(2000);
   win.close();

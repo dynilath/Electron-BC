@@ -24,6 +24,15 @@ export function aboutMenu({
             enabled: false,
           },
           { type: 'separator' },
+          ...((BCURLPreference.isFallback
+            ? [
+                {
+                  label: i18n('MenuItem::About::FallbackBCURL'),
+                  type: 'normal',
+                  enabled: false,
+                },
+              ]
+            : []) as Electron.MenuItemConstructorOptions[]),
           ...(BCURLPreference.choices.map(v => ({
             label: v.url,
             type: 'radio',

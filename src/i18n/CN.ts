@@ -44,6 +44,7 @@ const translation: Record<TextTag, string> = {
   'MenuItem::About::GitHub': '访问GitHub源码',
   'MenuItem::About::BCVersion': 'BondageClub 版本',
   'MenuItem::About::ChooseBCURL': '选择BondageClub网址',
+  'MenuItem::About::FallbackBCURL': '无法获取版本信息，正在使用猜测的版本',
   'MenuItem::About::ChooseBCURLInfo1': '不同的网址具有不同的网页存储',
   'MenuItem::About::ChooseBCURLInfo2': '  因此可能会有不同的脚本和设置',
   'MenuItem::About::InputURL': '输入BondageClub网址',

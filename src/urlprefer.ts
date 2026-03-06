@@ -34,6 +34,7 @@ function setChoice(prefix?: string) {
 }
 
 export const BCURLPreference = {
+  isFallback: false,
   choose: (versions: BCVersion[]): BCVersion | undefined => {
     if (versions.length === 0) return;
     choices = versions;

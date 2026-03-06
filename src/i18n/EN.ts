@@ -48,6 +48,8 @@ const translation: Record<TextTag, string> = {
   'MenuItem::About::GitHub': 'Visit GitHub Repo',
   'MenuItem::About::BCVersion': 'BondageClub Version',
   'MenuItem::About::ChooseBCURL': 'Choose BondageClub URL',
+  'MenuItem::About::FallbackBCURL':
+    'Unable to fetch version info, using calculated version',
   'MenuItem::About::ChooseBCURLInfo1':
     'Different URLs have different web storage',
   'MenuItem::About::ChooseBCURLInfo2':

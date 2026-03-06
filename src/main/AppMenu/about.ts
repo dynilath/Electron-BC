@@ -1,14 +1,15 @@
-import { app, shell } from 'electron'
-import { MyAppMenuConstructorOption } from './type'
-import { openChangelog } from '../changelog'
-import { BCURLPreference } from '../../urlprefer'
-import { MyPrompt } from '../MyPrompt'
+import { app, shell } from 'electron';
+import { MyAppMenuConstructorOption } from './type';
+import { openChangelog } from '../changelog';
+import { BCURLPreference } from '../../urlprefer';
+import { MyPrompt } from '../MyPrompt';
 
-export function aboutMenu ({
+export function aboutMenu({
   BCVersion,
-  parent, refreshPage
+  parent,
+  refreshPage,
 }: MyAppMenuConstructorOption): Electron.MenuItemConstructorOptions {
-  const { i18n } = parent
+  const { i18n } = parent;
   return {
     label: i18n('MenuItem::About'),
     submenu: [
@@ -22,15 +23,15 @@ export function aboutMenu ({
             type: 'normal',
             enabled: false,
           },
-          {type: 'separator'},
+          { type: 'separator' },
           ...(BCURLPreference.choices.map(v => ({
             label: v.url,
             type: 'radio',
             checked: v.url === BCVersion.url,
             click: async () => {
-              console.log(`Setting preferred prefix to ${v.url}`)
-              BCURLPreference.setPreferredPrefix(v)
-              await refreshPage()
+              console.log(`Setting preferred prefix to ${v.url}`);
+              BCURLPreference.setPreferredPrefix(v);
+              await refreshPage();
             },
           })) as Electron.MenuItemConstructorOptions[]),
           { type: 'separator' },
@@ -50,7 +51,7 @@ export function aboutMenu ({
                 await refreshPage();
               }
             },
-          }
+          },
         ],
       },
       {
@@ -75,23 +76,23 @@ export function aboutMenu ({
         label: i18n('MenuItem::About::ChangeLog'),
         type: 'normal',
         click: () => {
-          openChangelog()
+          openChangelog();
         },
       },
       {
         label: i18n('MenuItem::About::Suggestions'),
         type: 'normal',
         click: () => {
-          shell.openExternal('https://github.com/dynilath/Electron-BC/issues')
+          shell.openExternal('https://github.com/dynilath/Electron-BC/issues');
         },
       },
       {
         label: i18n('MenuItem::About::GitHub'),
         type: 'normal',
         click: () => {
-          shell.openExternal('https://github.com/dynilath/Electron-BC')
+          shell.openExternal('https://github.com/dynilath/Electron-BC');
         },
       },
     ],
-  }
+  };
 }

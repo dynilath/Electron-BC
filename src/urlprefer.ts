@@ -1,4 +1,4 @@
-import settings, { set } from 'electron-settings';
+import settings from 'electron-settings';
 
 const SettingTag = 'bcVersion';
 
@@ -53,7 +53,7 @@ export const BCURLPreference = {
     setChoice(prefix);
   },
   setCustomURL: (url: string) => {
-    const version = `${url.match(/R\d+/)?.[0] || 'Custom'}-${-Math.random().toString(36).substring(2)}`;
+    const version = `${url.match(/R\d+/)?.[0] || 'Custom'}-${Math.random().toString(36).substring(2)}`;
     choice = {
       url,
       version,

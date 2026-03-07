@@ -32,7 +32,14 @@ export function showPrompt(
     const cb_result: Parameters<typeof ipcMain.on>[1] = (_e, result) => {
       if (_e.sender.id !== win.webContents.id) return;
       resolve(result);
-      win.close();
+
+      // NOTE: on windows, frameless window can not `close()` when focused.
+      win.hide();
+      setImmediate(() => {
+        if (!win.isDestroyed()) {
+          win.close();
+        }
+      });
     };
     ipcMain.on('prompt-result', cb_result);
 

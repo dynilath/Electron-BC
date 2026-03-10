@@ -33,16 +33,16 @@ function checkTagExists(tag) {
   );
 }
 
-function normalizeAssetUrl(asset) {
-  return asset.browser_download_url.replace(/untagged-[0-9a-z]+/, '');
+function normalizeAssetUrl(asset, tag_name) {
+  return asset.browser_download_url.replace(/untagged-[0-9a-z]+/, tag_name);
 }
 
-function getAssetLine(assets, label, matcher) {
+function getAssetLine(assets, label, tag_name, matcher) {
   const asset = Array.isArray(assets) ? assets.find(matcher) : undefined;
 
   if (!asset) return `- ${label}: not included in this release`;
 
-  const normalizedUrl = normalizeAssetUrl(asset);
+  const normalizedUrl = normalizeAssetUrl(asset, tag_name);
   return `- ${label}: [${asset.name}](${normalizedUrl})`;
 }
 
@@ -52,13 +52,14 @@ async function createRelease(release) {
   const setupLine = getAssetLine(
     assets,
     'Windows Setup',
+    tag_name,
     asset =>
       asset.name.endsWith('.exe') &&
       asset.name.includes('Setup') &&
       !asset.name.toLowerCase().includes('delta')
   );
 
-  const appImageLine = getAssetLine(assets, 'Linux AppImage', asset =>
+  const appImageLine = getAssetLine(assets, 'Linux AppImage', tag_name, asset =>
     asset.name.endsWith('.AppImage')
   );
 

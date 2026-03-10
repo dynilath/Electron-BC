@@ -12,12 +12,8 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  release:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [windows-latest]
+  release-windows:
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
@@ -34,11 +30,8 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24
           cache: pnpm
-
-      - name: Install pnpm
-        run: npm install -g pnpm
 
       - name: Run install
         run: pnpm install --frozen-lockfile
@@ -50,7 +43,62 @@ jobs:
         run: pnpm run changelog
 
       - name: Build/release Electron app
-        run: pnpm run dist
+        run: pnpm run dist:windows
+
+  release-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: "true"
+
+      - name: Fetch full history
+        run: git fetch --unshallow --recurse-submodules=no
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Run install
+        run: pnpm install --frozen-lockfile
+
+      - name: Run compile
+        run: pnpm run compile:prod
+
+      - name: Run changelog
+        run: pnpm run changelog
+
+      - name: Build/release Electron app (Linux)
+        run: pnpm run dist:linux
+
+  finalize-release:
+    runs-on: ubuntu-latest
+
+    needs: [release-windows, release-linux]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: "true"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Run install
+        run: pnpm install --frozen-lockfile
 
       - name: Publish release
-        run: pnpm run gh-release
+        run: pnpm run gh-release -- --keep-draft

@@ -1,6 +1,7 @@
 const axios = require('axios').default;
 const { setEnv } = require('./.set-env.js');
 const TAG_NAME = `v${require('../package.json').version}`;
+const SHOULD_UNDRAFT = !process.argv.includes('--keep-draft');
 
 setEnv();
 
@@ -32,66 +33,40 @@ function checkTagExists(tag) {
   );
 }
 
-async function cleanReleases() {
-  const url = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/releases`;
-  const config = {
-    headers: {
-      Authorization: `token ${process.env.GH_TOKEN}`,
-      Accept: 'application/vnd.github+json',
-    },
-  };
+function normalizeAssetUrl(asset) {
+  return asset.browser_download_url.replace(/untagged-\d+[a-z]+/, '');
+}
 
-  const monthsAgo = new Date();
-  monthsAgo.setMonth(monthsAgo.getMonth() - 3);
+function getAssetLine(assets, label, matcher) {
+  const asset = Array.isArray(assets) ? assets.find(matcher) : undefined;
 
-  return axios.get(url, config).then(response => {
-    const oldReleases = response.data.filter(release => {
-      const releaseDate = new Date(release.published_at);
-      return releaseDate < monthsAgo;
-    });
+  if (!asset) return `- ${label}: not included in this release`;
 
-    return Promise.all(
-      oldReleases.forEach(release => axios.delete(release.url, config))
-    );
-  });
+  const normalizedUrl = normalizeAssetUrl(asset);
+  return `- ${label}: [${asset.name}](${normalizedUrl})`;
 }
 
 async function createRelease(release) {
   const { tag_name, name, url, html_url, assets } = release;
 
-  // Try to find the Windows Setup executable from assets
-  let setupAsset = Array.isArray(assets)
-    ? assets.find(
-        asset =>
-          asset.name.endsWith('.exe') &&
-          asset.name.includes('Setup') &&
-          !asset.name.toLowerCase().includes('delta')
-      )
-    : undefined;
+  const setupLine = getAssetLine(
+    assets,
+    'Windows Setup',
+    asset =>
+      asset.name.endsWith('.exe') &&
+      asset.name.includes('Setup') &&
+      !asset.name.toLowerCase().includes('delta')
+  );
 
-  // Fallback: any .exe that is not a delta package
-  if (!setupAsset && Array.isArray(assets)) {
-    setupAsset = assets.find(
-      asset =>
-        asset.name.endsWith('.exe') &&
-        !asset.name.toLowerCase().includes('delta')
-    );
-  }
-
-  // remove "untagged-1234abcde" prefix if it exists
-  const nUrl = setupAsset
-    ? setupAsset.browser_download_url.replace(/untagged-\d+[a-z]+/, '')
-    : '';
-
-  const setupLine = setupAsset
-    ? `- Windows Setup: [${setupAsset.name}](${nUrl})`
-    : `- Windows Setup: not included in this release`;
+  const appImageLine = getAssetLine(assets, 'Linux AppImage', asset =>
+    asset.name.endsWith('.AppImage')
+  );
 
   const body = {
     tag_name,
     name,
-    body: `Release ${name}\n\n${setupLine}`,
-    draft: false,
+    body: `Release ${name}\n\n${setupLine}\n${appImageLine}`,
+    draft: !SHOULD_UNDRAFT,
     prerelease: false,
     make_newest: 'legacy',
   };

@@ -47,7 +47,7 @@ function getAssetLine(assets, label, matcher) {
 }
 
 async function createRelease(release) {
-  const { tag_name, name, url, html_url, assets } = release;
+  const { tag_name, name, url, assets } = release;
 
   const setupLine = getAssetLine(
     assets,
@@ -80,11 +80,15 @@ async function createRelease(release) {
 
   const response = await axios.patch(url, body, config);
 
-  return response.data.html_url;
+  return { html_url: response.data.html_url, body: response.data.body };
 }
 
 (async () => {
   await checkTagExists(TAG_NAME)
     .then(data => createRelease(data))
-    .then(console.log, console.error);
+    .then(result => {
+      console.log(`Release created: ${result.html_url}`);
+      console.log(`Release body:\n${result.body}`);
+    })
+    .catch(console.error);
 })();

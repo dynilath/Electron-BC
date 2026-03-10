@@ -6,6 +6,7 @@ import { PendingAccess } from '../utility';
 interface CachedResponse {
   content: Blob;
   type: string | null;
+  version?: string;
 }
 
 interface CacheItem {
@@ -68,6 +69,7 @@ export async function requestAsset(
     return {
       content: new Blob([Buffer.from(data.base64Data, 'base64')]),
       type: data.type,
+      version: data.version,
     };
   } else {
     const { content, type } = await fetchAsset(url);

@@ -1,4 +1,4 @@
-import { requestAssetResponse } from './utils';
+import { requestAssetResponse, requestAssetResponsePermanent } from './utils';
 
 export interface ResourceHandler<T extends object = object> {
   willHandle(request: Request): false | T;
@@ -40,7 +40,7 @@ export class BCResourceHandler implements ResourceHandler<{
     return false;
   }
 
-  async handle(
+  handle(
     request: Request,
     { assetKey }: { assetKey: string }
   ): Promise<Response> {
@@ -102,7 +102,11 @@ export class EchoResourceHandler implements ResourceHandler<{
     request: Request,
     { resource, version }: { resource: string; version: string }
   ): Promise<Response> {
-    return requestAssetResponse(request.url, `EchoMod://${resource}`, version);
+    return requestAssetResponsePermanent(
+      request.url,
+      `EchoMod://${resource}`,
+      version
+    );
   }
 }
 
@@ -125,6 +129,10 @@ export class MPAResourceHandler implements ResourceHandler<{
     request: Request,
     { version }: { version: string }
   ): Promise<Response> {
-    return requestAssetResponse(request.url, `MPA://${request.url}`, version);
+    return requestAssetResponsePermanent(
+      request.url,
+      `MPA://${request.url}`,
+      version
+    );
   }
 }

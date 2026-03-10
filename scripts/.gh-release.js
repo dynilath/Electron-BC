@@ -34,7 +34,7 @@ function checkTagExists(tag) {
 }
 
 function normalizeAssetUrl(asset) {
-  return asset.browser_download_url.replace(/untagged-\d+[a-z]+/, '');
+  return asset.browser_download_url.replace(/untagged-[0-9a-z]+/, '');
 }
 
 function getAssetLine(assets, label, matcher) {

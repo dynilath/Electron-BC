@@ -13,7 +13,7 @@
     "dev": "pnpm run compile:dev && electron --trace-warnings .",
     "build": "pnpm run compile:prod && electron-builder",
     "dist:windows": "electron-builder --windows nsis:x64 --publish always",
-    "dist:linux": "electron-builder --linux --publish always",
+    "dist:linux": "electron-builder --linux AppImage --publish always",
     "changelog-md": "conventional-changelog -p angular -r 5 -o CHANGELOG.md",
     "changelog-html": "node ./scripts/.changelog.js CHANGELOG.md build/changelog.html",
     "push-release": "git checkout -q release && git merge -q --ff-only master && git push && git checkout -q master"

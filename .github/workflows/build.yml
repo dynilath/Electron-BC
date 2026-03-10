@@ -75,9 +75,6 @@ jobs:
       - name: Run changelog
         run: pnpm run changelog
 
-      - name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v3
-
       - name: Build/release Electron app (Linux)
         run: pnpm run dist:linux
 

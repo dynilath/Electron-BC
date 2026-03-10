@@ -98,6 +98,19 @@ function mainWindowAfterLoad(
       },
     ]);
 
+  const onPrompt = (
+    event: Electron.IpcMainEvent,
+    { text, defaultText }: { text?: string; defaultText?: string }
+  ) => {
+    if (event.sender.id !== webContents.id) return;
+    MyPrompt.input(
+      { window: mainWindow, i18n },
+      { title: text, inputPlaceholder: defaultText }
+    )
+      .then(result => (event.returnValue = result))
+      .catch(() => (event.returnValue = null));
+  };
+
   webContents.session.webRequest.onBeforeSendHeaders(
     { urls: ['*://*.herokuapp.com/*', 'wss://*.herokuapp.com/*'] },
     (details, callback) => {
@@ -118,12 +131,14 @@ function mainWindowAfterLoad(
   ipcMain.on('load-script-url', mLoadScriptURL);
   ipcMain.on('language-change', mLanguageChange);
   ipcMain.on('credential-client-logined', onLogined);
+  ipcMain.on('web-prompt', onPrompt);
 
   mainWindow.on('close', () => {
     ipcMain.off('reload-menu', mReloadMenu);
     ipcMain.off('load-script-url', mLoadScriptURL);
     ipcMain.off('language-change', mLanguageChange);
     ipcMain.off('credential-client-logined', onLogined);
+    ipcMain.off('web-prompt', onPrompt);
     scriptState.dispose();
   });
 

@@ -41,8 +41,8 @@ export interface EBCContext {
   ) => number;
   unregisterMenuCommand: (id: number) => void;
   onGetServer: (callback: () => string) => void;
-
   alert: (language: string, message?: string) => void;
+  prompt: (text?: string, defaultText?: string) => string;
 }
 
 function testSetting(key: SettingsKey): Promise<void> {
@@ -170,5 +170,7 @@ export function createCtxBridge(): EBCContext {
     alert: (language: string, message?: string) => {
       ipcRenderer.send('web-alert', { language, message });
     },
+    prompt: (text?: string, defaultText?: string) =>
+      ipcRenderer.sendSync('web-prompt', { text, defaultText }) as string,
   };
 }

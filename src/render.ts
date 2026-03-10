@@ -43,4 +43,8 @@ Bridge.instance.onGetServer(() => {
   window.alert = (message?: string) => {
     Bridge.instance.alert(BCInterface.TranslationLanguage, message);
   };
+
+  window.prompt = (text?: string, defaultText?: string) => {
+    return Bridge.instance.prompt(text, defaultText);
+  };
 })();

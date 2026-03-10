@@ -6,6 +6,7 @@ import { PendingAccess } from '../utility';
 interface CachedResponse {
   content: Blob;
   type: string | null;
+  response: Response;
   version?: string;
 }
 
@@ -52,29 +53,56 @@ export async function storeAsset(
 
 export async function fetchAsset(url: string): Promise<CachedResponse> {
   const response = await net.fetch(url, { bypassCustomProtocolHandlers: true });
+  const clonedResponse = response.clone();
   return {
     content: await response.blob(),
     type: response.headers.get('Content-Type'),
+    response: clonedResponse,
   };
+}
+
+function createResponse(
+  content: Blob,
+  type: string | null,
+  version?: string,
+  permanent = false
+) {
+  const headers: HeadersInit = {
+    'Content-Length': content.size.toString(),
+  };
+  if (type) headers['Content-Type'] = type;
+  if (version) {
+    headers['X-Ebc-Cache'] = 'HIT';
+    headers['X-Ebc-Cache-Version'] = version;
+    if (permanent) {
+      headers['Cache-Control'] = 'public, max-age=31536000, immutable';
+    }
+  }
+  return new Response(content, { status: 200, statusText: 'OK', headers });
 }
 
 export async function requestAsset(
   url: string,
   key: string,
-  version: string
+  version: string,
+  permanent = false
 ): Promise<CachedResponse> {
   const db = await access!.aquire();
   const data = await db.get(key);
   if (data && data.version === version) {
+    const content = new Blob([Buffer.from(data.base64Data, 'base64')]);
     return {
-      content: new Blob([Buffer.from(data.base64Data, 'base64')]),
+      content,
       type: data.type,
       version: data.version,
+      response: createResponse(content, data.type, data.version, permanent),
     };
   } else {
-    const { content, type } = await fetchAsset(url);
-    storeAsset(key, version, Buffer.from(await content.arrayBuffer()), type);
-    return { content, type };
+    const { content, type, response } = await fetchAsset(url);
+    if (response.status === 200) {
+      storeAsset(key, version, Buffer.from(await content.arrayBuffer()), type);
+    }
+    return { content, type, response };
   }
 }
 

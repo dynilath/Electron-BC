@@ -103,7 +103,8 @@ export class EchoResourceHandler implements ResourceHandler<{
     const { response } = await AssetCache.requestAsset(
       request.url,
       `EchoMod://${resource}`,
-      version
+      version,
+      true
     );
     return response;
   }
@@ -128,7 +129,8 @@ export class MPAResourceHandler implements ResourceHandler<{
     const { response } = await AssetCache.requestAsset(
       request.url,
       `MPA://${request.url}`,
-      version
+      version,
+      true
     );
     return response;
   }

@@ -44,6 +44,10 @@ Bridge.instance.onGetServer(() => {
     Bridge.instance.alert(BCInterface.TranslationLanguage, message);
   };
 
+  window.confirm = (message?: string) => {
+    return Bridge.instance.confirm(message);
+  };
+
   window.prompt = (text?: string, defaultText?: string) => {
     return Bridge.instance.prompt(text, defaultText);
   };

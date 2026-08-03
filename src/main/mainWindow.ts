@@ -111,6 +111,24 @@ function mainWindowAfterLoad(
       .catch(() => (event.returnValue = null));
   };
 
+  const onConfirm = (
+    event: Electron.IpcMainEvent,
+    { message }: { message?: string }
+  ) => {
+    if (event.sender.id !== webContents.id) return;
+    MyPrompt.confirm({ window: mainWindow, i18n }, { content: message ?? '' })
+      .then(result => (event.returnValue = result))
+      .catch(() => (event.returnValue = false));
+  };
+
+  const onAlert = (
+    event: Electron.IpcMainEvent,
+    { message }: { message?: string }
+  ) => {
+    if (event.sender.id !== webContents.id) return;
+    MyPrompt.info({ window: mainWindow, i18n }, { content: message ?? '' });
+  };
+
   webContents.session.webRequest.onBeforeSendHeaders(
     { urls: ['*://*.herokuapp.com/*', 'wss://*.herokuapp.com/*'] },
     (details, callback) => {
@@ -132,6 +150,8 @@ function mainWindowAfterLoad(
   ipcMain.on('language-change', mLanguageChange);
   ipcMain.on('credential-client-logined', onLogined);
   ipcMain.on('web-prompt', onPrompt);
+  ipcMain.on('web-confirm', onConfirm);
+  ipcMain.on('web-alert', onAlert);
 
   mainWindow.on('close', () => {
     ipcMain.off('reload-menu', mReloadMenu);
@@ -139,6 +159,8 @@ function mainWindowAfterLoad(
     ipcMain.off('language-change', mLanguageChange);
     ipcMain.off('credential-client-logined', onLogined);
     ipcMain.off('web-prompt', onPrompt);
+    ipcMain.off('web-confirm', onConfirm);
+    ipcMain.off('web-alert', onAlert);
     scriptState.dispose();
   });
 

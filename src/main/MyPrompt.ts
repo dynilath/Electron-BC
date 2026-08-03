@@ -47,6 +47,20 @@ async function infoPrompt(parent: PromptParent, text: TextContent) {
   });
 }
 
+async function confirmPrompt(
+  parent: PromptParent,
+  text: TextContent
+): Promise<boolean> {
+  const { window, i18n } = parent;
+  const result = await showPrompt(window, {
+    type: 'confirmCancel',
+    ...resolveTextContent(text),
+    confirmText: i18n('Alert::Confirm'),
+    cancelText: i18n('Alert::Cancel'),
+  });
+  return !!(result && result.ok);
+}
+
 async function showPromptInput(
   parent: PromptParent,
   options: Omit<PromptOptions, 'type'> & { inputType?: string }
@@ -110,6 +124,7 @@ async function showPromptLoadPackage(parent: PromptParent) {
 
 export const MyPrompt = {
   confirmCancel: sendConfirmCancelPrompt,
+  confirm: confirmPrompt,
   info: infoPrompt,
   loadUrl: showPromptLoadurl,
   loadPackage: showPromptLoadPackage,

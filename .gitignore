@@ -5,3 +5,5 @@ build
 CHANGELOG.md
 /.vscode
 /.idea
+/.claude
+/.workbuddy

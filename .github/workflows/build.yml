@@ -13,7 +13,11 @@ env:
 
 jobs:
   release-windows:
-    runs-on: windows-latest
+    # Pin to VS 2022: since Jun 2026 the windows-latest/windows-2025 images
+    # ship Visual Studio 2026 (18.x), which node-gyp 11.5 (used by
+    # @electron/rebuild) does not recognize and filters out as "unsupported
+    # version", causing "Could not find any Visual Studio installation".
+    runs-on: windows-2022
 
     steps:
       - name: Checkout repository
@@ -43,11 +47,12 @@ jobs:
         run: pnpm run changelog
 
       - name: Setup MSVC dev environment
-        # node-gyp (used by @electron/rebuild to compile native deps like
-        # classic-level) cannot auto-detect Visual Studio on the windows-2025
-        # runner image. This action runs vcvars64.bat and exports VCINSTALLDIR
-        # etc., so node-gyp picks the pre-installed VS 2022 without probing.
+        # Runs vcvars64.bat and exports VCINSTALLDIR/INCLUDE/LIB so node-gyp
+        # picks the pre-installed VS 2022 directly instead of probing.
         uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+          toolset: 14.3x
 
       - name: Build/release Electron app
         run: pnpm run dist:windows

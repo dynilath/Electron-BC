@@ -42,6 +42,13 @@ jobs:
       - name: Run changelog
         run: pnpm run changelog
 
+      - name: Setup MSVC dev environment
+        # node-gyp (used by @electron/rebuild to compile native deps like
+        # classic-level) cannot auto-detect Visual Studio on the windows-2025
+        # runner image. This action runs vcvars64.bat and exports VCINSTALLDIR
+        # etc., so node-gyp picks the pre-installed VS 2022 without probing.
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Build/release Electron app
         run: pnpm run dist:windows
 

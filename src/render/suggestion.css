@@ -13,7 +13,8 @@
 }
 .ebc-suggestion-list {
     border:none;
-    max-height: 200px;
+    max-height: min(320px, 50vh);
+    overflow-y: auto;
 }
 .ebc-suggestion-item {
     padding: 8px;

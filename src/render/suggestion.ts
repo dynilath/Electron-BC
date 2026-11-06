@@ -20,7 +20,7 @@ class HTMLSuggestion {
       this._main.appendChild(this._list);
 
       const hr = document.createElement("hr");
-      hr.style.margin = "5px 0;";
+      hr.style.margin = "5px 0";
       this._main.appendChild(hr);
 
       this._text = document.createElement("div");
